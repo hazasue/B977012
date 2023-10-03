@@ -10,7 +10,7 @@ public class Player : Character
 
     // associations
     private Inventory inventory;
-    private PlayerLevel level;
+    private PlayerLevel playerLevel;
     private Skill skill;
     
     // Start is called before the first frame update
@@ -36,10 +36,7 @@ public class Player : Character
 
     public void GainCoins(int value) {}
 
-    public Inventory GetInventory() { return Inventory; }
+    public Inventory GetInventory() { return inventory; }
 
     public PlayerLevel GetLevelInfo() { return playerLevel; }
-
-
-
 }
