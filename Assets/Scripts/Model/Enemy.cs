@@ -25,7 +25,13 @@ public class Enemy : Character
     
     public override void Init() {}
     
+    protected override void Move() {}
+    
     protected override void Attack() {}
+    
+    protected override void UpdateStatus() {}
+    
+    public override void TakeDamage(int damage) {}
     
     private void DropItems() {}
 }

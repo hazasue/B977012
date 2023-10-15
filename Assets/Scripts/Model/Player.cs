@@ -86,6 +86,13 @@ public class Player : Character
     
     protected override void Attack() {}
     
+    protected override void UpdateStatus() {}
+
+    public override void TakeDamage(int damage)
+    {
+        this.hp -= damage;
+    }
+    
     private void PickUpItems() {}
 
     public void GainExp(int value) {}
