@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Character : MonoBehaviour
+public abstract class Character : MonoBehaviour
 {
     public enum CharacterState
     {
@@ -25,13 +25,15 @@ public class Character : MonoBehaviour
     protected Animator animator;
     
     // methods
-    public virtual void Init() {}
+    public abstract void Init();
     
-    protected virtual void Move() {}
+    protected abstract void Move();
     
-    protected virtual void Attack() {}
+    protected abstract void Attack();
     
-    protected void UpdateStatus() {}
+    protected abstract void UpdateStatus();
+   
+    public abstract void TakeDamage(int damage);
 
     public void SetDirections(Vector3 direction)
     {
@@ -43,7 +45,4 @@ public class Character : MonoBehaviour
     {
         return characterState;
     }
-    
-    public void TakeDamage() {}
-
 }
