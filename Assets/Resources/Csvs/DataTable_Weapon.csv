@@ -1,2 +1,3 @@
-WeaponCode,WeaponName,WeaponType,Damage,Duration,Delay,Projectile,Range
-tempMelee,tempMelee,MELEE,10,0.2,1,1,2
+WeaponCode,WeaponName,WeaponType,Damage,Duration,Delay,Projectile,Range,Speed
+tempMelee,tempMelee,MELEE,10,0.5,1,1,2,0
+tempTracking,tempTracking,TRACKING,10,5,1,1,0,10
