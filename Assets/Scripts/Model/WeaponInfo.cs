@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WeaponInfo : MonoBehaviour
+public class WeaponInfo
 {
     private string code;
     private string name;
@@ -12,8 +12,9 @@ public class WeaponInfo : MonoBehaviour
     private float delay;
     private int projectile;
     private float range;
+    private float speed;
 
-    public WeaponInfo(string code, string name, string type, int damage, float duration, float delay, int projectile, float range)
+    public WeaponInfo(string code, string name, string type, int damage, float duration, float delay, int projectile, float range, float speed)
     {
         this.code = code;
         this.name = name;
@@ -22,6 +23,7 @@ public class WeaponInfo : MonoBehaviour
         this.delay = delay;
         this.projectile = projectile;
         this.range = range;
+        this.speed = speed;
 
         switch (type)
         {
@@ -60,7 +62,7 @@ public class WeaponInfo : MonoBehaviour
 
     public string GetName() { return name; }
 
-    public Weapon.WeaponType GetType() { return new WeaponType(); }
+    public Weapon.WeaponType GetType() { return weaponType; }
 
     public int GetDamage() { return damage; }
     
@@ -71,4 +73,6 @@ public class WeaponInfo : MonoBehaviour
     public int GetProjectile() { return projectile; }
     
     public float GetRange() { return range; }
+
+    public float GetSpeed() { return speed; }
 }
