@@ -6,8 +6,8 @@ public abstract class Character : MonoBehaviour
 {
     public enum CharacterState
     {
-        alive,
-        dead,
+        ALIVE,
+        DEAD,
     }
 
     protected static float DEFAULT_ROTATE_SPEED = 10f;
@@ -25,7 +25,7 @@ public abstract class Character : MonoBehaviour
     protected Animator animator;
     
     // methods
-    public abstract void Init();
+    public abstract void Init(int maxHp, int damage, float speed, int armor);
     
     protected abstract void Move();
     
