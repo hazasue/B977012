@@ -23,7 +23,7 @@ public class Enemy : Character
         
     }
     
-    public override void Init() {}
+    public override void Init(int maxHp, int damage, float speed, int armor) {}
     
     protected override void Move() {}
     
