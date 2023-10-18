@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Inventory : MonoBehaviour
 {
+    private static string DEFAULT_WEAPON_OBJECT = "Basic Weapon";
+    
     // attributes
     private int coin;
     
@@ -17,14 +19,25 @@ public class Inventory : MonoBehaviour
     }
 
     // methods
-    private void Init() {}
+    private void Init()
+    {
+        weapons = new List<Weapon>();
+        accessories = new List<Accessory>();
+    }
 
     public List<Weapon> GetWeapons()
     {
         return weapons;
     }
-    
-    public void AddWeapon(Weapon weapon) {}
+
+    public void AddWeapon(WeaponInfo weaponInfo)
+    {
+        if (weaponInfo == null) return;
+
+        Weapon tempWeapon = Instantiate(Resources.Load<Weapon>("Prefabs/weapons/" + DEFAULT_WEAPON_OBJECT), this.transform, true);
+        tempWeapon.Init(weaponInfo);
+        weapons.Add(tempWeapon);
+    }
 
     public List<Accessory> GetAccessories()
     {
