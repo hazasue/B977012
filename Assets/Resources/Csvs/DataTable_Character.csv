@@ -1,0 +1,3 @@
+CharacterCode,BasicWeapon,CharacterType,MaxHp,Damage,Speed,Armor
+warrior,tempMelee,WARRIOR,200,10,10,2
+wizard,tempTracking,WIZARD,100,20,5,0
