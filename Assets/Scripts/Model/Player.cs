@@ -4,12 +4,18 @@ using UnityEngine;
 
 public class Player : Character
 {
+	public enum PlayerType
+	{
+		WARRIOR,
+		WIZARD,
+		HUNTER,
+	}
+
     private enum PlayerState
     {
-        idle,
-        move,
-        attack,
-        die,
+        IDLE,
+        MOVE,
+        ATTACK,
     }
     
     // attributes
@@ -18,14 +24,16 @@ public class Player : Character
     private PlayerState playerState;
 
     // associations
+    [SerializeField]
     private Inventory inventory;
+    [SerializeField]
     private PlayerLevel playerLevel;
     private Skill skill;
-    
-    // Start is called before the first frame update
-    void Awake()
+
+    void Start()
     {
-        Init();
+        inventory.AddWeapon(WeaponManager.GetInstance().GetWeaponInfo(JsonManager.GetInstance()
+            .LoadJsonFile<CharacterData>(JsonManager.DEFAULT_CHARACTER_DATA_NAME).basicWeapon));
     }
 
     // Update is called once per frame
@@ -35,30 +43,27 @@ public class Player : Character
 
         switch (characterState)
         {
-            case CharacterState.alive:
+            case CharacterState.ALIVE:
                 switch (playerState)
                 {
-                    case PlayerState.idle:
+                    case PlayerState.IDLE:
                         break;
                     
-                    case PlayerState.move:
+                    case PlayerState.MOVE:
                         Move();
                         break;
                     
-                    case PlayerState.attack:
+                    case PlayerState.ATTACK:
                         Move();
                         Attack();
                         break;
-                    
-                    case PlayerState.die:
-                        break;
-                    
+
                     default:
                         break;
                 }
                 break;
             
-            case CharacterState.dead:
+            case CharacterState.DEAD:
                 break;
             
             default:
@@ -67,15 +72,17 @@ public class Player : Character
     }
     
     // methods
-    public override void Init()
+    public override void Init(int maxHp, int damage, float moveSpeed, int armor)
     {
-        characterState = Character.CharacterState.alive;
-        playerState = PlayerState.idle;
+        characterState = Character.CharacterState.ALIVE;
+        playerState = PlayerState.IDLE;
         animator = this.GetComponent<Animator>();
 
-        this.maxHp = 1;
+        this.maxHp = maxHp;
         this.hp = this.maxHp;
-        moveSpeed = 10f;
+        this.damage = damage;
+        this.moveSpeed = moveSpeed;
+        this.armor = armor;
     }
 
     protected override void Move()
@@ -83,8 +90,14 @@ public class Player : Character
         this.transform.position += moveDirection * (moveSpeed * Time.deltaTime);
         this.transform.rotation = Quaternion.Lerp(this.transform.rotation, Quaternion.LookRotation(attackDirection), DEFAULT_ROTATE_SPEED * Time.deltaTime);
     }
-    
-    protected override void Attack() {}
+
+    protected override void Attack()
+    {
+        foreach (Weapon weapon in inventory.GetWeapons())
+        {
+            weapon.ActiveWeaponObject(attackDirection);
+        }
+    }
     
     protected override void UpdateStatus() {}
 
@@ -107,74 +120,68 @@ public class Player : Character
     {
         switch (playerState)
         {
-            case PlayerState.idle:
-                // check  'is player dead' -> 'is player time to attack' -> 'is player moving'
-                if (hp <= 0)
-                {
-                    playerState = PlayerState.die;
-                    animator.SetBool("dead", true);
-                    characterState = Character.CharacterState.dead;
-                }
-                // else if (is time to attack)
+            case PlayerState.IDLE:
+                // check  'is player time to ATTACK' -> 'is player moving'
+                // else if (is time to ATTACK)
                 // {
-                //      playerState = PlayerState.attack;
+                //      playerState = PlayerState.ATTACK;
                 //      animator.SetBool("isAttacking", true);
                 // }
-                else if (moveDirection != Vector3.zero)
+                if (moveDirection != Vector3.zero)
                 {
-                    playerState = PlayerState.move;
+                    playerState = PlayerState.MOVE;
                     animator.SetBool("isMoving", true);
                 }
 
                 break;
             
-            case PlayerState.move:
-                // check 'is player dead' -> 'is player time to attack' -> 'is player does nothing'
-                if (hp <= 0)
-                {
-                    playerState = PlayerState.die;
-                    animator.SetBool("dead", true);
-                    characterState = Character.CharacterState.dead;
-                }
-                // else if (is time to attack)
+            case PlayerState.MOVE:
+                // check 'is player time to ATTACK' -> 'is player does nothing'
+                // else if (is time to ATTACK)
                 // {
-                //      playerState = PlayerState.attack;
+                //      playerState = PlayerState.ATTACK;
                 //      animator.SetBool("isAttacking", true);
                 // }
-                else if (moveDirection == Vector3.zero)
+                if (moveDirection == Vector3.zero)
                 {
-                    playerState = PlayerState.idle;
+                    playerState = PlayerState.IDLE;
                     animator.SetBool("isMoving", false);
                 }
                 break;
             
-            case PlayerState.attack:
-                // check 'is player dead' -> 'does attack ended { moving now' -> is player does nothing}'
-                if (hp <= 0)
-                {
-                    playerState = PlayerState.die;
-                    animator.SetBool("dead", true);
-                    characterState = Character.CharacterState.dead;
-                }
-                //else if (attack ended)
+            case PlayerState.ATTACK:
+                // check 'does ATTACK ended { moving now' -> is player does nothing}'
+                //else if (ATTACK ended)
                 //{
                 if (moveDirection != Vector3.zero)
                 {
-                    playerState = PlayerState.move;
+                    playerState = PlayerState.MOVE;
                     animator.SetBool("isMoving", true);
                 }
                 else
                 {
-                    playerState = PlayerState.idle;
+                    playerState = PlayerState.IDLE;
                     animator.SetBool("isMoving", false);
                 }
                 //}
                 
                 break;
-            
-            case PlayerState.die:
-                // change Character State to be 'dead'
 
+            default:
+                break;
+        }
+
+        switch (characterState)
+        {
+            case Character.CharacterState.ALIVE:
+                if (hp <= 0)
+                {
+                    characterState = Character.CharacterState.DEAD;
+                    animator.SetBool("dead", true);
+                }
+                break;
+            
+            case Character.CharacterState.DEAD:
                 break;
             
             default:
