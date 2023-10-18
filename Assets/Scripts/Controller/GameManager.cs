@@ -39,8 +39,11 @@ public class GameManager : MonoBehaviour
     {
         mUIManager = GameObject.Find("UIManager").GetComponent<UIManager>();
         mEnemyManager = GameObject.Find("EnemyManager").GetComponent<EnemyManager>();
-        
-        player = Instantiate(Resources.Load<Player>("prefabs/characters/" + DEFAULT_CHARACTER_NAME));
+
+        CharacterData tempData = JsonManager.GetInstance()
+            .LoadJsonFile<CharacterData>(JsonManager.DEFAULT_CHARACTER_DATA_NAME);
+        player = Instantiate(Resources.Load<Player>("prefabs/characters/" + tempData.playerType));
+        player.Init(tempData.maxHp, tempData.damage, tempData.speed, tempData.armor);
     }
 
     public static GameManager GetInstance()
