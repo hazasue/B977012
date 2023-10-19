@@ -17,10 +17,13 @@ public class Player : Character
         MOVE,
         ATTACK,
     }
+
+    private static float DEFAULT_ATTACK_ANIM_DURATION = 0.5f;
     
     // attributes
     private float pickupRange;
     private int critical;
+    private bool timeToAttack;
     private PlayerState playerState;
 
     // associations
@@ -30,12 +33,6 @@ public class Player : Character
     private PlayerLevel playerLevel;
     private Skill skill;
 
-    void Start()
-    {
-        inventory.AddWeapon(WeaponManager.GetInstance().GetWeaponInfo(JsonManager.GetInstance()
-            .LoadJsonFile<CharacterData>(JsonManager.DEFAULT_CHARACTER_DATA_NAME).basicWeapon));
-    }
-
     // Update is called once per frame
     void Update()
     {
@@ -44,6 +41,7 @@ public class Player : Character
         switch (characterState)
         {
             case CharacterState.ALIVE:
+                ApplyKeyInput();
                 switch (playerState)
                 {
                     case PlayerState.IDLE:
@@ -83,6 +81,10 @@ public class Player : Character
         this.damage = damage;
         this.moveSpeed = moveSpeed;
         this.armor = armor;
+
+        this.attackDirection = new Vector3(1f, 0f, 0f);
+
+        timeToAttack = false;
     }
 
     protected override void Move()
@@ -99,8 +101,43 @@ public class Player : Character
         }
     }
     
+    
+    
     protected override void UpdateStatus() {}
 
+    private void ApplyKeyInput()
+    {
+        Vector3 direction = Vector3.zero;
+        if (Input.GetKey(KeyCode.UpArrow))
+        {
+            direction += Vector3.forward;
+        }
+
+        if (Input.GetKey(KeyCode.DownArrow))
+        {
+            direction += Vector3.back;
+        }
+
+        if (Input.GetKey(KeyCode.LeftArrow))
+        {
+            direction += Vector3.left;
+        }
+
+        if (Input.GetKey(KeyCode.RightArrow))
+        {
+            direction += Vector3.right;
+        }
+        
+        direction = direction.normalized;
+        SetDirections(direction);
+    }
+
+    protected override void SetDirections(Vector3 direction)
+    {
+        this.moveDirection = direction;
+        if (this.moveDirection != Vector3.zero) this.attackDirection = this.moveDirection;
+    }
+    
     public override void TakeDamage(int damage)
     {
         this.hp -= damage;
@@ -122,12 +159,13 @@ public class Player : Character
         {
             case PlayerState.IDLE:
                 // check  'is player time to ATTACK' -> 'is player moving'
-                // else if (is time to ATTACK)
-                // {
-                //      playerState = PlayerState.ATTACK;
-                //      animator.SetBool("isAttacking", true);
-                // }
-                if (moveDirection != Vector3.zero)
+                if (timeToAttack)
+                {
+                    playerState = PlayerState.ATTACK;
+                    animator.SetBool("isAttacking", true);
+                    StartCoroutine(StopAttackAnim());
+                }
+                else if (moveDirection != Vector3.zero)
                 {
                     playerState = PlayerState.MOVE;
                     animator.SetBool("isMoving", true);
@@ -137,12 +175,13 @@ public class Player : Character
             
             case PlayerState.MOVE:
                 // check 'is player time to ATTACK' -> 'is player does nothing'
-                // else if (is time to ATTACK)
-                // {
-                //      playerState = PlayerState.ATTACK;
-                //      animator.SetBool("isAttacking", true);
-                // }
-                if (moveDirection == Vector3.zero)
+                if (timeToAttack)
+                {
+                    playerState = PlayerState.ATTACK;
+                    animator.SetBool("isAttacking", true);
+                    StartCoroutine(StopAttackAnim());
+                }
+                else if (moveDirection == Vector3.zero)
                 {
                     playerState = PlayerState.IDLE;
                     animator.SetBool("isMoving", false);
@@ -151,8 +190,10 @@ public class Player : Character
             
             case PlayerState.ATTACK:
                 // check 'does ATTACK ended { moving now' -> is player does nothing}'
-                //else if (ATTACK ended)
-                //{
+                if (timeToAttack) break;
+
+                animator.SetBool("isAttacking", false);
+                
                 if (moveDirection != Vector3.zero)
                 {
                     playerState = PlayerState.MOVE;
@@ -187,5 +228,17 @@ public class Player : Character
             default:
                 break;
         }
+    }
+
+    public void ControlAttackState(bool timeToAttack)
+    {
+        this.timeToAttack = timeToAttack;
+    }
+
+    private IEnumerator StopAttackAnim()
+    {
+        yield return new WaitForSeconds(DEFAULT_ATTACK_ANIM_DURATION);
+
+        timeToAttack = false;
     }
 }
