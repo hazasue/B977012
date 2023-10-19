@@ -32,7 +32,7 @@ public class GameManager : MonoBehaviour
     
     private void Update()
     {
-        SetDirections();
+        
     }
 
     private void Init()
@@ -40,10 +40,18 @@ public class GameManager : MonoBehaviour
         mUIManager = GameObject.Find("UIManager").GetComponent<UIManager>();
         mEnemyManager = GameObject.Find("EnemyManager").GetComponent<EnemyManager>();
 
-        CharacterData tempData = JsonManager.GetInstance()
-            .LoadJsonFile<CharacterData>(JsonManager.DEFAULT_CHARACTER_DATA_NAME);
-        player = Instantiate(Resources.Load<Player>("prefabs/characters/" + tempData.playerType));
-        player.Init(tempData.maxHp, tempData.damage, tempData.speed, tempData.armor);
+        CharacterData tempData = JsonManager.GetInstance().LoadJsonFile<CharacterData>(JsonManager.DEFAULT_CHARACTER_DATA_NAME);
+        
+        int characterIndex = JsonManager.GetInstance()
+            .LoadJsonFile<CurrentCharacterInfo>(JsonManager.DEFAULT_CURRENT_CHARACTER_DATA_NAME).currentCharacterCode;
+        
+        player = Instantiate(Resources.Load<Player>("prefabs/characters/" + tempData.playerType[characterIndex]));
+        player.Init(tempData.maxHp[characterIndex],
+            tempData.damage[characterIndex],
+            tempData.speed[characterIndex],
+            tempData.armor[characterIndex]);
+
+        player.GetInventory().AddWeapon(WeaponManager.GetInstance().GetWeaponInfo(tempData.basicWeapon[characterIndex]));
     }
 
     public static GameManager GetInstance()
@@ -54,32 +62,6 @@ public class GameManager : MonoBehaviour
         return instance;
     }
 
-    private void SetDirections()
-    {
-        Vector3 direction = Vector3.zero;
-        if (Input.GetKey(KeyCode.UpArrow))
-        {
-            direction += Vector3.forward;
-        }
-
-        if (Input.GetKey(KeyCode.DownArrow))
-        {
-            direction += Vector3.back;
-        }
-
-        if (Input.GetKey(KeyCode.LeftArrow))
-        {
-            direction += Vector3.left;
-        }
-
-        if (Input.GetKey(KeyCode.RightArrow))
-        {
-            direction += Vector3.right;
-        }
-
-        player.SetDirections(direction.normalized);
-    }
-    
     private void UpdateGameStatus() {}
 
     public Player GetPlayer() { return player; }
