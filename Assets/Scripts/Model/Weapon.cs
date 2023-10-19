@@ -50,9 +50,6 @@ public class Weapon : MonoBehaviour
         
         weaponObjects = new Queue<WeaponObject>();
 
-        InstantiateWeaponObjects();
-        StartCoroutine(EnableToAttack());
-
         switch (weaponType)
         {
             case WeaponType.MELEE:
@@ -66,6 +63,9 @@ public class Weapon : MonoBehaviour
             default:
                 break;
         }
+
+        InstantiateWeaponObjects();
+        StartCoroutine(EnableToAttack());
     }
     
     public void UpgradeWeapon() {}
@@ -102,6 +102,7 @@ public class Weapon : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
 
+        this.transform.parent.parent.GetComponent<Player>().ControlAttackState(true);
         enableToAttack = true;
     }
 
