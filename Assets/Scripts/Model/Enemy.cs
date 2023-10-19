@@ -29,6 +29,8 @@ public class Enemy : Character
     
     protected override void Attack() {}
     
+    protected override void SetDirections(Vector3 direction) {}
+    
     protected override void UpdateStatus() {}
     
     public override void TakeDamage(int damage) {}
