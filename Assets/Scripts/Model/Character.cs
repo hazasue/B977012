@@ -35,11 +35,7 @@ public abstract class Character : MonoBehaviour
    
     public abstract void TakeDamage(int damage);
 
-    public void SetDirections(Vector3 direction)
-    {
-        this.moveDirection = direction;
-        if (direction != Vector3.zero) this.attackDirection = direction;
-    }
+    protected abstract void SetDirections(Vector3 direction);
 
     public CharacterState GetCharacterState()
     {
