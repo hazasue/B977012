@@ -16,12 +16,6 @@ public class WeaponManager : MonoBehaviour
         Init();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     private void Init()
     {
         weaponInfos = new Dictionary<string, WeaponInfo>();
