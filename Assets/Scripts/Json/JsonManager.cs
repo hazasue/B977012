@@ -11,6 +11,7 @@ public class JsonManager : MonoBehaviour
     private static JsonManager instance;
 
     public static string DEFAULT_CHARACTER_DATA_NAME = "CharacterData";
+    public static string DEFAULT_CURRENT_CHARACTER_DATA_NAME = "CurrentCharacterData";
     
     public static JsonManager GetInstance()
     {
@@ -30,6 +31,7 @@ public class JsonManager : MonoBehaviour
 
         FileStream fileStream = new FileStream(Application.dataPath + "/Data/" + fileName + ".json", FileMode.OpenOrCreate);
         byte[] data = Encoding.UTF8.GetBytes(JsonUtility.ToJson(obj));
+        fileStream.SetLength(0);
         fileStream.Write(data, 0, data.Length);
         fileStream.Close();
     }
