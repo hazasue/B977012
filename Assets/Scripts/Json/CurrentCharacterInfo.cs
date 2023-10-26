@@ -5,10 +5,6 @@ using UnityEngine;
 [System.Serializable]
 public class CurrentCharacterInfo
 {
-	public int currentCharacterCode;
-
-	public CurrentCharacterInfo(int currentCharacterCode)
-	{
-		this.currentCharacterCode = currentCharacterCode;
-	}
+	public int currentCreatedCode;
+	public string currentSelectedCode;
 }
