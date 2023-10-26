@@ -17,7 +17,7 @@ public abstract class Character : MonoBehaviour
     protected int maxHp;
     protected int hp;
     protected int armor;
-    protected float damage;
+    protected int damage;
     protected float moveSpeed;
     protected float attackSpeed;
     protected Vector3 moveDirection;
@@ -31,7 +31,7 @@ public abstract class Character : MonoBehaviour
     
     protected abstract void Attack();
     
-    protected abstract void UpdateStatus();
+    protected abstract void UpdateState();
    
     public abstract void TakeDamage(int damage);
 
