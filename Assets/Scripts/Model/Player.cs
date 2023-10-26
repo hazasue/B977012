@@ -101,9 +101,7 @@ public class Player : Character
         }
     }
     
-    
-    
-    protected override void UpdateStatus() {}
+    protected override void UpdateState() {}
 
     private void ApplyKeyInput()
     {
@@ -140,7 +138,9 @@ public class Player : Character
     
     public override void TakeDamage(int damage)
     {
-        this.hp -= damage;
+        if (damage <= armor) return;
+        
+        this.hp -= damage - armor;
     }
     
     private void PickUpItems() {}
