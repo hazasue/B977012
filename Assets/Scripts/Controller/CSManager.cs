@@ -10,15 +10,19 @@ public class CSManager : MonoBehaviour
     private static string CSV_FILENAME_CHARACTER = "DataTable_Character";
     private static string DEFAULT_WARRIOR_BASIC_WEAPON = "tempMelee";
     private static string DEFAULT_WIZARD_BASIC_WEAPON = "tempTracking";
+    private static string DEFAULT_NULL_CHARACTER = "NULL_CHARACTER";
     private static Color DEFAULT_SLOT_COLOR_UNSELECTED = new Color32(128, 128, 128, 255);
     private static Color DEFAULT_SLOT_COLOR_SELECTED = new Color32(255, 255, 255, 255);
     private static int MAX_CHARACTER_COUNT = 3;
     private static int DEFAULT_SELECTED_INDEX = 0;
 
+    public string[] codes = new string[MAX_CHARACTER_COUNT];
     public GameObject createScreen;
     public Image[] characterImage = new Image[MAX_CHARACTER_COUNT];
     public TMP_Text[] characterSlots = new TMP_Text[MAX_CHARACTER_COUNT];
-    private CharacterData tempData;
+
+    private Dictionary<string, CharacterData> characterDatas;
+    private CurrentCharacterInfo currentCharacterInfo;
 
     private int selectedSlot;
 
@@ -31,12 +35,12 @@ public class CSManager : MonoBehaviour
     private void Init()
     {
         selectedSlot = DEFAULT_SELECTED_INDEX;
-        UpdateCharacterScreen();
+        UpdateCharacterInfo();
     }
 
     public void CreateCharacter(string playerType)
     {
-        if (tempData.playerCode.Count >= MAX_CHARACTER_COUNT) return;
+        if (characterDatas.Count >= MAX_CHARACTER_COUNT) return;
         
         List<Dictionary<string, object>> CharacterDB = CSVReader.Read(CSV_FILENAME_CHARACTER);
         
@@ -44,83 +48,106 @@ public class CSManager : MonoBehaviour
         {
             if (characterInfo["CharacterCode"].ToString() != playerType) continue;
 
-            tempData.AddData(characterInfo["CharacterCode"].ToString(),
+            characterDatas.Add((currentCharacterInfo.currentCreatedCode.ToString()), 
+                new CharacterData(
+                characterInfo["CharacterCode"].ToString(),
                 characterInfo["BasicWeapon"].ToString(),
                 characterInfo["CharacterType"].ToString(),
                 (int)characterInfo["MaxHp"],
                 (int)characterInfo["Damage"],
                 float.Parse(characterInfo["Speed"].ToString()),
-                (int)characterInfo["Armor"]
+                (int)characterInfo["Armor"])
             );
+            currentCharacterInfo.currentCreatedCode++;
             break;
         }
         
-        JsonManager.GetInstance().CreateJsonFile(JsonManager.DEFAULT_CHARACTER_DATA_NAME, tempData);
+        JsonManager.GetInstance().CreateJsonFile(JsonManager.DEFAULT_CHARACTER_DATA_NAME, characterDatas);
+        JsonManager.GetInstance().CreateJsonFile(JsonManager.DEFAULT_CURRENT_CHARACTER_DATA_NAME, currentCharacterInfo);
 
-        UpdateCharacterScreen();
+        UpdateCharacterInfo();
     }
 
     public void DeleteCharacter()
     {
-        if (selectedSlot >= tempData.playerCode.Count) return;
-        
-        tempData.RemoveData(selectedSlot);
-        JsonManager.GetInstance().CreateJsonFile(JsonManager.DEFAULT_CHARACTER_DATA_NAME, tempData);
-        UpdateCharacterScreen();
+        if (codes[selectedSlot] == DEFAULT_NULL_CHARACTER) return;
 
-        if (selectedSlot >= tempData.playerCode.Count)
+        characterDatas.Remove(codes[selectedSlot]);
+        JsonManager.GetInstance().CreateJsonFile(JsonManager.DEFAULT_CHARACTER_DATA_NAME, characterDatas);
+        UpdateCharacterInfo();
+
+        if (selectedSlot >= characterDatas.Count)
         {
             selectedSlot = DEFAULT_SELECTED_INDEX;
             SelectSlot(selectedSlot);
         }
     }
 
-    private void UpdateCharacterScreen()
+    private void UpdateCharacterInfo()
     {
         if (!File.Exists(Application.dataPath + "/Data/" + JsonManager.DEFAULT_CHARACTER_DATA_NAME + ".json")
-            || !JsonManager.GetInstance().LoadJsonFile<CharacterData>(JsonManager.DEFAULT_CHARACTER_DATA_NAME).Exist(DEFAULT_SELECTED_INDEX))
+            || JsonManager.GetInstance().LoadJsonFile<Dictionary<string, CharacterData>>(JsonManager.DEFAULT_CHARACTER_DATA_NAME).Count <= 0)
         {
-            for(int slot = 0; slot < MAX_CHARACTER_COUNT; slot++)
+            for (int slot = 0; slot < MAX_CHARACTER_COUNT; slot++)
             {
+                codes[slot] = DEFAULT_NULL_CHARACTER;
                 characterSlots[slot].text = "null";
                 characterImage[slot].color = DEFAULT_SLOT_COLOR_UNSELECTED;
             }
-            tempData = new CharacterData();
-            JsonManager.GetInstance().CreateJsonFile(JsonManager.DEFAULT_CHARACTER_DATA_NAME, tempData);
+
+            characterDatas = new Dictionary<string, CharacterData>();
+            JsonManager.GetInstance().CreateJsonFile(JsonManager.DEFAULT_CHARACTER_DATA_NAME, characterDatas);
         }
         else
         {
-            tempData = JsonManager.GetInstance().LoadJsonFile<CharacterData>(JsonManager.DEFAULT_CHARACTER_DATA_NAME);
-            for(int slot = 0; slot < MAX_CHARACTER_COUNT; slot++)
+            characterDatas =
+                JsonManager.GetInstance().LoadJsonFile<Dictionary<string, CharacterData>>(JsonManager.DEFAULT_CHARACTER_DATA_NAME);
+            int slot = 0;
+            foreach (KeyValuePair<string, CharacterData> data in characterDatas)
             {
-                if (tempData.Exist(slot))
-                {
-                    characterSlots[slot].text = tempData.playerType[slot];
-                    characterImage[slot].color = DEFAULT_SLOT_COLOR_SELECTED;
-                }
-                else
-                {
-                    characterSlots[slot].text = "null";
-                    characterImage[slot].color = DEFAULT_SLOT_COLOR_UNSELECTED;
-                }
+                codes[slot] = data.Key;
+                characterSlots[slot].text = codes[slot] + "\n" +data.Value.playerType;
+                characterImage[slot].color = DEFAULT_SLOT_COLOR_SELECTED;
+                slot++;
             }
+
+            for (; slot < MAX_CHARACTER_COUNT; slot++)
+            {
+                codes[slot] = DEFAULT_NULL_CHARACTER;
+                characterSlots[slot].text = "null";
+                characterImage[slot].color = DEFAULT_SLOT_COLOR_UNSELECTED;
+            }
+        }
+
+        if (!File.Exists(Application.dataPath + "/Data/" + JsonManager.DEFAULT_CURRENT_CHARACTER_DATA_NAME + ".json"))
+        {
+            currentCharacterInfo = new CurrentCharacterInfo();
+            currentCharacterInfo.currentCreatedCode = 0;
+            currentCharacterInfo.currentSelectedCode = DEFAULT_NULL_CHARACTER;
+            JsonManager.GetInstance().CreateJsonFile(JsonManager.DEFAULT_CURRENT_CHARACTER_DATA_NAME, currentCharacterInfo);
+        }
+        else
+        {
+            currentCharacterInfo = JsonManager.GetInstance()
+                .LoadJsonFile<CurrentCharacterInfo>(JsonManager.DEFAULT_CURRENT_CHARACTER_DATA_NAME);
         }
     }
 
     public void PlayGame()
     {
-        if (!tempData.Exist(selectedSlot)) return;
+        if (codes[selectedSlot] == DEFAULT_NULL_CHARACTER) return;
         
-        JsonManager.GetInstance().CreateJsonFile(JsonManager.DEFAULT_CURRENT_CHARACTER_DATA_NAME, new CurrentCharacterInfo(selectedSlot));
+        JsonManager.GetInstance().CreateJsonFile(JsonManager.DEFAULT_CURRENT_CHARACTER_DATA_NAME, currentCharacterInfo);
         CommonUIManager.GetInstance().MoveScene("InGame");
     }
 
     public void SelectSlot(int slot)
     {
         if (slot >= MAX_CHARACTER_COUNT) return;
-        if (!tempData.Exist(slot)) return;
+        if (codes[selectedSlot] == DEFAULT_NULL_CHARACTER) return;
         
         selectedSlot = slot;
+        currentCharacterInfo.currentSelectedCode = codes[selectedSlot];
 
         characterSlots[slot].text += "\nSelected"; // Change info effect, not text
     }
