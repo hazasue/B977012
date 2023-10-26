@@ -56,4 +56,13 @@ public class WeaponObject : MonoBehaviour
     {
         
     }
+
+    public void OnTriggerEnter(Collider obj)
+    {
+        if (!obj.CompareTag("enemy")) return;
+
+        Enemy enemy = obj.gameObject.GetComponent<Enemy>();
+        enemy.TakeDamage(damage);
+
+    }
 }
