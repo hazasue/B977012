@@ -30,7 +30,7 @@ public class JsonManager : MonoBehaviour
         }
 
         FileStream fileStream = new FileStream(Application.dataPath + "/Data/" + fileName + ".json", FileMode.OpenOrCreate);
-        byte[] data = Encoding.UTF8.GetBytes(JsonUtility.ToJson(obj));
+        byte[] data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(obj));
         fileStream.SetLength(0);
         fileStream.Write(data, 0, data.Length);
         fileStream.Close();
@@ -49,6 +49,6 @@ public class JsonManager : MonoBehaviour
         fileStream.Read(data, 0, data.Length);
         fileStream.Close();
         string jsonData = Encoding.UTF8.GetString(data);
-        return JsonUtility.FromJson<T>(jsonData);
+        return JsonConvert.DeserializeObject<T>(jsonData);
     }
 }
