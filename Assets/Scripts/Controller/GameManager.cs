@@ -29,29 +29,25 @@ public class GameManager : MonoBehaviour
     {
         Init();
     }
-    
-    private void Update()
-    {
-        
-    }
 
     private void Init()
     {
         mUIManager = GameObject.Find("UIManager").GetComponent<UIManager>();
         mEnemyManager = GameObject.Find("EnemyManager").GetComponent<EnemyManager>();
 
-        CharacterData tempData = JsonManager.GetInstance().LoadJsonFile<CharacterData>(JsonManager.DEFAULT_CHARACTER_DATA_NAME);
+        Dictionary<string, CharacterData> characterDatas = JsonManager.GetInstance()
+            .LoadJsonFile<Dictionary<string, CharacterData>>(JsonManager.DEFAULT_CHARACTER_DATA_NAME);
         
-        int characterIndex = JsonManager.GetInstance()
-            .LoadJsonFile<CurrentCharacterInfo>(JsonManager.DEFAULT_CURRENT_CHARACTER_DATA_NAME).currentCharacterCode;
+        string characterIndex = JsonManager.GetInstance()
+            .LoadJsonFile<CurrentCharacterInfo>(JsonManager.DEFAULT_CURRENT_CHARACTER_DATA_NAME).currentSelectedCode;
         
-        player = Instantiate(Resources.Load<Player>("prefabs/characters/" + tempData.playerType[characterIndex]));
-        player.Init(tempData.maxHp[characterIndex],
-            tempData.damage[characterIndex],
-            tempData.speed[characterIndex],
-            tempData.armor[characterIndex]);
+        player = Instantiate(Resources.Load<Player>("prefabs/characters/" + characterDatas[characterIndex].playerType));
+        player.Init(characterDatas[characterIndex].maxHp,
+            characterDatas[characterIndex].damage,
+            characterDatas[characterIndex].speed,
+            characterDatas[characterIndex].armor);
 
-        player.GetInventory().AddWeapon(WeaponManager.GetInstance().GetWeaponInfo(tempData.basicWeapon[characterIndex]));
+        player.GetInventory().AddWeapon(WeaponManager.GetInstance().GetWeaponInfo(characterDatas[characterIndex].basicWeapon));
     }
 
     public static GameManager GetInstance()
