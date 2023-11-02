@@ -18,13 +18,18 @@ public class Enemy : Character
         BOSS,
     }
 
+    private static string DEFAULT_ITEM_TYPE_EXP = "EXP";
+    private static string DEFAULT_ITEM_TYPE_COIN = "COIN";
+    private static Vector3 DEFAULT_ITEM_POS_Y = new Vector3(0f, 0.5f, 0f); 
+    
     // attributes
     private EnemyType enemyType;
     private EnemyGrade enemyGrade;
 
     private float tickTime;
     private bool canAttack;
-    private int exp;
+
+    private List<ItemInfo> itemInfos;
 
     private int key;
 
@@ -50,6 +55,8 @@ public class Enemy : Character
 
     public void Init(EnemyInfo enemyInfo, Transform target, int key)
     {
+        itemInfos = new List<ItemInfo>();
+        
         characterState = Character.CharacterState.ALIVE;
         animator = this.GetComponent<Animator>();
         
@@ -61,7 +68,9 @@ public class Enemy : Character
         this.moveSpeed = enemyInfo.GetSpeed();
         this.armor = enemyInfo.GetArmor();
         this.tickTime = enemyInfo.GetTickTime();
-        this.exp = enemyInfo.GetExp();
+        if (enemyInfo.GetExp() > 0) itemInfos.Add(new ItemInfo(DEFAULT_ITEM_TYPE_EXP, enemyInfo.GetExp()));
+        // if (enemyInfo.GetCoin() > 0) itemInfos.Add(new ItemInfo(DEFAULT_ITEM_TYPE_COIN, enemyInfo.GetCoin()));
+        
         canAttack = true;
 
         this.target = target;
@@ -86,8 +95,17 @@ public class Enemy : Character
         this.hp -= damage - armor;
         UpdateState();
     }
-    
-    private void DropItems() {}
+
+    private void DropItems()
+    {
+        Item tempItem;
+        foreach (ItemInfo itemInfo in itemInfos)
+        {
+            tempItem = ItemManager.GetInstance().GetNewItem(itemInfo.GetItemType());
+            tempItem.Init(itemInfo.GetItemType(), itemInfo.GetValue());
+            tempItem.transform.position = this.transform.position + DEFAULT_ITEM_POS_Y;
+        }
+    }
 
     protected override void UpdateState()
     {
