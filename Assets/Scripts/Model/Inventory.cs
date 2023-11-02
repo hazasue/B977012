@@ -36,6 +36,7 @@ public class Inventory : MonoBehaviour
 
         Weapon tempWeapon = Instantiate(Resources.Load<Weapon>("Prefabs/weapons/" + DEFAULT_WEAPON_OBJECT), this.transform, true);
         tempWeapon.Init(weaponInfo);
+        tempWeapon.transform.localPosition = Vector3.zero;
         weapons.Add(tempWeapon);
     }
 
