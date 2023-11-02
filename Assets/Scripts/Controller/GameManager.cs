@@ -27,13 +27,15 @@ public class GameManager : MonoBehaviour
     
     private void Awake()
     {
-        Init();
+        init();
     }
 
-    private void Init()
+    private void init()
     {
         mUIManager = GameObject.Find("UIManager").GetComponent<UIManager>();
         mEnemyManager = GameObject.Find("EnemyManager").GetComponent<EnemyManager>();
+
+        Time.timeScale = 1;
 
         Dictionary<string, CharacterData> characterDatas = JsonManager.GetInstance()
             .LoadJsonFile<Dictionary<string, CharacterData>>(JsonManager.DEFAULT_CHARACTER_DATA_NAME);
@@ -61,4 +63,8 @@ public class GameManager : MonoBehaviour
     private void UpdateGameStatus() {}
 
     public Player GetPlayer() { return player; }
+
+    public void PauseGame() { Time.timeScale = 0; }
+
+    public void ResumeGame() { Time.timeScale = 1; }
 }
