@@ -141,17 +141,18 @@ public class Player : Character
         if (damage <= armor) return;
         
         this.hp -= damage - armor;
+        UIManager.GetInstance().UpdatePlayerCurrentStatus();
     }
     
     private void PickUpItems() {}
 
-    public void GainExp(int value) {}
-
-    public void GainCoins(int value) {}
-
     public Inventory GetInventory() { return inventory; }
 
     public PlayerLevel GetLevelInfo() { return playerLevel; }
+
+    public int GetMaxHp() { return maxHp; }
+    
+    public int GetCurrentHp() { return hp;}
 
     private void ChangePlayerState()
     {
@@ -240,5 +241,25 @@ public class Player : Character
         yield return new WaitForSeconds(DEFAULT_ATTACK_ANIM_DURATION);
 
         timeToAttack = false;
+    }
+
+    public void OnTriggerEnter(Collider obj)
+    {
+        switch (obj.tag)
+        {
+            case "exp":
+                playerLevel.GainExp(obj.GetComponent<Item>().GetValue());
+                UIManager.GetInstance().UpdatePlayerCurrentStatus();
+                obj.gameObject.SetActive(false);
+                break;
+            
+            case "coin":
+                inventory.GainCoins(obj.GetComponent<Item>().GetValue());
+                obj.gameObject.SetActive(false);
+                break;
+            
+            case "itemType":
+                break;
+        }
     }
 }
