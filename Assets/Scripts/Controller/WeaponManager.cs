@@ -7,18 +7,22 @@ public class WeaponManager : MonoBehaviour
     private static WeaponManager instance;
     
     private static string CSV_FILENAME_WEAPON = "DataTable_Weapon";
+    private static int DEFAULT_OPTION_COUNT = 4;
 
     private Dictionary<string, WeaponInfo> weaponInfos;
+
+    private List<WeaponInfo> augmentOptions;
     
     // Start is called before the first frame update
     void Awake()
     {
-        Init();
+        init();
     }
 
-    private void Init()
+    private void init()
     {
         weaponInfos = new Dictionary<string, WeaponInfo>();
+        augmentOptions = new List<WeaponInfo>();
 
         List<Dictionary<string, object>> WeaponDB = CSVReader.Read(CSV_FILENAME_WEAPON);
         foreach (Dictionary<string, object> weaponInfo in WeaponDB)
@@ -56,4 +60,27 @@ public class WeaponManager : MonoBehaviour
     }
 
     public Dictionary<string, WeaponInfo> GetAllWeaponInfos() { return weaponInfos; }
+
+    public List<WeaponInfo> SetAugmentOptions()
+    {
+        List<string> optionCodes = new List<string>();
+        augmentOptions.Clear();
+
+        foreach (WeaponInfo data in weaponInfos.Values)
+        {
+            optionCodes.Add(data.GetCode());
+        }
+
+        for (int i = 0; i < DEFAULT_OPTION_COUNT; i++)
+        {
+            augmentOptions.Add(weaponInfos[optionCodes[Random.Range(0, optionCodes.Count)]]);
+        }
+
+        return augmentOptions;
+    }
+
+    public void ReflectAugment(int index)
+    {
+        GameManager.GetInstance().GetPlayer().GetInventory().AddWeapon(augmentOptions[index]);
+    }
 }
