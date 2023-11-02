@@ -48,15 +48,14 @@ public class CSManager : MonoBehaviour
         {
             if (characterInfo["CharacterCode"].ToString() != playerType) continue;
 
-            characterDatas.Add((currentCharacterInfo.currentCreatedCode.ToString()), 
+            characterDatas.Add((currentCharacterInfo.currentCreatedCode.ToString()),
                 new CharacterData(
-                characterInfo["CharacterCode"].ToString(),
-                characterInfo["BasicWeapon"].ToString(),
-                characterInfo["CharacterType"].ToString(),
-                (int)characterInfo["MaxHp"],
-                (int)characterInfo["Damage"],
-                float.Parse(characterInfo["Speed"].ToString()),
-                (int)characterInfo["Armor"])
+                    characterInfo["BasicWeapon"].ToString(),
+                    characterInfo["CharacterType"].ToString(),
+                    (int)characterInfo["MaxHp"],
+                    (int)characterInfo["Damage"],
+                    float.Parse(characterInfo["Speed"].ToString()),
+                    (int)characterInfo["Armor"])
             );
             currentCharacterInfo.currentCreatedCode++;
             break;

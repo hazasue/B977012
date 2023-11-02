@@ -5,7 +5,6 @@ using UnityEngine;
 [System.Serializable]
 public class CharacterData
 {
-    public string playerCode;
     public string basicWeapon;
     public string playerType;
     public int maxHp;
@@ -15,9 +14,8 @@ public class CharacterData
 
     public CharacterData() { }
     
-    public CharacterData(string playerCode, string basicWeapon, string playerType, int maxHp, int damage, float speed, int armor)
+    public CharacterData(string basicWeapon, string playerType, int maxHp, int damage, float speed, int armor)
     {
-        this.playerCode = playerCode;
         this.basicWeapon = basicWeapon;
         this.playerType = playerType;
         this.maxHp = maxHp;
