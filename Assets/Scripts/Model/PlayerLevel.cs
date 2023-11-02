@@ -4,23 +4,47 @@ using UnityEngine;
 
 public class PlayerLevel : MonoBehaviour
 {
+    private static int DEFAULT_EXP_INCREASEMENT = 10;
+    
     // attibutes
     private int exp;
     private int requiredExp;
     private int level;
-    
-    // methods
-    public int CheckExp()
+
+    private void Awake()
     {
-        return exp;
+        init();
+    }
+
+    private void init()
+    {
+        level = 1;
+        exp = 0;
+        this.requiredExp = level * DEFAULT_EXP_INCREASEMENT;
     }
     
-    public void GainExp() {}
+    // methods
+    public int CheckCurrentExp() { return exp; }
+
+    public int CheckRequiredExp() { return requiredExp; }
+
+    public void GainExp(int value)
+    {
+        this.exp += value;
+        if (exp >= requiredExp) LevelUp();
+    }
 
     public int GetLevel()
     {
         return level;
     }
-    
-    private void LevelUp() {}
+
+    private void LevelUp()
+    {
+        exp -= requiredExp;
+        level++;
+        requiredExp = level * DEFAULT_EXP_INCREASEMENT;
+        UIManager.GetInstance().UpdatePlayerMaxStatus();
+        UIManager.GetInstance().UpdateAugmentOptions(WeaponManager.GetInstance().SetAugmentOptions());
+    }
 }
