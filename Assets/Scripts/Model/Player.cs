@@ -91,13 +91,14 @@ public class Player : Character
     {
         this.transform.position += moveDirection * (moveSpeed * Time.deltaTime);
         this.transform.rotation = Quaternion.Lerp(this.transform.rotation, Quaternion.LookRotation(attackDirection), DEFAULT_ROTATE_SPEED * Time.deltaTime);
+        inventory.transform.rotation = Quaternion.Euler(0f, -this.transform.rotation.y, 0f);
     }
 
     protected override void Attack()
     {
         foreach (Weapon weapon in inventory.GetWeapons())
         {
-            weapon.ActiveWeaponObject(attackDirection);
+            weapon.ActivateWeaponObject(attackDirection);
         }
     }
     
@@ -220,6 +221,7 @@ public class Player : Character
                 {
                     characterState = Character.CharacterState.DEAD;
                     animator.SetBool("dead", true);
+                    GameManager.GetInstance().FailGame();
                 }
                 break;
             
