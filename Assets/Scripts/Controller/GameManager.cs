@@ -6,10 +6,10 @@ public class GameManager : MonoBehaviour
 {
     private enum GameStatus
     {
-        playing,
-        paused,
-        fail,
-        clear,
+        PLAYING,
+        PAUSED,
+        FAIL,
+        CLEAR,
     }
 
     private static GameManager instance;
@@ -34,14 +34,13 @@ public class GameManager : MonoBehaviour
     {
         mUIManager = GameObject.Find("UIManager").GetComponent<UIManager>();
         mEnemyManager = GameObject.Find("EnemyManager").GetComponent<EnemyManager>();
+        gameStatus = GameStatus.PLAYING;
 
         Time.timeScale = 1;
 
-        Dictionary<string, CharacterData> characterDatas = JsonManager.GetInstance()
-            .LoadJsonFile<Dictionary<string, CharacterData>>(JsonManager.DEFAULT_CHARACTER_DATA_NAME);
+        Dictionary<string, CharacterData> characterDatas = JsonManager.LoadJsonFile<Dictionary<string, CharacterData>>(JsonManager.DEFAULT_CHARACTER_DATA_NAME);
         
-        string characterIndex = JsonManager.GetInstance()
-            .LoadJsonFile<CurrentCharacterInfo>(JsonManager.DEFAULT_CURRENT_CHARACTER_DATA_NAME).currentSelectedCode;
+        string characterIndex = JsonManager.LoadJsonFile<CurrentCharacterInfo>(JsonManager.DEFAULT_CURRENT_CHARACTER_DATA_NAME).currentSelectedCode;
         
         player = Instantiate(Resources.Load<Player>("prefabs/characters/" + characterDatas[characterIndex].playerType));
         player.Init(characterDatas[characterIndex].maxHp,
@@ -61,6 +60,20 @@ public class GameManager : MonoBehaviour
     }
 
     private void UpdateGameStatus() {}
+
+    public void FailGame()
+    {
+        gameStatus = GameStatus.FAIL;
+        PauseGame();
+        mUIManager.ActivateFailScreen();
+    }
+
+    public void ClearGame()
+    {
+        gameStatus = GameStatus.CLEAR;
+        PauseGame();
+        mUIManager.ActivateClearScreen();
+    }
 
     public Player GetPlayer() { return player; }
 
