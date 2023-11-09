@@ -1,3 +1,6 @@
 WeaponCode,WeaponName,WeaponType,Damage,Duration,Delay,Projectile,Range,Speed
 tempMelee,tempMelee,MELEE,10,0.5,1,1,2,0
 tempTracking,tempTracking,TRACKING,10,5,1,1,0,10
+tempBarrier,tempBarrier,BARRIER,10,0.7,2,1,2,0
+tempBeam,tempBeam,BEAM,10,0.4,2,1,25,0
+tempChaining,tempChaining,CHAINING,10,0.2,2,4,20,0
