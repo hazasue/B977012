@@ -46,6 +46,7 @@ public class BeamWeapon : Weapon
     public override void ActivateWeaponObject(Vector3 attackDirection)
     {
         if (!enableToAttack) return;
+        StartCoroutine(EnableToAttack());
 
         enableToAttack = false;
 
@@ -63,6 +64,6 @@ public class BeamWeapon : Weapon
         weaponObjects.Enqueue(tempObject);
 
         StartCoroutine(InactivateWeaponObject(tempObject, duration));
-        StartCoroutine(EnableToAttack());
+        
     }
 }
