@@ -8,6 +8,7 @@ public class Inventory : MonoBehaviour
     
     // attributes
     private int coin;
+    public RangeCollider rangeCollider;
     
     // associations
     private List<Weapon> weapons;
@@ -34,10 +35,45 @@ public class Inventory : MonoBehaviour
     {
         if (weaponInfo == null) return;
 
-        Weapon tempWeapon = Instantiate(Resources.Load<Weapon>("Prefabs/weapons/" + DEFAULT_WEAPON_OBJECT), this.transform, true);
-        tempWeapon.Init(weaponInfo);
+        GameObject tempWeapon = Instantiate(Resources.Load<GameObject>("Prefabs/weapons/" + DEFAULT_WEAPON_OBJECT), this.transform, true);
         tempWeapon.transform.localPosition = Vector3.zero;
-        weapons.Add(tempWeapon);
+        switch (weaponInfo.GetType())
+        {
+            case "MELEE":
+                tempWeapon.AddComponent<MeleeWeapon>();
+                break;
+            
+            case "RANGED":
+                break;
+            
+            case "TRACKING":
+                tempWeapon.AddComponent<TrackingWeapon>();
+                break;
+            
+            case "CHAINING":
+                tempWeapon.AddComponent<ChainingWeapon>();
+                break;
+            
+            case "BEAM":
+                tempWeapon.AddComponent<BeamWeapon>();
+                break;
+            
+            case "BARRIER":
+                tempWeapon.AddComponent<BarrierWeapon>();
+                break;
+            
+            case "EXPLOSIVE":
+                break;
+            
+            default:
+                break;
+        }
+        
+        RangeCollider tempRangeCollider = Instantiate(rangeCollider, tempWeapon.transform, true);
+        tempRangeCollider.transform.localPosition = Vector3.zero;
+        Weapon tempWeaponScript = tempWeapon.GetComponent<Weapon>();
+        tempWeaponScript.Init(weaponInfo, tempRangeCollider);
+        weapons.Add(tempWeaponScript);
     }
 
     public List<Accessory> GetAccessories()
