@@ -30,6 +30,9 @@ public class WeaponObject : MonoBehaviour
             case Weapon.WeaponType.BEAM:
                 break;
             
+            case Weapon.WeaponType.BARRIER:
+                break;
+            
             case Weapon.WeaponType.EXPLOSIVE:
                 break;
             
