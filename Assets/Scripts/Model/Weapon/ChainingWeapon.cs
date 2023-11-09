@@ -64,13 +64,12 @@ public class ChainingWeapon : Weapon
         if (enemy == null) return;
 
         Vector3 centralPosition = Vector3.zero;
-        Vector3 adjustedPosition = Vector3.zero;
         float distance = Vector3.Distance(this.transform.position, enemy.transform.position);
-        StartCoroutine(giveDelayToSkill(projectile, count, distance, centralPosition, adjustedPosition, enemyList, enemy));
+        StartCoroutine(giveDelayToSkill(projectile, count, distance, centralPosition, enemyList, enemy));
         StartCoroutine(updateLine(Time.deltaTime));
     }
     
-    private IEnumerator giveDelayToSkill(int leftProjectile, int count, float distance, Vector3 centralPosition, Vector3 adjustedPosition, List<Enemy> enemyList, Enemy enemy)
+    private IEnumerator giveDelayToSkill(int leftProjectile, int count, float distance, Vector3 centralPosition, List<Enemy> enemyList, Enemy enemy)
     {
         if (leftProjectile <= 0 || distance > DEFAULT_CHAINING_RANGE)
         {
@@ -108,7 +107,7 @@ public class ChainingWeapon : Weapon
         distance = Vector3.Distance(centralPosition, nextEnemy.transform.position);
         
         yield return new WaitForSeconds(DEFAULT_TRANFER_DELAY);
-        StartCoroutine(giveDelayToSkill(leftProjectile - 1, count, distance, centralPosition, adjustedPosition, enemyList, nextEnemy));
+        StartCoroutine(giveDelayToSkill(leftProjectile - 1, count, distance, centralPosition, enemyList, nextEnemy));
     }
 
     private IEnumerator removeLine(float time)
