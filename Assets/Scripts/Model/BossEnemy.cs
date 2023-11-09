@@ -91,11 +91,11 @@ public class BossEnemy : Enemy
     private IEnumerator InactivateAttack()
     {
         yield return new WaitForSeconds(DEFAULT_ATTACK_DURATION);
-        isAttacking = false;
         if (Vector3.Distance(this.transform.position, target.position) <= DEFAULT_ATTACK_RANGE)
-        {
-            isAttacking = true;
             StartCoroutine(InactivateAttack());
+        else
+        {
+            isAttacking = false;
         }
     }
 
