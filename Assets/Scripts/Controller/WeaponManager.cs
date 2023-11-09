@@ -6,7 +6,6 @@ public class WeaponManager : MonoBehaviour
 {
     private static WeaponManager instance;
     
-    private static string CSV_FILENAME_WEAPON = "DataTable_Weapon";
     private static int DEFAULT_OPTION_COUNT = 4;
 
     private Dictionary<string, WeaponInfo> weaponInfos;
@@ -23,21 +22,13 @@ public class WeaponManager : MonoBehaviour
     {
         weaponInfos = new Dictionary<string, WeaponInfo>();
         augmentOptions = new List<WeaponInfo>();
+        
+        Dictionary<string, WeaponInfo> tempWeaponInfos =
+            JsonManager.LoadJsonFile<Dictionary<string, WeaponInfo>>(JsonManager.DEFAULT_WEAPON_DATA_NAME);
 
-        List<Dictionary<string, object>> WeaponDB = CSVReader.Read(CSV_FILENAME_WEAPON);
-        foreach (Dictionary<string, object> weaponInfo in WeaponDB)
+        foreach (KeyValuePair<string, WeaponInfo> data in tempWeaponInfos)
         {
-            weaponInfos.Add(weaponInfo["WeaponCode"].ToString(),
-                new WeaponInfo(weaponInfo["WeaponCode"].ToString(),
-                    weaponInfo["WeaponName"].ToString(),
-                    weaponInfo["WeaponType"].ToString(),
-                    (int)weaponInfo["Damage"],
-                    float.Parse(weaponInfo["Duration"].ToString()),
-                    float.Parse(weaponInfo["Delay"].ToString()),
-                    (int)weaponInfo["Projectile"],
-                    float.Parse(weaponInfo["Range"].ToString()),
-                    float.Parse(weaponInfo["Speed"].ToString())
-                ));
+            weaponInfos.Add(data.Key, data.Value);
         }
     }
     
