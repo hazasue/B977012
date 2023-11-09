@@ -18,24 +18,24 @@ public class Enemy : Character
         BOSS,
     }
 
-    private static string DEFAULT_ITEM_TYPE_EXP = "EXP";
-    private static string DEFAULT_ITEM_TYPE_COIN = "COIN";
-    private static Vector3 DEFAULT_ITEM_POS_Y = new Vector3(0f, 0.5f, 0f); 
-    
+    protected static string DEFAULT_ITEM_TYPE_EXP = "EXP";
+    protected static string DEFAULT_ITEM_TYPE_COIN = "COIN";
+    protected static Vector3 DEFAULT_ITEM_POS_Y = new Vector3(0f, 0.5f, 0f);
+
     // attributes
-    private EnemyType enemyType;
-    private EnemyGrade enemyGrade;
+    protected EnemyType enemyType;
+    protected EnemyGrade enemyGrade;
 
-    private float tickTime;
-    private bool canAttack;
+    protected float tickTime;
+    protected bool canAttack;
 
-    private List<ItemInfo> itemInfos;
+    protected List<ItemInfo> itemInfos;
 
-    private int key;
+    protected int key;
 
     // associations
-    private List<Item> items;
-    private Transform target;
+    protected List<Item> items;
+    protected Transform target;
 
     // Update is called once per frame
     void Update()
@@ -59,9 +59,7 @@ public class Enemy : Character
         
         characterState = Character.CharacterState.ALIVE;
         animator = this.GetComponent<Animator>();
-        
-        this.enemyType = enemyInfo.GetType();
-        this.enemyGrade = enemyInfo.GetGrade();
+
         this.maxHp = enemyInfo.GetMaxHp();
         this.hp = this.maxHp;
         this.damage = enemyInfo.GetDamage();
@@ -70,6 +68,44 @@ public class Enemy : Character
         this.tickTime = enemyInfo.GetTickTime();
         if (enemyInfo.GetExp() > 0) itemInfos.Add(new ItemInfo(DEFAULT_ITEM_TYPE_EXP, enemyInfo.GetExp()));
         // if (enemyInfo.GetCoin() > 0) itemInfos.Add(new ItemInfo(DEFAULT_ITEM_TYPE_COIN, enemyInfo.GetCoin()));
+        
+        switch (enemyInfo.GetType())
+        {
+            case "MELEE":
+                this.enemyType = Enemy.EnemyType.MELEE;
+                break;
+            
+            case "RANGED":
+                this.enemyType = Enemy.EnemyType.RANGED;
+                break;
+            
+            case "EXPLOSIVE":
+                this.enemyType = Enemy.EnemyType.EXPLOSIVE;
+                break;
+            
+            default:
+                Debug.Log("Invalid enemy type: " + enemyType);
+                break;
+        }
+
+        switch (enemyInfo.GetGrade())
+        {
+            case "NORMAL":
+                this.enemyGrade = Enemy.EnemyGrade.NORMAL;
+                break;
+            
+            case "ELITE":
+                this.enemyGrade = Enemy.EnemyGrade.ELITE;
+                break;
+            
+            case "BOSS":
+                this.enemyGrade = Enemy.EnemyGrade.BOSS;
+                break;
+            
+            default:
+                Debug.Log("Invalid enemy grade: " + enemyGrade);
+                break;
+        }
         
         canAttack = true;
 
@@ -82,6 +118,7 @@ public class Enemy : Character
     {
         moveDirection = (target.position - this.transform.position).normalized;
         this.transform.position += Time.deltaTime * moveSpeed * moveDirection;
+        this.transform.rotation = Quaternion.Lerp(this.transform.rotation, Quaternion.LookRotation(target.position - this.transform.position), DEFAULT_ROTATE_SPEED * Time.deltaTime);
     }
     
     protected override void Attack() {}
@@ -96,7 +133,7 @@ public class Enemy : Character
         UpdateState();
     }
 
-    private void DropItems()
+    protected void DropItems()
     {
         Item tempItem;
         foreach (ItemInfo itemInfo in itemInfos)
@@ -127,12 +164,12 @@ public class Enemy : Character
         }
     }
 
-    private void die()
+    protected void die()
     {
         characterState = Character.CharacterState.DEAD;
         animator.SetBool("dead", true);
         DropItems();
-        EnemyManager.GetInstance().UpdateEnemyStatus(key);
+        EnemyManager.GetInstance().UpdateEnemyStatus(enemyGrade, key);
         this.gameObject.SetActive(false);
     }
 
@@ -149,7 +186,7 @@ public class Enemy : Character
         StartCoroutine(timeToAttack());
     }
 
-    private IEnumerator timeToAttack()
+    protected IEnumerator timeToAttack()
     {
         yield return new WaitForSeconds(tickTime);
         canAttack = true;
