@@ -61,18 +61,23 @@ public class CSManager : MonoBehaviour
             break;
         }
         
-        JsonManager.GetInstance().CreateJsonFile(JsonManager.DEFAULT_CHARACTER_DATA_NAME, characterDatas);
-        JsonManager.GetInstance().CreateJsonFile(JsonManager.DEFAULT_CURRENT_CHARACTER_DATA_NAME, currentCharacterInfo);
+        JsonManager.CreateJsonFile(JsonManager.DEFAULT_CHARACTER_DATA_NAME, characterDatas);
+        JsonManager.CreateJsonFile(JsonManager.DEFAULT_CURRENT_CHARACTER_DATA_NAME, currentCharacterInfo);
 
         UpdateCharacterInfo();
     }
 
     public void DeleteCharacter()
     {
+        if (selectedSlot >= MAX_CHARACTER_COUNT)
+        {
+            selectedSlot = DEFAULT_SELECTED_INDEX;
+            return;
+        }
         if (codes[selectedSlot] == DEFAULT_NULL_CHARACTER) return;
 
         characterDatas.Remove(codes[selectedSlot]);
-        JsonManager.GetInstance().CreateJsonFile(JsonManager.DEFAULT_CHARACTER_DATA_NAME, characterDatas);
+        JsonManager.CreateJsonFile(JsonManager.DEFAULT_CHARACTER_DATA_NAME, characterDatas);
         UpdateCharacterInfo();
 
         if (selectedSlot >= characterDatas.Count)
@@ -85,7 +90,7 @@ public class CSManager : MonoBehaviour
     private void UpdateCharacterInfo()
     {
         if (!File.Exists(Application.dataPath + "/Data/" + JsonManager.DEFAULT_CHARACTER_DATA_NAME + ".json")
-            || JsonManager.GetInstance().LoadJsonFile<Dictionary<string, CharacterData>>(JsonManager.DEFAULT_CHARACTER_DATA_NAME).Count <= 0)
+            || JsonManager.LoadJsonFile<Dictionary<string, CharacterData>>(JsonManager.DEFAULT_CHARACTER_DATA_NAME).Count <= 0)
         {
             for (int slot = 0; slot < MAX_CHARACTER_COUNT; slot++)
             {
@@ -95,12 +100,12 @@ public class CSManager : MonoBehaviour
             }
 
             characterDatas = new Dictionary<string, CharacterData>();
-            JsonManager.GetInstance().CreateJsonFile(JsonManager.DEFAULT_CHARACTER_DATA_NAME, characterDatas);
+            JsonManager.CreateJsonFile(JsonManager.DEFAULT_CHARACTER_DATA_NAME, characterDatas);
         }
         else
         {
             characterDatas =
-                JsonManager.GetInstance().LoadJsonFile<Dictionary<string, CharacterData>>(JsonManager.DEFAULT_CHARACTER_DATA_NAME);
+                JsonManager.LoadJsonFile<Dictionary<string, CharacterData>>(JsonManager.DEFAULT_CHARACTER_DATA_NAME);
             int slot = 0;
             foreach (KeyValuePair<string, CharacterData> data in characterDatas)
             {
@@ -123,27 +128,31 @@ public class CSManager : MonoBehaviour
             currentCharacterInfo = new CurrentCharacterInfo();
             currentCharacterInfo.currentCreatedCode = 0;
             currentCharacterInfo.currentSelectedCode = DEFAULT_NULL_CHARACTER;
-            JsonManager.GetInstance().CreateJsonFile(JsonManager.DEFAULT_CURRENT_CHARACTER_DATA_NAME, currentCharacterInfo);
+            JsonManager.CreateJsonFile(JsonManager.DEFAULT_CURRENT_CHARACTER_DATA_NAME, currentCharacterInfo);
         }
         else
         {
-            currentCharacterInfo = JsonManager.GetInstance()
-                .LoadJsonFile<CurrentCharacterInfo>(JsonManager.DEFAULT_CURRENT_CHARACTER_DATA_NAME);
+            currentCharacterInfo = JsonManager.LoadJsonFile<CurrentCharacterInfo>(JsonManager.DEFAULT_CURRENT_CHARACTER_DATA_NAME);
         }
     }
 
     public void PlayGame()
     {
+        if (selectedSlot >= MAX_CHARACTER_COUNT)
+        {
+            selectedSlot = DEFAULT_SELECTED_INDEX;
+            return;
+        }
         if (codes[selectedSlot] == DEFAULT_NULL_CHARACTER) return;
         
-        JsonManager.GetInstance().CreateJsonFile(JsonManager.DEFAULT_CURRENT_CHARACTER_DATA_NAME, currentCharacterInfo);
+        JsonManager.CreateJsonFile(JsonManager.DEFAULT_CURRENT_CHARACTER_DATA_NAME, currentCharacterInfo);
         CommonUIManager.GetInstance().MoveScene("InGame");
     }
 
     public void SelectSlot(int slot)
     {
         if (slot >= MAX_CHARACTER_COUNT) return;
-        if (codes[selectedSlot] == DEFAULT_NULL_CHARACTER) return;
+        if (codes[slot] == DEFAULT_NULL_CHARACTER) return;
         
         selectedSlot = slot;
         currentCharacterInfo.currentSelectedCode = codes[selectedSlot];
