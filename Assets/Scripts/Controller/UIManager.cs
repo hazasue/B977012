@@ -17,6 +17,9 @@ public class UIManager : MonoBehaviour
 
     public TMP_Text timeText;
 
+    public GameObject clearScreen;
+    public GameObject failScreen;
+    
     public GameObject augmentScreen;
     public TMP_Text[] weaponNames = new TMP_Text[DEFAULT_OPTION_COUNT];
 
@@ -72,6 +75,10 @@ public class UIManager : MonoBehaviour
         playerHp.maxValue = player.GetMaxHp();
         playerExp.maxValue = player.GetLevelInfo().CheckRequiredExp();
     }
+
+    public void ActivateClearScreen() { clearScreen.SetActive(true); }
+
+    public void ActivateFailScreen() { failScreen.SetActive(true); }
 
     public void UpdateAugmentOptions(List<WeaponInfo> weaponInfos)
     {
