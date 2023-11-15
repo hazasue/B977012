@@ -20,7 +20,7 @@ public class BeamWeapon : Weapon
         
         weaponObjects = new Queue<WeaponObject>();
 
-        instanceTransform = GameObject.Find("Projectile Transform").transform;
+        instanceTransform = this.transform;
 
         this.rangeCollider = rangeCollider;
         this.rangeCollider.Init(range);

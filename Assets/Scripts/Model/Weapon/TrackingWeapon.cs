@@ -20,7 +20,7 @@ public class TrackingWeapon : Weapon
         
         weaponObjects = new Queue<WeaponObject>();
 
-        instanceTransform = this.transform;
+        instanceTransform = GameObject.Find("Projectile Transform").transform;
 
         this.rangeCollider = rangeCollider;
         this.rangeCollider.Init(range);
