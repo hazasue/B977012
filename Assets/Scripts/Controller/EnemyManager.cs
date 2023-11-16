@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,11 +14,12 @@ public class EnemyManager : MonoBehaviour
     private static int DEFAULT_ENEMY_SPAWN_POS_COUNT = 4;
     private static Vector3 SPAWN_ENEMY_POSITION = new Vector3(30.0f, 0.0f, 0.0f);
     private static Vector3 SPAWN_BOSS_POSITION = new Vector3(0.0f, 0.0f, 10.0f);
-    private const float DEFAULT_SPAWN_DELAY = 1f;
+    private const float DEFAULT_SPAWN_CYCLE = 1f;
     private const int DEFAULT_SPAWN_COUNT = 2;
     private static float RIGHT_ANGLE = 90f;
     private static float DEFAULT_BASIC_ENEMY_SPAWN_ANGLE = 30f;
     private static float DEFAULT_ENEMY_SPAWN_RANGE = 30f;
+    private static float DEFAULT_BOSS_ENEMY_SPAWN_DELAY = 50f;
     
     // attributes
     private int killedEnemiesCount;
@@ -77,27 +79,18 @@ public class EnemyManager : MonoBehaviour
 
         normalEnemyList = new List<string>();
         bossEnemyList = new List<string>();
-
-        List<Dictionary<string, object>> StageDB = CSVReader.Read(CSV_FILENAME_STAGE);
-
-        foreach (Dictionary<string, object> stageInfo in StageDB)
-        {
-            if (stageInfo["StageCode"].ToString() != DEFAULT_STAGE_CODE) continue;
-
-            normalEnemyCount = (int)stageInfo["NormalEnemyCount"];
-            bossEnemyCount = (int)stageInfo["BossEnemyCount"];
-
-            for (int idx = 1; idx <= normalEnemyCount; idx++)
-            {
-                normalEnemyList.Add(stageInfo["NormalEnemy" + idx].ToString());
-            }
-
-            for (int idx = 1; idx <= bossEnemyCount; idx++)
-            {
-                bossEnemyList.Add(stageInfo["BossEnemy" + idx].ToString());
-            }
-        }
         
+        Dictionary<string, StageInfo> stageInfos =
+            JsonManager.LoadJsonFile<Dictionary<string, StageInfo>>(JsonManager.DEFAULT_STAGE_DATA_NAME);
+
+        StageInfo stageInfo = stageInfos[DEFAULT_STAGE_CODE];
+
+        normalEnemyCount = stageInfo.normalEnemyCount;
+        bossEnemyCount = stageInfo.bossEnemyCount;
+
+        normalEnemyList = stageInfo.normalEnemies.ToList();
+        bossEnemyList = stageInfo.bossEnemies.ToList();
+
         // enemy spawn position
         basicEnemySpawnPos = new Vector3[DEFAULT_ENEMY_SPAWN_POS_COUNT];
 
@@ -110,7 +103,7 @@ public class EnemyManager : MonoBehaviour
         player = GameManager.GetInstance().GetPlayer().transform;
         InstantiateEnemies();
         StartCoroutine(SpawnNormalEnemies());
-        StartCoroutine(SpawnBossEnemy(20f));
+        StartCoroutine(SpawnBossEnemy(DEFAULT_BOSS_ENEMY_SPAWN_DELAY));
     }
 
     public static EnemyManager GetInstance()
@@ -135,7 +128,7 @@ public class EnemyManager : MonoBehaviour
 
     private IEnumerator SpawnNormalEnemies()
     {
-        yield return new WaitForSeconds(DEFAULT_SPAWN_DELAY);
+        yield return new WaitForSeconds(DEFAULT_SPAWN_CYCLE);
         if (isBossActive) yield break;
 
         Enemy tempEnemy;
