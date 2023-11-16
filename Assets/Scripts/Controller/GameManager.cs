@@ -48,7 +48,7 @@ public class GameManager : MonoBehaviour
             characterDatas[characterIndex].speed,
             characterDatas[characterIndex].armor);
 
-        player.GetInventory().AddWeapon(WeaponManager.GetInstance().GetWeaponInfo(characterDatas[characterIndex].basicWeapon));
+        player.GetInventory().AddWeapon(WeaponManager.GetInstance().GetWeaponInfo(characterDatas[characterIndex].basicWeapon), true);
     }
 
     public static GameManager GetInstance()
