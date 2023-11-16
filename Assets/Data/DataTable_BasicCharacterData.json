@@ -1,0 +1,1 @@
+{"warrior":{"basicWeapon":"tempMelee","playerType":"WARRIOR","maxHp":200,"damage":10,"speed":10.0,"armor":2,"equipmentCodes":["tempMelee"],"coin":0},"wizard":{"basicWeapon":"tempTracking","playerType":"WIZARD","maxHp":100,"damage":20,"speed":5.0,"armor":0,"equipmentCodes":["tempTracking"],"coin":0}}

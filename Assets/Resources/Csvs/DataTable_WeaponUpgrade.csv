@@ -1,0 +1,6 @@
+WeaponCode,Option1,Value1,Option2,Value2
+tempMelee,damage,10,,0
+tempTracking,damage,10,,0
+tempBarrier,damage,10,,0
+tempBeam,damage,10,,0
+tempChaining,delay,0.25,,0
