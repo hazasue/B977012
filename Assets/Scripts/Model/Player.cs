@@ -96,9 +96,9 @@ public class Player : Character
 
     protected override void Attack()
     {
-        foreach (Weapon weapon in inventory.GetWeapons())
+        foreach (KeyValuePair<string, Weapon> weapon in inventory.GetWeapons())
         {
-            weapon.ActivateWeaponObject(attackDirection);
+            weapon.Value.ActivateWeaponObject(attackDirection);
         }
     }
     
