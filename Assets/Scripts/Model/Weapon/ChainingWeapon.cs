@@ -15,7 +15,7 @@ public class ChainingWeapon : Weapon
     private List<Vector3> enemyPositions;
     private List<Transform> enemyTransforms;
     
-    public override void Init(WeaponInfo weaponInfo, RangeCollider rangeCollider)
+    public override void Init(WeaponInfo weaponInfo, RangeCollider rangeCollider, bool mainWeapon = false)
     {
         code = weaponInfo.GetCode();
         name = weaponInfo.GetName();
@@ -26,8 +26,9 @@ public class ChainingWeapon : Weapon
         range = weaponInfo.GetRange();
         speed = weaponInfo.GetSpeed();
         weaponType = Weapon.WeaponType.CHAINING;
+        upgradeCount = 0;
 
-        enableToAttack = true;
+        enableToAttack = false;
 
         this.rangeCollider = rangeCollider;
         this.rangeCollider.Init(range);
@@ -36,10 +37,77 @@ public class ChainingWeapon : Weapon
         enemyPositions = new List<Vector3>();
         enemyTransforms = new List<Transform>();
         
-        StartCoroutine(EnableToAttack());
+        if (mainWeapon) StartCoroutine(EnableToAttack());
+        else
+        {
+            StartCoroutine(ActivateWeaponObjectAuto());
+        }
     }
     
-    public override void UpgradeWeapon() {}
+    public override void UpgradeWeapon(WeaponUpgradeInfo upgradeInfo) {
+        switch (upgradeInfo.option1)
+        {
+            case NONE_OPTION_STRING:
+                break;
+            
+            case "damage":
+                this.damage += (int)upgradeInfo.value1;
+                break;
+            
+            case "duration":
+                this.duration += upgradeInfo.value1;
+                break;
+            
+            case "delay":
+                this.delay -= upgradeInfo.value1;
+                break;
+            
+            case "projectile":
+                this.projectile += (int)upgradeInfo.value1;
+                break;
+            
+            case "speed":
+                this.speed += upgradeInfo.value1;
+                break;
+            
+            default:
+                Debug.Log("Unmatched upgrade option: " + this.code + " " + upgradeInfo.option1);
+                break;
+        }
+
+        switch (upgradeInfo.option2)
+        {
+            case NONE_OPTION_STRING:
+                break;
+            
+            case "damage":
+                this.damage += (int)upgradeInfo.value2;
+                break;
+            
+            case "duration":
+                this.duration += upgradeInfo.value2;
+                break;
+            
+            case "delay":
+                this.delay -= upgradeInfo.value2;
+                break;
+            
+            case "projectile":
+                this.projectile += (int)upgradeInfo.value2;
+                break;
+            
+            case "speed":
+                this.speed += upgradeInfo.value2;
+                break;
+            
+            default:
+                Debug.Log("Unmatched upgrade option: " + this.code + " " + upgradeInfo.option2);
+                break;
+        }
+
+        upgradeCount++;
+        
+    }
 
     protected override void InstantiateWeaponObjects() {}
 
@@ -62,6 +130,31 @@ public class ChainingWeapon : Weapon
         List<Enemy> enemyList = new List<Enemy>();
         Enemy enemy = rangeCollider.GetClosestEnemy(this.transform.position, enemyList, DEFAULT_CHAINING_RANGE);
         if (enemy == null) return;
+
+        Vector3 centralPosition = Vector3.zero;
+        float distance = Vector3.Distance(this.transform.position, enemy.transform.position);
+        StartCoroutine(giveDelayToSkill(projectile, count, distance, centralPosition, enemyList, enemy));
+        StartCoroutine(updateLine(Time.deltaTime));
+    }
+    
+    public override IEnumerator ActivateWeaponObjectAuto()
+    {
+        yield return new WaitForSeconds(delay);
+        
+        StartCoroutine(ActivateWeaponObjectAuto());
+        Debug.Log("asd");
+        
+        enemyTransforms.Clear();
+        enemyPositions.Clear();
+        lineRenderer.positionCount = 0;
+        int count = 0;
+        enemyTransforms.Add(this.transform);
+        enemyPositions.Add(this.transform.position);
+        lineRenderer.positionCount++;
+
+        List<Enemy> enemyList = new List<Enemy>();
+        Enemy enemy = rangeCollider.GetClosestEnemy(this.transform.position, enemyList, DEFAULT_CHAINING_RANGE);
+        if (enemy == null) yield break;
 
         Vector3 centralPosition = Vector3.zero;
         float distance = Vector3.Distance(this.transform.position, enemy.transform.position);
@@ -114,6 +207,10 @@ public class ChainingWeapon : Weapon
     {
         yield return new WaitForSeconds(time);
 
+        if (enemyTransforms.Count <= 0)
+        {
+            yield break;
+        }
         enemyTransforms.RemoveAt(FIRST_ENEMY_POSITION_INDEX);
         enemyPositions.RemoveAt(FIRST_ENEMY_POSITION_INDEX);
         lineRenderer.positionCount--;

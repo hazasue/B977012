@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BeamWeapon : Weapon
 {
-    public override void Init(WeaponInfo weaponInfo, RangeCollider rangeCollider)
+    public override void Init(WeaponInfo weaponInfo, RangeCollider rangeCollider, bool mainWeapon = false)
     {
         code = weaponInfo.GetCode();
         name = weaponInfo.GetName();
@@ -15,8 +15,9 @@ public class BeamWeapon : Weapon
         range = weaponInfo.GetRange();
         speed = weaponInfo.GetSpeed();
         weaponType = Weapon.WeaponType.BEAM;
+        upgradeCount = 0;
 
-        enableToAttack = true;
+        enableToAttack = false;
         
         weaponObjects = new Queue<WeaponObject>();
 
@@ -26,10 +27,78 @@ public class BeamWeapon : Weapon
         this.rangeCollider.Init(range);
         
         InstantiateWeaponObjects();
-        StartCoroutine(EnableToAttack());
+
+        if (mainWeapon) StartCoroutine(EnableToAttack());
+        else
+        {
+            StartCoroutine(ActivateWeaponObjectAuto());
+        }
     }
     
-    public override void UpgradeWeapon() {}
+    public override void UpgradeWeapon(WeaponUpgradeInfo upgradeInfo) {
+        switch (upgradeInfo.option1)
+        {
+            case NONE_OPTION_STRING:
+                break;
+            
+            case "damage":
+                this.damage += (int)upgradeInfo.value1;
+                break;
+            
+            case "duration":
+                this.duration += upgradeInfo.value1;
+                break;
+            
+            case "delay":
+                this.delay -= upgradeInfo.value1;
+                break;
+            
+            case "projectile":
+                this.projectile += (int)upgradeInfo.value1;
+                break;
+            
+            case "speed":
+                this.speed += upgradeInfo.value1;
+                break;
+            
+            default:
+                Debug.Log("Unmatched upgrade option: " + this.code + " " + upgradeInfo.option1);
+                break;
+        }
+
+        switch (upgradeInfo.option2)
+        {
+            case NONE_OPTION_STRING:
+                break;
+            
+            case "damage":
+                this.damage += (int)upgradeInfo.value2;
+                break;
+            
+            case "duration":
+                this.duration += upgradeInfo.value2;
+                break;
+            
+            case "delay":
+                this.delay -= upgradeInfo.value2;
+                break;
+            
+            case "projectile":
+                this.projectile += (int)upgradeInfo.value2;
+                break;
+            
+            case "speed":
+                this.speed += upgradeInfo.value2;
+                break;
+            
+            default:
+                Debug.Log("Unmatched upgrade option: " + this.code + " " + upgradeInfo.option2);
+                break;
+        }
+
+        upgradeCount++;
+        
+    }
 
     protected override void InstantiateWeaponObjects()
     {
@@ -64,6 +133,26 @@ public class BeamWeapon : Weapon
         weaponObjects.Enqueue(tempObject);
 
         StartCoroutine(InactivateWeaponObject(tempObject, duration));
+    }
+    
+    public override IEnumerator ActivateWeaponObjectAuto()
+    {
+        yield return new WaitForSeconds(delay);
         
+        WeaponObject tempObject = weaponObjects.Dequeue();
+
+        Enemy targetEnemy = rangeCollider.GetClosestEnemy();
+        if (targetEnemy == null) yield break;
+        tempObject.transform.rotation =
+            Quaternion.LookRotation(this.gameObject.transform.position - targetEnemy.transform.position);
+
+        tempObject.gameObject.SetActive(true);
+        tempObject.Init(damage, speed, Vector3.zero, weaponType);
+        tempObject.transform.position = this.transform.position;
+
+        weaponObjects.Enqueue(tempObject);
+
+        StartCoroutine(InactivateWeaponObject(tempObject, duration));
+        StartCoroutine(ActivateWeaponObjectAuto());
     }
 }

@@ -16,6 +16,8 @@ public abstract class Weapon : MonoBehaviour
     }
 
     protected static int DEFAULT_OBJECT_COUNT = 200;
+    protected const string NONE_OPTION_STRING = "";
+    protected static Vector3 DEFAULT_OBJECT_POS_Y = new Vector3(0f, 0.5f, 0f);
     
     // attributes
     protected string code;
@@ -27,6 +29,9 @@ public abstract class Weapon : MonoBehaviour
     protected float range;
     protected float speed;
     protected WeaponType weaponType;
+    protected bool mainWeapon;
+
+    protected int upgradeCount;
 
     protected bool enableToAttack;
 
@@ -37,13 +42,15 @@ public abstract class Weapon : MonoBehaviour
     protected Transform instanceTransform;
 
     // methods
-    public abstract void Init(WeaponInfo weaponInfo, RangeCollider rangeCollider);
+    public abstract void Init(WeaponInfo weaponInfo, RangeCollider rangeCollider, bool mainWeapon = false);
 
-    public abstract void UpgradeWeapon();
+    public abstract void UpgradeWeapon(WeaponUpgradeInfo upgradeInfo);
 
     protected abstract void InstantiateWeaponObjects();
 
     public abstract void ActivateWeaponObject(Vector3 attackDirection);
+
+    public abstract IEnumerator ActivateWeaponObjectAuto();
 
     protected IEnumerator EnableToAttack()
     {
@@ -58,5 +65,9 @@ public abstract class Weapon : MonoBehaviour
         yield return new WaitForSeconds(duration);
 
         weaponObject.gameObject.SetActive(false);
-    } 
+    }
+
+    public int GetUpgradeCount() { return upgradeCount; }
+
+    public string GetCode() { return code; }
 }
