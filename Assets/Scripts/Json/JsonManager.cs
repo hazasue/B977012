@@ -10,8 +10,11 @@ public class JsonManager
 {
     public static string DEFAULT_CHARACTER_DATA_NAME = "CharacterData";
     public static string DEFAULT_CURRENT_CHARACTER_DATA_NAME = "CurrentCharacterData";
+    public static string DEFAULT_BASIC_CHARACTER_DATA_NAME = "DataTable_BasicCharacterData";
+    public static string DEFAULT_STAGE_DATA_NAME = "DataTable_Stage";
     public static string DEFAULT_ENEMY_DATA_NAME = "DataTable_Enemy";
     public static string DEFAULT_WEAPON_DATA_NAME = "DataTable_Weapon";
+    public static string DEFAULT_WEAPON_UPGRADE_DATA_NAME = "DataTable_WeaponUpgrade";
 
     public static void CreateJsonFile(string fileName, object obj)
     {
