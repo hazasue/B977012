@@ -14,8 +14,9 @@ public class WeaponInfo
     public int projectile;
     public float range;
     public float speed;
+    public string occupation;
 
-    public WeaponInfo(string code, string name, string type, int damage, float duration, float delay, int projectile, float range, float speed)
+    public WeaponInfo(string code, string name, string type, int damage, float duration, float delay, int projectile, float range, float speed, string occupation)
     {
         this.code = code;
         this.name = name;
@@ -26,6 +27,7 @@ public class WeaponInfo
         this.range = range;
         this.speed = speed;
         this.weaponType = type;
+        this.occupation = occupation;
     }
 
     public string GetCode() { return code; }
@@ -45,4 +47,6 @@ public class WeaponInfo
     public float GetRange() { return range; }
 
     public float GetSpeed() { return speed; }
+
+    public string GetOccupation() { return occupation; }
 }
