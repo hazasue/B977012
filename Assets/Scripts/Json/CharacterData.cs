@@ -11,10 +11,12 @@ public class CharacterData
     public int damage;
     public float speed;
     public int armor;
+    public List<string> equipmentCodes;
+    public int coin;
 
     public CharacterData() { }
     
-    public CharacterData(string basicWeapon, string playerType, int maxHp, int damage, float speed, int armor)
+    public CharacterData(string basicWeapon, string playerType, int maxHp, int damage, float speed, int armor, List<string> equipmentCodes, int coin = 0)
     {
         this.basicWeapon = basicWeapon;
         this.playerType = playerType;
@@ -22,5 +24,7 @@ public class CharacterData
         this.damage = damage;
         this.speed = speed;
         this.armor = armor;
+        this.equipmentCodes = equipmentCodes;
+        this.coin = coin;
     }
 }
