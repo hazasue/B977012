@@ -11,8 +11,8 @@ public class Inventory : MonoBehaviour
     public RangeCollider rangeCollider;
     
     // associations
-    private List<Weapon> weapons;
-    private List<Accessory> accessories;
+    private Dictionary<string, Weapon> weapons;
+    private Dictionary<string, Accessory> accessories;
     
     void Awake()
     {
@@ -22,16 +22,16 @@ public class Inventory : MonoBehaviour
     // methods
     private void Init()
     {
-        weapons = new List<Weapon>();
-        accessories = new List<Accessory>();
+        weapons = new Dictionary<string, Weapon>();
+        accessories = new Dictionary<string, Accessory>();
     }
 
-    public List<Weapon> GetWeapons()
+    public Dictionary<string, Weapon> GetWeapons()
     {
         return weapons;
     }
 
-    public void AddWeapon(WeaponInfo weaponInfo)
+    public void AddWeapon(WeaponInfo weaponInfo, bool mainWeapon = false)
     {
         if (weaponInfo == null) return;
 
@@ -72,11 +72,11 @@ public class Inventory : MonoBehaviour
         RangeCollider tempRangeCollider = Instantiate(rangeCollider, tempWeapon.transform, true);
         tempRangeCollider.transform.localPosition = Vector3.zero;
         Weapon tempWeaponScript = tempWeapon.GetComponent<Weapon>();
-        tempWeaponScript.Init(weaponInfo, tempRangeCollider);
-        weapons.Add(tempWeaponScript);
+        tempWeaponScript.Init(weaponInfo, tempRangeCollider, mainWeapon);
+        weapons.Add(tempWeaponScript.GetCode(), tempWeaponScript);
     }
 
-    public List<Accessory> GetAccessories()
+    public Dictionary<string, Accessory> GetAccessories()
     {
         return accessories;
     }
