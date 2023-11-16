@@ -21,6 +21,7 @@ public class CSManager : MonoBehaviour
     public Image[] characterImage = new Image[MAX_CHARACTER_COUNT];
     public TMP_Text[] characterSlots = new TMP_Text[MAX_CHARACTER_COUNT];
 
+    private Dictionary<string, CharacterData> characterInfos;
     private Dictionary<string, CharacterData> characterDatas;
     private CurrentCharacterInfo currentCharacterInfo;
 
@@ -34,6 +35,9 @@ public class CSManager : MonoBehaviour
 
     private void Init()
     {
+        characterInfos =
+            JsonManager.LoadJsonFile<Dictionary<string, CharacterData>>(JsonManager.DEFAULT_BASIC_CHARACTER_DATA_NAME);
+        
         selectedSlot = DEFAULT_SELECTED_INDEX;
         UpdateCharacterInfo();
     }
@@ -41,26 +45,11 @@ public class CSManager : MonoBehaviour
     public void CreateCharacter(string playerType)
     {
         if (characterDatas.Count >= MAX_CHARACTER_COUNT) return;
-        
-        List<Dictionary<string, object>> CharacterDB = CSVReader.Read(CSV_FILENAME_CHARACTER);
-        
-        foreach (Dictionary<string, object> characterInfo in CharacterDB)
-        {
-            if (characterInfo["CharacterCode"].ToString() != playerType) continue;
 
-            characterDatas.Add((currentCharacterInfo.currentCreatedCode.ToString()),
-                new CharacterData(
-                    characterInfo["BasicWeapon"].ToString(),
-                    characterInfo["CharacterType"].ToString(),
-                    (int)characterInfo["MaxHp"],
-                    (int)characterInfo["Damage"],
-                    float.Parse(characterInfo["Speed"].ToString()),
-                    (int)characterInfo["Armor"])
-            );
-            currentCharacterInfo.currentCreatedCode++;
-            break;
-        }
-        
+        characterDatas.Add((currentCharacterInfo.currentCreatedCode.ToString()),
+            characterInfos[playerType]);
+        currentCharacterInfo.currentCreatedCode++;
+
         JsonManager.CreateJsonFile(JsonManager.DEFAULT_CHARACTER_DATA_NAME, characterDatas);
         JsonManager.CreateJsonFile(JsonManager.DEFAULT_CURRENT_CHARACTER_DATA_NAME, currentCharacterInfo);
 
@@ -146,7 +135,7 @@ public class CSManager : MonoBehaviour
         if (codes[selectedSlot] == DEFAULT_NULL_CHARACTER) return;
         
         JsonManager.CreateJsonFile(JsonManager.DEFAULT_CURRENT_CHARACTER_DATA_NAME, currentCharacterInfo);
-        CommonUIManager.GetInstance().MoveScene("InGame");
+        CommonUIManager.GetInstance().MoveScene("Lobby");
     }
 
     public void SelectSlot(int slot)
