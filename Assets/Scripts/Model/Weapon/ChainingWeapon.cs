@@ -142,8 +142,7 @@ public class ChainingWeapon : Weapon
         yield return new WaitForSeconds(delay);
         
         StartCoroutine(ActivateWeaponObjectAuto());
-        Debug.Log("asd");
-        
+
         enemyTransforms.Clear();
         enemyPositions.Clear();
         lineRenderer.positionCount = 0;
