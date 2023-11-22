@@ -48,6 +48,7 @@ public class CSManager : MonoBehaviour
 
         characterDatas.Add((currentCharacterInfo.currentCreatedCode.ToString()),
             characterInfos[playerType]);
+	currentCharacterInfo.currentSelectedCode = currentCharacterInfo.currentCreatedCode.ToString();
         currentCharacterInfo.currentCreatedCode++;
 
         JsonManager.CreateJsonFile(JsonManager.DEFAULT_CHARACTER_DATA_NAME, characterDatas);
