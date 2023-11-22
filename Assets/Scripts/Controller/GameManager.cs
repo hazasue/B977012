@@ -85,30 +85,41 @@ public class GameManager : MonoBehaviour
 
     public void AddReward()
     {
-        characterDatas[characterIndex].coin += stageInfo.basicReward;
-        if (!characterDatas[characterIndex].clearStages[characterDatas[characterIndex].currentStage])
-        {
-            characterDatas[characterIndex].clearStages[characterDatas[characterIndex].currentStage] = true;
-            string weaponCode = "";
-            switch (characterDatas[characterIndex].playerType)
-            {
-                case "WARRIOR":
-                    weaponCode = DEFAULT_WEAPON_CODE_WARRIOR + (characterDatas[characterIndex].currentStage + 2) + "1";
-                    break;
-                
-                case "WIZARD":
-                    weaponCode = DEFAULT_WEAPON_CODE_WIZARD + (characterDatas[characterIndex].currentStage + 2) + "1";
-                    break;
-                
-                default:
-                    Debug.Log("Invalid player type: " + characterDatas[characterIndex].playerType);
-                    break;
-            }
+        characterDatas[characterIndex].coin += player.GetInventory().CheckCoins();
 
-            characterDatas[characterIndex].equipmentCodes.Add(weaponCode);
-            characterDatas[characterIndex].order++;
+        if (gameStatus == GameStatus.CLEAR)
+        {
+            characterDatas[characterIndex].coin += stageInfo.basicReward;
+            if (!characterDatas[characterIndex].clearStages[characterDatas[characterIndex].currentStage])
+                addFirstClearReward();
         }
+
         JsonManager.CreateJsonFile(JsonManager.DEFAULT_CHARACTER_DATA_NAME, characterDatas);
+    }
+
+    private void addFirstClearReward()
+    {
+        characterDatas[characterIndex].clearStages[characterDatas[characterIndex].currentStage] = true;
+        string weaponCode = "";
+        switch (characterDatas[characterIndex].playerType)
+        {
+            case "WARRIOR":
+                weaponCode = DEFAULT_WEAPON_CODE_WARRIOR + (characterDatas[characterIndex].currentStage + 2) +
+                             "1";
+                break;
+
+            case "WIZARD":
+                weaponCode = DEFAULT_WEAPON_CODE_WIZARD + (characterDatas[characterIndex].currentStage + 2) +
+                             "1";
+                break;
+
+            default:
+                Debug.Log("Invalid player type: " + characterDatas[characterIndex].playerType);
+                break;
+        }
+
+        characterDatas[characterIndex].equipmentCodes.Add(weaponCode);
+        characterDatas[characterIndex].order++;
     }
 
     public Player GetPlayer() { return player; }
