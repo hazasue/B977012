@@ -8,6 +8,8 @@ public class WeaponManager : MonoBehaviour
     
     private static int DEFAULT_OPTION_COUNT = 4;
     private static int MAX_UPGRADE_COUNT = 5;
+    private static string DEFAULT_AUGMENT_COIN = "coin";
+    private static int DEFAULT_COIN_VALUE = 10;
 
     private Dictionary<string, WeaponInfo> weaponInfos;
     private Dictionary<string, WeaponUpgradeInfo> weaponUpgradeInfos;
@@ -97,9 +99,10 @@ public class WeaponManager : MonoBehaviour
         }
 
         int idx;
-        
+
         for (int i = 0; i < DEFAULT_OPTION_COUNT; i++)
         {
+            if (optionCodes.Count <= 0) break;
             idx = Random.Range(0, optionCodes.Count);
             augmentOptions.Add(weaponInfos[optionCodes[idx]]);
             optionCodes.RemoveAt(idx);
@@ -110,6 +113,12 @@ public class WeaponManager : MonoBehaviour
 
     public void ReflectAugment(int index)
     {
+        if (index >= augmentOptions.Count)
+        {
+            GameManager.GetInstance().GetPlayer().GetInventory().GainCoins(DEFAULT_COIN_VALUE);
+            return;
+        }
+        
         Weapon selectedWeapon;
         if (!GameManager.GetInstance().GetPlayer().GetInventory().GetWeapons().TryGetValue(augmentOptions[index].GetCode(), out selectedWeapon))
             selectedWeapon = null;

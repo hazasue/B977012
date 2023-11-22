@@ -9,6 +9,7 @@ public class UIManager : MonoBehaviour
     private static UIManager instance;
 
     private static int DEFAULT_OPTION_COUNT = 4;
+    private static string DEFAULT_AUGMENT_COIN = "coin";
 
     private float time;
 
@@ -84,7 +85,12 @@ public class UIManager : MonoBehaviour
     {
         for (int i = 0; i < DEFAULT_OPTION_COUNT; i++)
         {
-            weaponNames[i].text = weaponInfos[i].GetName();
+            if (i < weaponInfos.Count)
+                weaponNames[i].text = weaponInfos[i].GetName();
+            else
+            {
+                weaponNames[i].text = DEFAULT_AUGMENT_COIN;
+            }
         }
 
         SetActiveAugmentScreen(true);
