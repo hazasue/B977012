@@ -8,7 +8,6 @@ public class EnemyManager : MonoBehaviour
     private static EnemyManager instance;
 
     private static string CSV_FILENAME_STAGE = "DataTable_Stage";
-    private static string DEFAULT_STAGE_CODE = "Stage1";
     private static int MAX_ENEMY_COUNT = 1200;
     private static int DEFAULT_NORMAL_ENEMY_INDEX = 0;
     private static int DEFAULT_ENEMY_SPAWN_POS_COUNT = 4;
@@ -83,7 +82,10 @@ public class EnemyManager : MonoBehaviour
         Dictionary<string, StageInfo> stageInfos =
             JsonManager.LoadJsonFile<Dictionary<string, StageInfo>>(JsonManager.DEFAULT_STAGE_DATA_NAME);
 
-        StageInfo stageInfo = stageInfos[DEFAULT_STAGE_CODE];
+        StageInfo stageInfo = stageInfos[
+            JsonManager.LoadJsonFile<Dictionary<string, CharacterData>>(JsonManager.DEFAULT_CHARACTER_DATA_NAME)[
+                JsonManager.LoadJsonFile<CurrentCharacterInfo>(JsonManager.DEFAULT_CURRENT_CHARACTER_DATA_NAME)
+                    .currentSelectedCode].currentStage.ToString()];
 
         normalEnemyCount = stageInfo.normalEnemyCount;
         bossEnemyCount = stageInfo.bossEnemyCount;
@@ -196,17 +198,16 @@ public class EnemyManager : MonoBehaviour
                     if (bossPhase >= bossEnemyCount)
                     {
                         GameManager.GetInstance().ClearGame();
+                        GameManager.GetInstance().AddReward();
                         return;
                     }
 
                     isBossActive = false;
                     StartCoroutine(SpawnNormalEnemies());
-                    StartCoroutine(SpawnBossEnemy(20f));
+                    StartCoroutine(SpawnBossEnemy(DEFAULT_BOSS_ENEMY_SPAWN_DELAY));
                 }
 
                 break;
-            
-            
         }
     }
 
