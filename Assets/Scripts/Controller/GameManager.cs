@@ -56,6 +56,7 @@ public class GameManager : MonoBehaviour
             characterDatas[characterIndex].armor);
 
         player.GetInventory().AddWeapon(WeaponManager.GetInstance().GetWeaponInfo(characterDatas[characterIndex].basicWeapon), true);
+        player.GetInventory().AddSkill(SkillManager.GetInstance().GetSkillInfo(characterDatas[characterIndex].basicSkill));
     }
 
     public static GameManager GetInstance()
