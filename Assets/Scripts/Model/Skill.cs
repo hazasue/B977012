@@ -4,14 +4,26 @@ using UnityEngine;
 
 public class Skill : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public enum SkillType
+    {
+        BUFF,
+        DEALING,
+    }
+
+    private SkillType skillType;
+    private float delay;
+    private float duration;
+    private string stat;
+    private float value;
+    private int damage;
+    private int projectile;
+
+    public void Init(SkillInfo skillInfo)
     {
         
     }
 
-    // Update is called once per frame
-    void Update()
+    public void UseSkill()
     {
         
     }
