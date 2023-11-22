@@ -66,6 +66,5 @@ public class WeaponObject : MonoBehaviour
 
         Enemy enemy = obj.gameObject.GetComponent<Enemy>();
         enemy.TakeDamage(damage);
-
     }
 }
