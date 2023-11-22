@@ -13,6 +13,7 @@ public class WeaponManager : MonoBehaviour
     private Dictionary<string, WeaponUpgradeInfo> weaponUpgradeInfos;
 
     private List<WeaponInfo> augmentOptions;
+    private string playerType;
     private string basicWeaponCode;
     
     // Start is called before the first frame update
@@ -42,6 +43,11 @@ public class WeaponManager : MonoBehaviour
         {
             weaponUpgradeInfos.Add(data.Key, data.Value);
         }
+
+        playerType =
+            JsonManager.LoadJsonFile<Dictionary<string, CharacterData>>(JsonManager.DEFAULT_CHARACTER_DATA_NAME)
+                [JsonManager.LoadJsonFile<CurrentCharacterInfo>(JsonManager.DEFAULT_CURRENT_CHARACTER_DATA_NAME).currentSelectedCode]
+                .playerType;
 
         basicWeaponCode =
             JsonManager.LoadJsonFile<Dictionary<string, CharacterData>>(JsonManager.DEFAULT_CHARACTER_DATA_NAME)
@@ -114,6 +120,17 @@ public class WeaponManager : MonoBehaviour
         {
             selectedWeapon.UpgradeWeapon(weaponUpgradeInfos[augmentOptions[index].GetCode()]);
         }
+    }
+
+    public List<WeaponInfo> GetEquiptableWeapons()
+    {
+        List<WeaponInfo> infos = new List<WeaponInfo>();
+        foreach (WeaponInfo info in weaponInfos.Values)
+        {
+            if (info.GetOccupation() == playerType) infos.Add(info);
+        }
+
+        return infos;
     }
 
     // test code
