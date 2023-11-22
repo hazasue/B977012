@@ -11,6 +11,7 @@ public class CSVConverter : MonoBehaviour
     private static string CSV_FILENAME_ENEMY = "DataTable_Enemy";
     private static string CSV_FILENAME_STAGE = "DataTable_Stage";
     private static string CSV_FILENAME_CHARACTER = "DataTable_Character";
+    private static string CSV_FILENAME_SKILL = "DataTable_Skill";
 
     private static int DEFAULT_ORDER_NUMBER = 1;
     
@@ -112,6 +113,7 @@ public class CSVConverter : MonoBehaviour
             characterInfos.Add(characterInfo["CharacterCode"].ToString(),
                 new CharacterData(
                     characterInfo["BasicWeapon"].ToString(),
+                    characterInfo["BasicSkill"].ToString(),
                     characterInfo["CharacterType"].ToString(),
                     (int)characterInfo["MaxHp"],
                     (int)characterInfo["Damage"],
@@ -124,5 +126,24 @@ public class CSVConverter : MonoBehaviour
         }
         
         JsonManager.CreateJsonFile(JsonManager.DEFAULT_BASIC_CHARACTER_DATA_NAME, characterInfos);
+        
+        // skill
+        List<Dictionary<string, object>> SkillDB = CSVReader.Read(CSV_FILENAME_SKILL);
+        Dictionary<string, SkillInfo> skillInfos = new Dictionary<string, SkillInfo>();
+        foreach (Dictionary<string, object> skillInfo in SkillDB)
+        {
+            skillInfos.Add(skillInfo["SkillCode"].ToString(),
+                new SkillInfo(skillInfo["SkillCode"].ToString(),
+                    skillInfo["SkillType"].ToString(),
+                    float.Parse(skillInfo["Delay"].ToString()),
+                    float.Parse(skillInfo["Duration"].ToString()),
+                    skillInfo["Stat"].ToString(),
+                    float.Parse(skillInfo["Value"].ToString()),
+                    (int)skillInfo["Damage"],
+                    (int)skillInfo["Projectile"]
+                    ));
+        }
+        
+        JsonManager.CreateJsonFile(JsonManager.DEFAULT_SKILL_DATA_NAME, skillInfos);
     }
 }
