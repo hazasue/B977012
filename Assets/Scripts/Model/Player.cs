@@ -222,6 +222,7 @@ public class Player : Character
                     characterState = Character.CharacterState.DEAD;
                     animator.SetBool("dead", true);
                     GameManager.GetInstance().FailGame();
+                    GameManager.GetInstance().AddReward();
                 }
                 break;
             
