@@ -4839,7 +4839,7 @@ GameObject:
   - component: {fileID: 516085360346319368}
   - component: {fileID: 1104917776685199228}
   m_Layer: 0
-  m_Name: tempTracking_object
+  m_Name: wizardTracking22_object
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
