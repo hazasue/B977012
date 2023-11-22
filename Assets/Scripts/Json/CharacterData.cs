@@ -11,12 +11,15 @@ public class CharacterData
     public int damage;
     public float speed;
     public int armor;
+    public int order;
     public List<string> equipmentCodes;
+    public List<bool> clearStages;
+    public int currentStage;
     public int coin;
 
     public CharacterData() { }
     
-    public CharacterData(string basicWeapon, string playerType, int maxHp, int damage, float speed, int armor, List<string> equipmentCodes, int coin = 0)
+    public CharacterData(string basicWeapon, string playerType, int maxHp, int damage, float speed, int armor, int order, List<string> equipmentCodes, List<bool> clearStages, int currentStage = 0, int coin = 0)
     {
         this.basicWeapon = basicWeapon;
         this.playerType = playerType;
@@ -24,7 +27,10 @@ public class CharacterData
         this.damage = damage;
         this.speed = speed;
         this.armor = armor;
+        this.order = order;
         this.equipmentCodes = equipmentCodes;
+        this.clearStages = clearStages;
+        this.currentStage = currentStage;
         this.coin = coin;
     }
 }
