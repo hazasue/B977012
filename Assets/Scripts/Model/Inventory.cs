@@ -5,6 +5,7 @@ using UnityEngine;
 public class Inventory : MonoBehaviour
 {
     private static string DEFAULT_WEAPON_OBJECT = "Basic Weapon";
+    private static string DEFAULT_SKILL_OBJECT = "Basic Skill";
     
     // attributes
     private int coin;
@@ -13,6 +14,7 @@ public class Inventory : MonoBehaviour
     // associations
     private Dictionary<string, Weapon> weapons;
     private Dictionary<string, Accessory> accessories;
+    private Skill skill;
     
     void Awake()
     {
@@ -24,6 +26,7 @@ public class Inventory : MonoBehaviour
     {
         weapons = new Dictionary<string, Weapon>();
         accessories = new Dictionary<string, Accessory>();
+        skill = null;
     }
 
     public Dictionary<string, Weapon> GetWeapons()
@@ -82,6 +85,18 @@ public class Inventory : MonoBehaviour
     }
     
     public void AddAccessory(Accessory accessory) {}
+
+    public Skill GetSkill() { return skill; }
+
+    public void AddSkill(SkillInfo skillInfo)
+    {
+        if (skillInfo == null) return;
+        if (skill != null) return;
+        
+        skill = Instantiate(Resources.Load<Skill>("Prefabs/skills/" + DEFAULT_SKILL_OBJECT), this.transform, true);
+        skill.transform.localPosition = Vector3.zero;
+        skill.Init(skillInfo);
+    }
 
     public int CheckCoins()
     {
