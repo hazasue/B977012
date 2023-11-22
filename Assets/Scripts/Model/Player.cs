@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class Player : Character
 {
-	public enum PlayerType
-	{
-		WARRIOR,
-		WIZARD,
-		HUNTER,
-	}
+    public enum PlayerType
+    {
+        WARRIOR,
+        WIZARD,
+        HUNTER,
+    }
 
     private enum PlayerState
     {
