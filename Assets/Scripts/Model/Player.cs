@@ -126,6 +126,11 @@ public class Player : Character
         {
             direction += Vector3.right;
         }
+
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+            inventory.GetSkill().UseSkill();
+        }
         
         direction = direction.normalized;
         SetDirections(direction);
