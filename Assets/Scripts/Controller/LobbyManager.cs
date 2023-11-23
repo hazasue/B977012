@@ -25,6 +25,10 @@ public class LobbyManager : MonoBehaviour
     private string characterCode;
     private Equipment currentEquipment;
 
+    public Image shopButtonImage;
+    public Image inventoryButtonImage;
+    public Image enhanceButtonImage;
+
     public GameObject equipButton;
     public GameObject buyButton;
 
@@ -63,14 +67,20 @@ public class LobbyManager : MonoBehaviour
         // inventory contents: CharacterData.equipmentCodes
         equipButton.SetActive(false);
         buyButton.SetActive(false);
+
+        shopButtonImage.color = ACTIVE_COLOR;
+        inventoryButtonImage.color = ACTIVE_COLOR;
+        enhanceButtonImage.color = ACTIVE_COLOR;
         
         switch (name)
         {
             case DEFAULT_SHOP_NAME:
+                shopButtonImage.color = INACTIVE_COLOR;
                 buyButton.SetActive(true);
                 break;
             
             case DEFAULT_INVENTORY_NAME:
+                inventoryButtonImage.color = INACTIVE_COLOR;
                 equipButton.SetActive(true);
                 break;
             
