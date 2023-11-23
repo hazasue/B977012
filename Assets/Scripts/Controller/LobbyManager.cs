@@ -298,6 +298,5 @@ public class LobbyManager : MonoBehaviour
         }
 
         return DEFAULT_BUY_STATUS_BUYABLE;
-
     }
 }
