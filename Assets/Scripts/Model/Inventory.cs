@@ -102,6 +102,9 @@ public class Inventory : MonoBehaviour
     {
         return coin;
     }
-    
-    public void GainCoins(int value) {}
+
+    public void GainCoins(int value)
+    {
+        this.coin += value;
+    }
 }
