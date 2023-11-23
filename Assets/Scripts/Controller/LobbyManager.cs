@@ -9,13 +9,16 @@ public class LobbyManager : MonoBehaviour
 {
     private const string DEFAULT_SHOP_NAME = "shop";
     private const string DEFAULT_INVENTORY_NAME = "inventory";
-    private const string DEFAULT_UPGRADE_NAME = "upgrade";
+    private const string DEFAULT_ENHANCEMENT_NAME = "enhancement";
     private const string DEFAULT_PURPOSE_BUY = "buy";
     private const string DEFAULT_PURPOSE_EQUIP = "equip";
     private const string DEFAULT_BUY_STATUS_LOW_ORDER = "lowOrder";
     private const string DEFAULT_BUY_STATUS_LOW_MONEY = "lowMoney";
     private const string DEFAULT_BUY_STATUS_ALREADY_HAVE = "alreadyHave";
     private const string DEFAULT_BUY_STATUS_BUYABLE = "buyable";
+
+    private const string DEFAULT_NAME_STAGE_SCREEN = "stage";
+    private const string DEFAULT_NAME_INFO_SCREEN = "info";
     
     private static Color INACTIVE_COLOR = new Color32(128, 128, 128, 255);
     private static Color ACTIVE_COLOR = new Color32(255, 255, 255, 255);
@@ -24,6 +27,9 @@ public class LobbyManager : MonoBehaviour
     private Dictionary<string, CharacterData> characterDatas;
     private string characterCode;
     private Equipment currentEquipment;
+
+    public GameObject selectStageScreen;
+    public GameObject infoScreen;
 
     public Image shopButtonImage;
     public Image inventoryButtonImage;
@@ -84,7 +90,7 @@ public class LobbyManager : MonoBehaviour
                 equipButton.SetActive(true);
                 break;
             
-            case DEFAULT_UPGRADE_NAME:
+            case DEFAULT_ENHANCEMENT_NAME:
                 break;
             
             default:
@@ -163,7 +169,7 @@ public class LobbyManager : MonoBehaviour
                 }
                 break;
             
-            case DEFAULT_UPGRADE_NAME:
+            case DEFAULT_ENHANCEMENT_NAME:
                 break;
             
             default:
@@ -298,5 +304,41 @@ public class LobbyManager : MonoBehaviour
         }
 
         return DEFAULT_BUY_STATUS_BUYABLE;
+    }
+
+    public void ActivateScreen(string name)
+    {
+        switch (name)
+        {
+            case DEFAULT_NAME_STAGE_SCREEN:
+                selectStageScreen.SetActive(true);
+                break;
+            
+            case DEFAULT_NAME_INFO_SCREEN:
+                infoScreen.SetActive(true);
+                break;
+            
+            default:
+                Debug.Log("Invalid screen name: " + name);
+                break;
+        }
+    }
+
+    public void InactivateScreen(string name)
+    {
+        switch (name)
+        {
+            case DEFAULT_NAME_STAGE_SCREEN:
+                selectStageScreen.SetActive(false);
+                break;
+            
+            case DEFAULT_NAME_INFO_SCREEN:
+                infoScreen.SetActive(false);
+                break;
+            
+            default:
+                Debug.Log("Invalid screen name: " + name);
+                break;
+        }
     }
 }
