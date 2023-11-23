@@ -122,6 +122,7 @@ public class TrackingWeapon : Weapon
         tempObject.gameObject.SetActive(true);
         tempObject.Init(damage, speed, attackDirection, weaponType);
         tempObject.transform.position = this.transform.position;
+        tempObject.transform.rotation = Quaternion.LookRotation(-attackDirection);
         
         weaponObjects.Enqueue(tempObject);
 
