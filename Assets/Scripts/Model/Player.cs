@@ -224,10 +224,7 @@ public class Player : Character
             case Character.CharacterState.ALIVE:
                 if (hp <= 0)
                 {
-                    characterState = Character.CharacterState.DEAD;
-                    animator.SetBool("dead", true);
-                    GameManager.GetInstance().FailGame();
-                    GameManager.GetInstance().AddReward();
+                    die();
                 }
                 break;
             
@@ -237,6 +234,14 @@ public class Player : Character
             default:
                 break;
         }
+    }
+
+    private void die()
+    {
+        characterState = Character.CharacterState.DEAD;
+        animator.SetBool("dead", true);
+        GameManager.GetInstance().FailGame();
+        GameManager.GetInstance().AddReward();
     }
 
     public void ControlAttackState(bool timeToAttack)
