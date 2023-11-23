@@ -36,7 +36,6 @@ public class UIManager : MonoBehaviour
     void Update()
     {
         updateTime();
-        updateSkillBar();
     }
 
     public static UIManager GetInstance()
@@ -61,6 +60,7 @@ public class UIManager : MonoBehaviour
 
         playerSkill.maxValue = player.GetInventory().GetSkill().GetDelay();
         playerSkill.value = 0;
+        StartCoroutine(updateSkillBar());
     }
 
     private void updateTime()
@@ -69,15 +69,19 @@ public class UIManager : MonoBehaviour
         timeText.text = ((int)(time / 60)).ToString("D2") + " : " + ((int)(time % 60)).ToString("D2");
     }
 
-    private void updateSkillBar()
+    private IEnumerator updateSkillBar()
     {
-        if (playerSkill.value >= playerSkill.maxValue) return;
+        yield return new WaitForSeconds(Time.deltaTime);
+        if (playerSkill.value >= playerSkill.maxValue) yield break;
+
         playerSkill.value += Time.deltaTime;
+        StartCoroutine(updateSkillBar());
     }
 
     public void ResetSkillBar()
     {
         playerSkill.value = 0f;
+        StartCoroutine(updateSkillBar());
     }
 
     public void UpdatePlayerCurrentStatus()
