@@ -92,15 +92,22 @@ public class GameManager : MonoBehaviour
         {
             characterDatas[characterIndex].coin += stageInfo.basicReward;
             if (!characterDatas[characterIndex].clearStages[characterDatas[characterIndex].currentStage])
+            {
+                clearStageForTheFirstTime();
                 addFirstClearReward();
+            }
         }
 
         JsonManager.CreateJsonFile(JsonManager.DEFAULT_CHARACTER_DATA_NAME, characterDatas);
     }
 
-    private void addFirstClearReward()
+    private void clearStageForTheFirstTime()
     {
         characterDatas[characterIndex].clearStages[characterDatas[characterIndex].currentStage] = true;
+    }
+
+    private void addFirstClearReward()
+    {
         string weaponCode = "";
         switch (characterDatas[characterIndex].playerType)
         {
