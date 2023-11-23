@@ -122,7 +122,6 @@ public class ChainingWeapon : Weapon
         enemyTransforms.Clear();
         enemyPositions.Clear();
         lineRenderer.positionCount = 0;
-        int count = 0;
         enemyTransforms.Add(this.transform);
         enemyPositions.Add(this.transform.position);
         lineRenderer.positionCount++;
@@ -133,7 +132,7 @@ public class ChainingWeapon : Weapon
 
         Vector3 centralPosition = Vector3.zero;
         float distance = Vector3.Distance(this.transform.position, enemy.transform.position);
-        StartCoroutine(giveDelayToSkill(projectile, count, distance, centralPosition, enemyList, enemy));
+        StartCoroutine(giveDelayToSkill(projectile,distance, centralPosition, enemyList, enemy));
         StartCoroutine(updateLine(Time.deltaTime));
     }
     
@@ -146,7 +145,6 @@ public class ChainingWeapon : Weapon
         enemyTransforms.Clear();
         enemyPositions.Clear();
         lineRenderer.positionCount = 0;
-        int count = 0;
         enemyTransforms.Add(this.transform);
         enemyPositions.Add(this.transform.position);
         lineRenderer.positionCount++;
@@ -157,18 +155,17 @@ public class ChainingWeapon : Weapon
 
         Vector3 centralPosition = Vector3.zero;
         float distance = Vector3.Distance(this.transform.position, enemy.transform.position);
-        StartCoroutine(giveDelayToSkill(projectile, count, distance, centralPosition, enemyList, enemy));
+        StartCoroutine(giveDelayToSkill(projectile, distance, centralPosition, enemyList, enemy));
         StartCoroutine(updateLine(Time.deltaTime));
     }
     
-    private IEnumerator giveDelayToSkill(int leftProjectile, int count, float distance, Vector3 centralPosition, List<Enemy> enemyList, Enemy enemy)
+    private IEnumerator giveDelayToSkill(int leftProjectile, float distance, Vector3 centralPosition, List<Enemy> enemyList, Enemy enemy)
     {
         if (leftProjectile <= 0 || distance > DEFAULT_CHAINING_RANGE)
         {
             StartCoroutine(removeLine(duration));
             yield break;
         }
-        count++;
         enemyList.Add(enemy);
         if (enemy.gameObject.activeSelf)
         {
@@ -199,7 +196,7 @@ public class ChainingWeapon : Weapon
         distance = Vector3.Distance(centralPosition, nextEnemy.transform.position);
         
         yield return new WaitForSeconds(DEFAULT_TRANFER_DELAY);
-        StartCoroutine(giveDelayToSkill(leftProjectile - 1, count, distance, centralPosition, enemyList, nextEnemy));
+        StartCoroutine(giveDelayToSkill(leftProjectile - 1, distance, centralPosition, enemyList, nextEnemy));
     }
 
     private IEnumerator removeLine(float time)
