@@ -2522,6 +2522,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e123f0d02123f934ebe667650f5dc660, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  shopButtonImage: {fileID: 1455641466}
+  inventoryButtonImage: {fileID: 192824937}
+  enhanceButtonImage: {fileID: 199777385}
   equipButton: {fileID: 555237595}
   buyButton: {fileID: 498054451}
   selectedImage: {fileID: 532543514}
