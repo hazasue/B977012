@@ -15,6 +15,7 @@ public class UIManager : MonoBehaviour
 
     public Slider playerHp;
     public Slider playerExp;
+    public Slider playerSkill;
 
     public TMP_Text timeText;
 
@@ -35,6 +36,7 @@ public class UIManager : MonoBehaviour
     void Update()
     {
         updateTime();
+        updateSkillBar();
     }
 
     public static UIManager GetInstance()
@@ -48,7 +50,6 @@ public class UIManager : MonoBehaviour
     private void init()
     {
         instance = this;
-
         time = 0f;
         player = GameManager.GetInstance().GetPlayer();
         
@@ -57,12 +58,26 @@ public class UIManager : MonoBehaviour
 
         playerExp.maxValue = player.GetLevelInfo().CheckRequiredExp();
         playerExp.value = player.GetLevelInfo().CheckCurrentExp();
+
+        playerSkill.maxValue = player.GetInventory().GetSkill().GetDelay();
+        playerSkill.value = 0;
     }
 
     private void updateTime()
     {
         time += Time.deltaTime;
         timeText.text = ((int)(time / 60)).ToString("D2") + " : " + ((int)(time % 60)).ToString("D2");
+    }
+
+    private void updateSkillBar()
+    {
+        if (playerSkill.value >= playerSkill.maxValue) return;
+        playerSkill.value += Time.deltaTime;
+    }
+
+    public void ResetSkillBar()
+    {
+        playerSkill.value = 0f;
     }
 
     public void UpdatePlayerCurrentStatus()

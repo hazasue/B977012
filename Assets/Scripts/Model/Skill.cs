@@ -87,6 +87,7 @@ public class Skill : MonoBehaviour
         }
         
         canUseSkill = false;
+        UIManager.GetInstance().ResetSkillBar();
         StartCoroutine(ableToUseSkill());
     }
 
@@ -102,5 +103,10 @@ public class Skill : MonoBehaviour
         yield return new WaitForSeconds(duration);
 
         Destroy(skillObject.gameObject);
+    }
+
+    public float GetDelay()
+    {
+        return delay;
     }
 }
