@@ -6,10 +6,10 @@ public class WeaponManager : MonoBehaviour
 {
     private static WeaponManager instance;
     
-    private static int DEFAULT_OPTION_COUNT = 4;
-    private static int MAX_UPGRADE_COUNT = 5;
-    private static string DEFAULT_AUGMENT_COIN = "coin";
-    private static int DEFAULT_COIN_VALUE = 10;
+    public const int DEFAULT_OPTION_COUNT = 4;
+    public const int MAX_UPGRADE_COUNT = 5;
+    public const string DEFAULT_AUGMENT_COIN = "coin";
+    public const int DEFAULT_COIN_VALUE = 10;
 
     private Dictionary<string, WeaponInfo> weaponInfos;
     private Dictionary<string, WeaponUpgradeInfo> weaponUpgradeInfos;
@@ -65,9 +65,24 @@ public class WeaponManager : MonoBehaviour
         return instance;
     }
 
+    public string GetBasicWeaponCode()
+    {
+        return basicWeaponCode;
+    }
+
     public WeaponInfo GetWeaponInfo(string code)
     {
         if (weaponInfos.ContainsKey(code)) return weaponInfos[code];
+        else
+        {
+            Debug.Log("Invalid weapon code: " + code);
+            return null;
+        }
+    }
+    
+    public WeaponUpgradeInfo GetWeaponUpgradeInfo(string code)
+    {
+        if (weaponUpgradeInfos.ContainsKey(code)) return weaponUpgradeInfos[code];
         else
         {
             Debug.Log("Invalid weapon code: " + code);
