@@ -34,7 +34,8 @@ public class CSVConverter : MonoBehaviour
                     float.Parse(weaponInfo["Speed"].ToString()),
                     weaponInfo["Occupation"].ToString(),
                     (int)weaponInfo["Order"],
-                    (int)weaponInfo["Price"]
+                    (int)weaponInfo["Price"],
+                    weaponInfo["Description"].ToString()
                 ));
         }
 
