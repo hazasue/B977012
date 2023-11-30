@@ -60,11 +60,16 @@ public class LobbyManager : MonoBehaviour
 
     private void init()
     {
+        LoadCharacterDatas();
+        ShowScreen(DEFAULT_INVENTORY_NAME);
+    }
+
+    public void LoadCharacterDatas()
+    {
         characterDatas =
             JsonManager.LoadJsonFile<Dictionary<string, CharacterData>>(JsonManager.DEFAULT_CHARACTER_DATA_NAME);
         characterCode = JsonManager.LoadJsonFile<CurrentCharacterInfo>(JsonManager.DEFAULT_CURRENT_CHARACTER_DATA_NAME)
             .currentSelectedCode;
-        ShowScreen(DEFAULT_INVENTORY_NAME);
     }
 
     public void ShowScreen(string name)
@@ -245,7 +250,7 @@ public class LobbyManager : MonoBehaviour
                 Debug.Log("Invalid equipment type: " + currentEquipment.GetType());
                 break;
         }
-
+        
         updateButton(currentEquipment.GetPurpose());
 
         JsonManager.CreateJsonFile(JsonManager.DEFAULT_CHARACTER_DATA_NAME, characterDatas);
