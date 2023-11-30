@@ -59,13 +59,26 @@ public class Skill : MonoBehaviour
         StartCoroutine(ableToUseSkill());
     }
 
-    public void UseSkill()
+    public void UseSkill(Weapon basicWeapon)
     {
         if (!canUseSkill) return;
 
         switch (skillType)
         {
             case SkillType.BUFF:
+                switch (stat)
+                {
+                    case "delay":
+                        StartCoroutine(basicWeapon.ApplyBuffSkill(stat, value, duration));
+                        break;
+                    
+                    case "damage":
+                        break;
+                    
+                    default:
+                        Debug.Log("Invalid stat name: " + stat);
+                        break;
+                }
                 break;
             
             case SkillType.DEALING:

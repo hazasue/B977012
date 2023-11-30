@@ -36,6 +36,8 @@ public class Player : Character
     // Update is called once per frame
     void Update()
     {
+        if (Time.timeScale == 0) return;
+        
         ChangePlayerState();
 
         switch (characterState)
@@ -129,7 +131,7 @@ public class Player : Character
 
         if (Input.GetKeyDown(KeyCode.X))
         {
-            inventory.GetSkill().UseSkill();
+            inventory.GetSkill().UseSkill(inventory.GetWeapons()[WeaponManager.GetInstance().GetBasicWeaponCode()]);
         }
         
         direction = direction.normalized;
