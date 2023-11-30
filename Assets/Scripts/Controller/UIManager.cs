@@ -24,7 +24,11 @@ public class UIManager : MonoBehaviour
     
     public GameObject augmentScreen;
     public TMP_Text[] weaponNames = new TMP_Text[DEFAULT_OPTION_COUNT];
+    public TMP_Text[] weaponLvs = new TMP_Text[DEFAULT_OPTION_COUNT];
+    public TMP_Text[] weaponDescriptions = new TMP_Text[DEFAULT_OPTION_COUNT];
 
+    private GameManager mGameManager;
+    private WeaponManager mWeaponManager;
     private Player player;
     
     // Start is called before the first frame update
@@ -50,7 +54,9 @@ public class UIManager : MonoBehaviour
     {
         instance = this;
         time = 0f;
-        player = GameManager.GetInstance().GetPlayer();
+        mGameManager = GameManager.GetInstance();
+        mWeaponManager = WeaponManager.GetInstance();
+        player = mGameManager.GetPlayer();
         
         playerHp.maxValue = player.GetMaxHp();
         playerHp.value = player.GetCurrentHp();
@@ -102,13 +108,47 @@ public class UIManager : MonoBehaviour
 
     public void UpdateAugmentOptions(List<WeaponInfo> weaponInfos)
     {
+        Weapon selectedWeapon;
+        WeaponUpgradeInfo upgradeInfo;
+
         for (int i = 0; i < DEFAULT_OPTION_COUNT; i++)
         {
             if (i < weaponInfos.Count)
+            {
+                if (!player.GetInventory().GetWeapons().TryGetValue(weaponInfos[i].GetCode(), out selectedWeapon))
+                    selectedWeapon = null;
+
                 weaponNames[i].text = weaponInfos[i].GetName();
+
+                if (!selectedWeapon)
+                {
+                    weaponLvs[i].text = "Lv. 1";
+                    weaponDescriptions[i].text = weaponInfos[i].GetDescription();
+                }
+                else
+                {
+                    if(selectedWeapon.GetUpgradeCount() < WeaponManager.MAX_UPGRADE_COUNT)
+                        weaponLvs[i].text = "Lv. " + (selectedWeapon.GetUpgradeCount() + 1);
+                    else
+                    {
+                        weaponLvs[i].text = "Lv. MAX";
+                    }
+
+                    upgradeInfo = mWeaponManager.GetWeaponUpgradeInfo(weaponInfos[i].GetCode());
+                    if(upgradeInfo.option1 == "delay")
+                        weaponDescriptions[i].text = "Decrease " + upgradeInfo.option1 + ": " + upgradeInfo.value1;
+                    else
+                    {
+                        weaponDescriptions[i].text = "Increase " + upgradeInfo.option1 + ": " + upgradeInfo.value1;
+                    }
+
+                }
+            }
             else
             {
                 weaponNames[i].text = DEFAULT_AUGMENT_COIN;
+                weaponLvs[i].text = "";
+                weaponDescriptions[i].text = "Gain " + WeaponManager.DEFAULT_COIN_VALUE + " Coins.";
             }
         }
 
@@ -117,17 +157,17 @@ public class UIManager : MonoBehaviour
 
     public void SelectOption(int index)
     {
-        WeaponManager.GetInstance().ReflectAugment(index);
+        mWeaponManager.ReflectAugment(index);
     }
     
     public void SetActiveAugmentScreen(bool activeStatus)
     {
         augmentScreen.SetActive(activeStatus);
 
-        if (activeStatus) GameManager.GetInstance().PauseGame();
+        if (activeStatus) mGameManager.PauseGame();
         else
         {
-            GameManager.GetInstance().ResumeGame();
+            mGameManager.ResumeGame();
         }
     }
 }
