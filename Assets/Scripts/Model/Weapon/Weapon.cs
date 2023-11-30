@@ -52,6 +52,65 @@ public abstract class Weapon : MonoBehaviour
 
     public abstract IEnumerator ActivateWeaponObjectAuto();
 
+    public IEnumerator ApplyBuffSkill(string stat, float value, float duration)
+    {
+        switch (stat)
+        {
+            case "damage":
+                this.damage += (int)value;
+                break;
+            
+            case "duration":
+                this.duration += value;
+                break;
+            
+            case "delay":
+                this.delay -= value;
+                break;
+            
+            case "projectile":
+                this.projectile += (int)value;
+                break;
+            
+            case "speed":
+                this.speed += value;
+                break;
+            
+            default:
+                Debug.Log("Unmatched buff stat: " + this.code + " " + stat);
+                break;
+        }
+
+        yield return new WaitForSeconds(duration);
+        
+        switch (stat)
+        {
+            case "damage":
+                this.damage -= (int)value;
+                break;
+            
+            case "duration":
+                this.duration -= value;
+                break;
+            
+            case "delay":
+                this.delay += value;
+                break;
+            
+            case "projectile":
+                this.projectile -= (int)value;
+                break;
+            
+            case "speed":
+                this.speed -= value;
+                break;
+            
+            default:
+                Debug.Log("Unmatched buff stat: " + this.code + " " + stat);
+                break;
+        }
+    }
+
     protected IEnumerator EnableToAttack()
     {
         yield return new WaitForSeconds(delay);
