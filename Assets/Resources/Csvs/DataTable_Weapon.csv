@@ -1,16 +1,16 @@
-WeaponCode,WeaponName,WeaponType,Damage,Duration,Delay,Projectile,Range,Speed,Occupation,Order,Price
-warriorMelee11,tempMelee,MELEE,10,0.5,2,1,2,0,WARRIOR,1,0
-warriorMelee12,tempMelee,MELEE,15,0.5,1.75,1,2,0,WARRIOR,1,10
-warriorMelee21,tempMelee,MELEE,20,0.5,1.5,1,2,0,WARRIOR,2,0
-warriorMelee22,tempMelee,MELEE,25,0.5,1.25,1,2,0,WARRIOR,2,20
-warriorMelee31,tempMelee,MELEE,30,0.5,1,1,2,0,WARRIOR,3,0
-warriorMelee32,tempMelee,MELEE,35,0.5,0.75,1,2,0,WARRIOR,3,30
-wizardTracking11,tempTracking,TRACKING,10,5,2,1,0,10,WIZARD,1,0
-wizardTracking12,tempTracking,TRACKING,15,5,1.75,1,0,10,WIZARD,1,10
-wizardTracking21,tempTracking,TRACKING,20,5,1.5,1,0,10,WIZARD,2,0
-wizardTracking22,tempTracking,TRACKING,25,5,1.25,1,0,10,WIZARD,2,20
-wizardTracking31,tempTracking,TRACKING,30,5,1,1,0,10,WIZARD,3,0
-wizardTracking32,tempTracking,TRACKING,35,5,0.75,1,0,10,WIZARD,3,30
-tempBarrier,tempBarrier,BARRIER,10,0.7,2,1,2,0,common,0,0
-tempBeam,tempBeam,BEAM,10,0.4,2,1,25,0,common,0,0
-tempChaining,tempChaining,CHAINING,10,0.2,2,4,20,0,common,0,0
+WeaponCode,WeaponName,WeaponType,Damage,Duration,Delay,Projectile,Range,Speed,Occupation,Order,Price,Description
+warriorMelee11,tempMelee,MELEE,10,0.5,2,1,2,0,WARRIOR,1,0,.
+warriorMelee12,tempMelee,MELEE,15,0.5,1.75,1,2,0,WARRIOR,1,10,.
+warriorMelee21,tempMelee,MELEE,20,0.5,1.5,1,2,0,WARRIOR,2,0,.
+warriorMelee22,tempMelee,MELEE,25,0.5,1.25,1,2,0,WARRIOR,2,20,.
+warriorMelee31,tempMelee,MELEE,30,0.5,1,1,2,0,WARRIOR,3,0,.
+warriorMelee32,tempMelee,MELEE,35,0.5,0.75,1,2,0,WARRIOR,3,30,.
+wizardTracking11,tempTracking,TRACKING,10,5,2,1,0,10,WIZARD,1,0,.
+wizardTracking12,tempTracking,TRACKING,15,5,1.75,1,0,10,WIZARD,1,10,.
+wizardTracking21,tempTracking,TRACKING,20,5,1.5,1,0,10,WIZARD,2,0,.
+wizardTracking22,tempTracking,TRACKING,25,5,1.25,1,0,10,WIZARD,2,20,.
+wizardTracking31,tempTracking,TRACKING,30,5,1,1,0,10,WIZARD,3,0,.
+wizardTracking32,tempTracking,TRACKING,35,5,0.75,1,0,10,WIZARD,3,30,.
+tempBarrier,tempBarrier,BARRIER,10,0.7,2,1,2,0,common,0,0,It is a weapon that strikes the surroundings every certain period of time.
+tempBeam,tempBeam,BEAM,10,0.4,2,1,25,0,common,0,0,Fire a beam at the nearest enemy.
+tempChaining,tempChaining,CHAINING,10,0.2,2,4,20,0,common,0,0,Hit the nearest enemy with a lightning attack that causes a chain reaction.
