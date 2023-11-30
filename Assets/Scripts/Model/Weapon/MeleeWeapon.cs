@@ -15,7 +15,7 @@ public class MeleeWeapon : Weapon
         range = weaponInfo.GetRange();
         speed = weaponInfo.GetSpeed();
         weaponType = Weapon.WeaponType.MELEE;
-        upgradeCount = 0;
+        upgradeCount = 1;
 
         enableToAttack = false;
         

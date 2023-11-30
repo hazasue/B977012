@@ -26,7 +26,7 @@ public class ChainingWeapon : Weapon
         range = weaponInfo.GetRange();
         speed = weaponInfo.GetSpeed();
         weaponType = Weapon.WeaponType.CHAINING;
-        upgradeCount = 0;
+        upgradeCount = 1;
 
         enableToAttack = false;
 

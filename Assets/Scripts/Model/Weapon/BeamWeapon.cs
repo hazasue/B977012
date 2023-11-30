@@ -15,7 +15,7 @@ public class BeamWeapon : Weapon
         range = weaponInfo.GetRange();
         speed = weaponInfo.GetSpeed();
         weaponType = Weapon.WeaponType.BEAM;
-        upgradeCount = 0;
+        upgradeCount = 1;
 
         enableToAttack = false;
         

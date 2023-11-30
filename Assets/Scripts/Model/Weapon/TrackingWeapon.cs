@@ -15,7 +15,7 @@ public class TrackingWeapon : Weapon
         range = weaponInfo.GetRange();
         speed = weaponInfo.GetSpeed();
         weaponType = Weapon.WeaponType.TRACKING;
-        upgradeCount = 0;
+        upgradeCount = 1;
 
         enableToAttack = false;
         
