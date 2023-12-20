@@ -54,9 +54,10 @@ public class GameManager : MonoBehaviour
             characterDatas[characterIndex].damage,
             characterDatas[characterIndex].speed,
             characterDatas[characterIndex].armor);
-
-        player.GetInventory().AddWeapon(WeaponManager.GetInstance().GetWeaponInfo(characterDatas[characterIndex].basicWeapon), true);
+        
         player.GetInventory().AddSkill(SkillManager.GetInstance().GetSkillInfo(characterDatas[characterIndex].basicSkill));
+        player.ApplyEnhancedOptions(JsonManager.LoadJsonFile<Dictionary<string, EnhanceInfo>>(JsonManager.DEFAULT_ENHANCEMENT_DATA_NAME));
+        player.GetInventory().AddWeapon(WeaponManager.GetInstance().GetWeaponInfo(characterDatas[characterIndex].basicWeapon), true);
     }
 
     public static GameManager GetInstance()
@@ -109,15 +110,16 @@ public class GameManager : MonoBehaviour
     private void addFirstClearReward()
     {
         string weaponCode = "";
+        int tempCurrentStage = characterDatas[characterIndex].currentStage;
         switch (characterDatas[characterIndex].playerType)
         {
             case "WARRIOR":
-                weaponCode = DEFAULT_WEAPON_CODE_WARRIOR + (characterDatas[characterIndex].currentStage + 2) +
+                weaponCode = DEFAULT_WEAPON_CODE_WARRIOR + (tempCurrentStage + 2) +
                              "1";
                 break;
 
             case "WIZARD":
-                weaponCode = DEFAULT_WEAPON_CODE_WIZARD + (characterDatas[characterIndex].currentStage + 2) +
+                weaponCode = DEFAULT_WEAPON_CODE_WIZARD + (tempCurrentStage + 2) +
                              "1";
                 break;
 

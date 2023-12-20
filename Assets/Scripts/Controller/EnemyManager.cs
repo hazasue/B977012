@@ -18,7 +18,7 @@ public class EnemyManager : MonoBehaviour
     private static float RIGHT_ANGLE = 90f;
     private static float DEFAULT_BASIC_ENEMY_SPAWN_ANGLE = 30f;
     private static float DEFAULT_ENEMY_SPAWN_RANGE = 30f;
-    private static float DEFAULT_BOSS_ENEMY_SPAWN_DELAY = 50f;
+    private static float DEFAULT_BOSS_ENEMY_SPAWN_DELAY = 5f;
     
     // attributes
     private int killedEnemiesCount;
@@ -183,6 +183,7 @@ public class EnemyManager : MonoBehaviour
                     inactiveEnemies.Enqueue(activeEnemies[key]);
                     activeEnemies.Remove(key);
                     killedEnemiesCount++;
+                    UIManager.GetInstance().UpdateKilledEnemyCount(killedEnemiesCount);
                 }
                 break;
             
@@ -194,6 +195,7 @@ public class EnemyManager : MonoBehaviour
                     bossEnemy.Remove(key);
                     Destroy(tempEnemy.gameObject);
                     killedEnemiesCount++;
+                    UIManager.GetInstance().UpdateKilledEnemyCount(killedEnemiesCount);
 
                     if (bossPhase >= bossEnemyCount)
                     {

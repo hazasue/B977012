@@ -8,6 +8,7 @@ public class UIManager : MonoBehaviour
 {
     private static UIManager instance;
 
+    private const int DEFAULT_UI_COUNT = 3;
     private static int DEFAULT_OPTION_COUNT = 4;
     private static string DEFAULT_AUGMENT_COIN = "coin";
 
@@ -26,6 +27,9 @@ public class UIManager : MonoBehaviour
     public TMP_Text[] weaponNames = new TMP_Text[DEFAULT_OPTION_COUNT];
     public TMP_Text[] weaponLvs = new TMP_Text[DEFAULT_OPTION_COUNT];
     public TMP_Text[] weaponDescriptions = new TMP_Text[DEFAULT_OPTION_COUNT];
+
+    public TMP_Text[] coinCount = new TMP_Text[DEFAULT_UI_COUNT];
+    public TMP_Text[] enemyCount = new TMP_Text[DEFAULT_UI_COUNT];
 
     private GameManager mGameManager;
     private WeaponManager mWeaponManager;
@@ -100,6 +104,22 @@ public class UIManager : MonoBehaviour
     {
         playerHp.maxValue = player.GetMaxHp();
         playerExp.maxValue = player.GetLevelInfo().CheckRequiredExp();
+    }
+
+    public void UpdateCoinCount(int value)
+    {
+        for (int i = 0; i < DEFAULT_UI_COUNT; i++)
+        {
+            coinCount[i].text = value.ToString();
+        }
+    }
+
+    public void UpdateKilledEnemyCount(int count)
+    {
+        for (int i = 0; i < DEFAULT_UI_COUNT; i++)
+        {
+            enemyCount[i].text = count.ToString();
+        }
     }
 
     public void ActivateClearScreen() { clearScreen.SetActive(true); }
