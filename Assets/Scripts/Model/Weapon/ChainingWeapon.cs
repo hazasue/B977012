@@ -119,7 +119,6 @@ public class ChainingWeapon : Weapon
         enableToAttack = false;
         StartCoroutine(EnableToAttack());
         
-        //
         enemyTransforms.Clear();
         enemyPositions.Clear();
         lineRenderer.positionCount = 0;
