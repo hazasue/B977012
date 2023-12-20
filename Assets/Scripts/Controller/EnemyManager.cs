@@ -18,7 +18,7 @@ public class EnemyManager : MonoBehaviour
     private static float RIGHT_ANGLE = 90f;
     private static float DEFAULT_BASIC_ENEMY_SPAWN_ANGLE = 30f;
     private static float DEFAULT_ENEMY_SPAWN_RANGE = 30f;
-    private static float DEFAULT_BOSS_ENEMY_SPAWN_DELAY = 5f;
+    private static float DEFAULT_BOSS_ENEMY_SPAWN_DELAY = 40f;
     
     // attributes
     private int killedEnemiesCount;
