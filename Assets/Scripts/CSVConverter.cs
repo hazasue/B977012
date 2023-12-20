@@ -12,6 +12,7 @@ public class CSVConverter : MonoBehaviour
     private static string CSV_FILENAME_STAGE = "DataTable_Stage";
     private static string CSV_FILENAME_CHARACTER = "DataTable_Character";
     private static string CSV_FILENAME_SKILL = "DataTable_Skill";
+    private static string CSV_FILENAME_ENHANCEMENT = "DataTable_Enhancement";
 
     private static int DEFAULT_ORDER_NUMBER = 1;
     
@@ -97,7 +98,8 @@ public class CSVConverter : MonoBehaviour
                     (int)stageInfo["BossEnemyCount"],
                     normalEnemies.ToList(),
                     bossEnemies.ToList(),
-                    (int)stageInfo["BasicReward"]
+                    (int)stageInfo["BasicReward"],
+                    stageInfo["Texture"].ToString()
                 ));
         }
         JsonManager.CreateJsonFile(JsonManager.DEFAULT_STAGE_DATA_NAME, stageInfos);
@@ -146,5 +148,20 @@ public class CSVConverter : MonoBehaviour
         }
         
         JsonManager.CreateJsonFile(JsonManager.DEFAULT_SKILL_DATA_NAME, skillInfos);
+        /*
+        // Enhancement
+        
+        List<Dictionary<string, object>> EnhanceDB = CSVReader.Read(CSV_FILENAME_ENHANCEMENT);
+        Dictionary<string, EnhanceInfo> enhanceInfos = new Dictionary<string, EnhanceInfo>();
+        foreach (Dictionary<string, object> enhanceInfo in EnhanceDB)
+        {
+            enhanceInfos.Add(enhanceInfo["EnhanceStat"].ToString(),
+                new EnhanceInfo(enhanceInfo["EnhanceStat"].ToString(),
+                    float.Parse(enhanceInfo["EnhanceValue"].ToString())
+                ));
+        }
+        
+        JsonManager.CreateJsonFile(JsonManager.DEFAULT_ENHANCEMENT_DATA_NAME, enhanceInfos);
+        */
     }
 }
