@@ -26,6 +26,10 @@ public class Player : Character
     private bool timeToAttack;
     private PlayerState playerState;
 
+    private float coinMultiple;
+    private float expMultiple;
+    private float damageMultiple;
+
     // associations
     [SerializeField]
     private Inventory inventory;
@@ -83,6 +87,9 @@ public class Player : Character
         this.damage = damage;
         this.moveSpeed = moveSpeed;
         this.armor = armor;
+        this.coinMultiple = 1f;
+        this.expMultiple = 1f;
+        this.damageMultiple = 1f;
 
         this.attackDirection = new Vector3(1f, 0f, 0f);
 
@@ -150,6 +157,43 @@ public class Player : Character
         
         this.hp -= damage - armor;
         UIManager.GetInstance().UpdatePlayerCurrentStatus();
+    }
+
+    public void ApplyEnhancedOptions(Dictionary<string, EnhanceInfo> enhanceInfos)
+    {
+        foreach (KeyValuePair<string, EnhanceInfo> data in enhanceInfos)
+        {
+            switch (data.Key)
+            {
+                case "hp":
+                    this.maxHp += (int)(this.maxHp * data.Value.enhanceCount * data.Value.value / 100f);
+                    this.hp = this.maxHp;
+                    break;
+                
+                case"damage":
+                    this.damageMultiple += data.Value.enhanceCount * data.Value.value / 100f;
+                    break;
+                
+                case "moveSpeed":
+                    this.moveSpeed += this.moveSpeed * data.Value.enhanceCount * data.Value.value / 100f;
+                    break;
+
+                case "coin":
+                    this.coinMultiple += data.Value.enhanceCount * data.Value.value / 100f;
+                    break;
+                
+                case "exp":
+                    this.expMultiple += data.Value.enhanceCount * data.Value.value / 100f;
+                    break;
+
+                case "skillDelay":
+                    inventory.GetSkill().ApplyEnhanceOption(data.Value.enhanceCount * data.Value.value / 100f);
+                    break;
+            }
+        }
+
+        inventory.ApplyEnhanceOptions(this.damageMultiple, this.coinMultiple);
+        playerLevel.ApplyEnhanceOption(expMultiple);
     }
     
     private void PickUpItems() {}

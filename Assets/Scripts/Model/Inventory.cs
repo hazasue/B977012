@@ -9,6 +9,8 @@ public class Inventory : MonoBehaviour
     
     // attributes
     private int coin;
+    private float damageMultiple;
+    private float coinMultiple;
     public RangeCollider rangeCollider;
     
     // associations
@@ -27,6 +29,12 @@ public class Inventory : MonoBehaviour
         weapons = new Dictionary<string, Weapon>();
         accessories = new Dictionary<string, Accessory>();
         skill = null;
+    }
+
+    public void ApplyEnhanceOptions(float damageMultiple, float coinMultiple)
+    {
+        this.damageMultiple = damageMultiple;
+        this.coinMultiple = coinMultiple;
     }
 
     public Dictionary<string, Weapon> GetWeapons()
@@ -75,7 +83,7 @@ public class Inventory : MonoBehaviour
         RangeCollider tempRangeCollider = Instantiate(rangeCollider, tempWeapon.transform, true);
         tempRangeCollider.transform.localPosition = Vector3.zero;
         Weapon tempWeaponScript = tempWeapon.GetComponent<Weapon>();
-        tempWeaponScript.Init(weaponInfo, tempRangeCollider, mainWeapon);
+        tempWeaponScript.Init(weaponInfo, tempRangeCollider, this.damageMultiple, mainWeapon);
         weapons.Add(tempWeaponScript.GetCode(), tempWeaponScript);
     }
 
@@ -105,6 +113,7 @@ public class Inventory : MonoBehaviour
 
     public void GainCoins(int value)
     {
-        this.coin += value;
+        this.coin += (int)(value * coinMultiple);
+        UIManager.GetInstance().UpdateCoinCount(this.coin);
     }
 }

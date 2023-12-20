@@ -66,30 +66,18 @@ public class Skill : MonoBehaviour
         switch (skillType)
         {
             case SkillType.BUFF:
-                switch (stat)
-                {
-                    case "delay":
-                        StartCoroutine(basicWeapon.ApplyBuffSkill(stat, value, duration));
-                        break;
-                    
-                    case "damage":
-                        break;
-                    
-                    default:
-                        Debug.Log("Invalid stat name: " + stat);
-                        break;
-                }
+                StartCoroutine(basicWeapon.ApplyBuffSkill(stat, value, duration));
                 break;
-            
+
             case SkillType.DEALING:
                 SkillObject tempObject;
+                Vector3 attackDirection;
                 for (int i = 0; i < projectile; i++)
                 {
+                    attackDirection = Quaternion.Euler(0f, DEFAULT_360_DEGREE / projectile * i, 0f) * DEFAULT_OBJECT_POSITION;
                     tempObject = Instantiate(Resources.Load<SkillObject>("Prefabs/skills/" + code + "_object"), instanceTransform, true);
-                    tempObject.transform.position =
-                        this.transform.position + DEFAULT_OBJECT_POSITION_Y + Quaternion.Euler(0f, DEFAULT_360_DEGREE / projectile * i, 0f) * DEFAULT_OBJECT_POSITION;
-                    tempObject.Init(damage, DEFAULT_MOVESPEED,
-                        Quaternion.Euler(0f, DEFAULT_360_DEGREE / projectile * i, 0f) * DEFAULT_OBJECT_POSITION);
+                    tempObject.transform.position = this.transform.position + DEFAULT_OBJECT_POSITION_Y + attackDirection;
+                    tempObject.Init(damage, DEFAULT_MOVESPEED, attackDirection);
                     StartCoroutine(removeSkillObject(tempObject));
                 }
                 break;
@@ -121,5 +109,10 @@ public class Skill : MonoBehaviour
     public float GetDelay()
     {
         return delay;
+    }
+
+    public void ApplyEnhanceOption(float value)
+    {
+        this.delay -= value * this.delay;
     }
 }

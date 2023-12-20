@@ -4,11 +4,12 @@ using UnityEngine;
 
 public class TrackingWeapon : Weapon
 {
-    public override void Init(WeaponInfo weaponInfo, RangeCollider rangeCollider, bool mainWeapon = false)
+    public override void Init(WeaponInfo weaponInfo, RangeCollider rangeCollider, float damageMultiple, bool mainWeapon = false)
     {
+        this.damageMultiple = damageMultiple;
         code = weaponInfo.GetCode();
         name = weaponInfo.GetName();
-        damage = weaponInfo.GetDamage();
+        damage = (int)(weaponInfo.GetDamage() * damageMultiple);
         duration = weaponInfo.GetDuration();
         delay = weaponInfo.GetDelay();
         projectile = weaponInfo.GetProjectile();
@@ -42,7 +43,7 @@ public class TrackingWeapon : Weapon
                 break;
             
             case "damage":
-                this.damage += (int)upgradeInfo.value1;
+                this.damage += (int)(upgradeInfo.value1 * damageMultiple);
                 break;
             
             case "duration":
@@ -72,7 +73,7 @@ public class TrackingWeapon : Weapon
                 break;
             
             case "damage":
-                this.damage += (int)upgradeInfo.value2;
+                this.damage += (int)(upgradeInfo.value2 * damageMultiple);
                 break;
             
             case "duration":

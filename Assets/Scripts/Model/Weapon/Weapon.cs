@@ -31,6 +31,8 @@ public abstract class Weapon : MonoBehaviour
     protected WeaponType weaponType;
     protected bool mainWeapon;
 
+    protected float damageMultiple;
+
     protected int upgradeCount;
 
     protected bool enableToAttack;
@@ -42,7 +44,7 @@ public abstract class Weapon : MonoBehaviour
     protected Transform instanceTransform;
 
     // methods
-    public abstract void Init(WeaponInfo weaponInfo, RangeCollider rangeCollider, bool mainWeapon = false);
+    public abstract void Init(WeaponInfo weaponInfo, RangeCollider rangeCollider,  float damageMultiple, bool mainWeapon = false);
 
     public abstract void UpgradeWeapon(WeaponUpgradeInfo upgradeInfo);
 
