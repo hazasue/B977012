@@ -11,9 +11,10 @@ public class StageInfo
     public List<string> normalEnemies;
     public List<string> bossEnemies;
     public int basicReward;
+    public string texture;
 
     public StageInfo(string stageCode, int normalEnemyCount, int bossEnemyCount, List<string> normalEnemies,
-        List<string> bossEnemies, int basicReward)
+        List<string> bossEnemies, int basicReward, string texture)
     {
         this.stageCode = stageCode;
         this.normalEnemyCount = normalEnemyCount;
@@ -21,5 +22,6 @@ public class StageInfo
         this.normalEnemies = normalEnemies;
         this.bossEnemies = bossEnemies;
         this.basicReward = basicReward;
+        this.texture = texture;
     }
 }
