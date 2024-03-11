@@ -8,13 +8,15 @@ public class Enhancement : MonoBehaviour
     private int enhanceCount;
     private float value;
     private int price;
+    private string description;
 
-    public void Init(string stat, int enhanceCount, float value, int price)
+    public void Init(string stat, int enhanceCount, float value, int price, string description)
     {
         this.stat = stat;
         this.enhanceCount = enhanceCount;
         this.value = value;
         this.price = price;
+        this.description = description;
     }
 
     public string GetStat() { return stat; }
@@ -24,4 +26,6 @@ public class Enhancement : MonoBehaviour
     public float GetValue() { return value; }
 
     public int GetPrice() { return price; }
+
+    public string GetDescription() { return description; }
 }
