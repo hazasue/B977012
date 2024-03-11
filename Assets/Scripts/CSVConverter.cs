@@ -36,7 +36,8 @@ public class CSVConverter : MonoBehaviour
                     weaponInfo["Occupation"].ToString(),
                     (int)weaponInfo["Order"],
                     (int)weaponInfo["Price"],
-                    weaponInfo["Description"].ToString()
+                    weaponInfo["Description"].ToString(),
+                    weaponInfo["SpeedDescription"].ToString()
                 ));
         }
 
