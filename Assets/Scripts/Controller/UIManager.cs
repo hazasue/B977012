@@ -11,6 +11,8 @@ public class UIManager : MonoBehaviour
     private const int DEFAULT_UI_COUNT = 3;
     private static int DEFAULT_OPTION_COUNT = 4;
     private static string DEFAULT_AUGMENT_COIN = "coin";
+    private static Vector3 DEFAULT_OPTION_POSITION = new Vector3(500f, 270f, 0f);
+    private const float DEFAULT_OPTION_POSITION_GAP = 180f;
 
     private float time;
 
@@ -18,10 +20,16 @@ public class UIManager : MonoBehaviour
     public Slider playerExp;
     public Slider playerSkill;
 
+    public TMP_Text playerHpText;
+    public GameObject skillText;
+    public TMP_Text levelText;
+
     public TMP_Text timeText;
 
     public GameObject clearScreen;
     public GameObject failScreen;
+
+    public GameObject optionBorder;
     
     public GameObject augmentScreen;
     public TMP_Text[] weaponNames = new TMP_Text[DEFAULT_OPTION_COUNT];
@@ -62,9 +70,11 @@ public class UIManager : MonoBehaviour
         mWeaponManager = WeaponManager.GetInstance();
         player = mGameManager.GetPlayer();
         
+        playerHpText.text = $"{player.GetCurrentHp()} / {player.GetMaxHp()}";
         playerHp.maxValue = player.GetMaxHp();
         playerHp.value = player.GetCurrentHp();
 
+        levelText.text = $"LV. {player.GetLevelInfo().GetLevel()}";
         playerExp.maxValue = player.GetLevelInfo().CheckRequiredExp();
         playerExp.value = player.GetLevelInfo().CheckCurrentExp();
 
@@ -81,21 +91,29 @@ public class UIManager : MonoBehaviour
 
     private IEnumerator updateSkillBar()
     {
-        yield return new WaitForSeconds(Time.deltaTime);
-        if (playerSkill.value >= playerSkill.maxValue) yield break;
-
-        playerSkill.value += Time.deltaTime;
-        StartCoroutine(updateSkillBar());
+        while (true)
+        {
+            yield return new WaitForSeconds(Time.deltaTime);
+            if (playerSkill.value >= playerSkill.maxValue)
+            {
+                skillText.SetActive(true);
+                yield break;
+            }
+            playerSkill.value += Time.deltaTime;
+        }
     }
 
     public void ResetSkillBar()
     {
         playerSkill.value = 0f;
+        skillText.SetActive(false);
         StartCoroutine(updateSkillBar());
     }
 
     public void UpdatePlayerCurrentStatus()
     {
+        levelText.text = $"LV. {player.GetLevelInfo().GetLevel()}";
+        playerHpText.text = $"{player.GetCurrentHp()} / {player.GetMaxHp()}";
         playerHp.value = player.GetCurrentHp();
         playerExp.value = player.GetLevelInfo().CheckCurrentExp();
     }
@@ -142,16 +160,20 @@ public class UIManager : MonoBehaviour
 
                 if (!selectedWeapon)
                 {
-                    weaponLvs[i].text = "Lv. 1";
+                    //weaponLvs[i].text = "Lv. 1";
+                    weaponLvs[i].gameObject.SetActive(true);
                     weaponDescriptions[i].text = weaponInfos[i].GetDescription();
                 }
                 else
                 {
+                    weaponLvs[i].gameObject.SetActive(false);
                     if(selectedWeapon.GetUpgradeCount() < WeaponManager.MAX_UPGRADE_COUNT)
-                        weaponLvs[i].text = "Lv. " + (selectedWeapon.GetUpgradeCount() + 1);
+                    //    weaponLvs[i].text = "Lv. " + (selectedWeapon.GetUpgradeCount() + 1);
+                    weaponNames[i].text += "  Lv. " + (selectedWeapon.GetUpgradeCount() + 1);
                     else
                     {
-                        weaponLvs[i].text = "Lv. MAX";
+                        //weaponLvs[i].text = "Lv. MAX";
+                        weaponNames[i].text += "  Lv. MAX";
                     }
 
                     upgradeInfo = mWeaponManager.GetWeaponUpgradeInfo(weaponInfos[i].GetCode());
@@ -174,7 +196,7 @@ public class UIManager : MonoBehaviour
 
         SetActiveAugmentScreen(true);
     }
-
+    
     public void SelectOption(int index)
     {
         mWeaponManager.ReflectAugment(index);
@@ -182,6 +204,7 @@ public class UIManager : MonoBehaviour
     
     public void SetActiveAugmentScreen(bool activeStatus)
     {
+        optionBorder.SetActive(false);
         augmentScreen.SetActive(activeStatus);
 
         if (activeStatus) mGameManager.PauseGame();
@@ -190,4 +213,24 @@ public class UIManager : MonoBehaviour
             mGameManager.ResumeGame();
         }
     }
+
+    public void HoverOption(int idx)
+    {
+        optionBorder.transform.localPosition = DEFAULT_OPTION_POSITION - new Vector3(0f, DEFAULT_OPTION_POSITION_GAP * idx, 0f);
+    }
+
+    public void ActivateOptionBorder()
+    {
+        if (optionBorder.activeSelf == true) return;
+        
+        optionBorder.SetActive(true);
+    }
+
+    public void InactivateOptionBorder()
+    {
+        if (optionBorder.activeSelf == false) return;
+        
+        optionBorder.SetActive(false);
+    }
+
 }
