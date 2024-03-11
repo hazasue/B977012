@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     
     private static string DEFAULT_WEAPON_CODE_WARRIOR = "warriorMelee";
     private static string DEFAULT_WEAPON_CODE_WIZARD = "wizardTracking";
+    private const int MAX_STAGE_INDEX = 2;
     
     // attributes
     private GameStatus gameStatus;
@@ -111,6 +112,7 @@ public class GameManager : MonoBehaviour
     {
         string weaponCode = "";
         int tempCurrentStage = characterDatas[characterIndex].currentStage;
+        if (tempCurrentStage >= MAX_STAGE_INDEX) return;
         switch (characterDatas[characterIndex].playerType)
         {
             case "WARRIOR":
