@@ -21,10 +21,13 @@ public class LobbyManager : MonoBehaviour
     private const string DEFAULT_NAME_STAGE_SCREEN = "stage";
     private const string DEFAULT_NAME_INFO_SCREEN = "info";
 
-    private const string DEFAULT_RESET_ENHANCEMENT = "reset";
+    private const string DEFAULT_RESET_ENHANCEMENT = "Reset";
     private const string NULL_STRING = "";
 
     private const int MAX_ENHANCE_COUNT = 5;
+    
+    private static Color INACTIVE_TEXT_COLOR = new Color32(255, 255, 255, 104);
+    private static Color ACTIVE_TEXT_COLOR = new Color32(255, 255, 255, 255);
     
     private static Color INACTIVE_COLOR = new Color32(128, 128, 128, 255);
     private static Color ACTIVE_COLOR = new Color32(255, 255, 255, 255);
@@ -46,6 +49,10 @@ public class LobbyManager : MonoBehaviour
     public Image inventoryButtonImage;
     public Image enhanceButtonImage;
 
+    public TMP_Text shopButtonText;
+    public TMP_Text inventoryButtonText;
+    public TMP_Text enhanceButtonText;
+
     public GameObject equipButton;
     public GameObject buyButton;
     public GameObject enhanceButton;
@@ -65,8 +72,13 @@ public class LobbyManager : MonoBehaviour
 
     public TMP_Text coinCount;
 
+    public Transform border;
+
     public Equipment equipment;
     public Enhancement enhancement;
+
+    public RawImage upgradeDone;
+    public RawImage upgradeUndone;
     
     // Start is called before the first frame update
     void Start()
@@ -112,24 +124,24 @@ public class LobbyManager : MonoBehaviour
         buyButton.SetActive(false);
         enhanceButton.SetActive(false);
 
-        shopButtonImage.color = INACTIVE_COLOR;
-        inventoryButtonImage.color = INACTIVE_COLOR;
-        enhanceButtonImage.color = INACTIVE_COLOR;
+        shopButtonText.color = INACTIVE_TEXT_COLOR;
+        inventoryButtonText.color = INACTIVE_TEXT_COLOR;
+        enhanceButtonText.color = INACTIVE_TEXT_COLOR;
         
         switch (name)
         {
             case DEFAULT_SHOP_NAME:
-                shopButtonImage.color = ACTIVE_COLOR;
+                shopButtonText.color = ACTIVE_TEXT_COLOR;
                 buyButton.SetActive(true);
                 break;
             
             case DEFAULT_INVENTORY_NAME:
-                inventoryButtonImage.color = ACTIVE_COLOR;
+                inventoryButtonText.color = ACTIVE_TEXT_COLOR;
                 equipButton.SetActive(true);
                 break;
             
             case DEFAULT_ENHANCEMENT_NAME:
-                enhanceButtonImage.color = ACTIVE_COLOR;
+                enhanceButtonText.color = ACTIVE_TEXT_COLOR;
                 currentEnhancement = null;
                 currentSelectedStat = NULL_STRING;
                 enhanceButton.SetActive(true);
@@ -220,12 +232,26 @@ public class LobbyManager : MonoBehaviour
             
             case DEFAULT_ENHANCEMENT_NAME:
                 Enhancement tempEnhancement;
+                Transform upgradeStateViewport;
+                RawImage upgradeState;
                 foreach (EnhanceInfo data in enhanceInfos.Values)
                 {
                     tempEnhancement = Instantiate(enhancement, viewport, true);
-                    tempEnhancement.GetComponent<RawImage>().texture =
+                    upgradeStateViewport = tempEnhancement.transform.GetChild(2).GetChild(0).GetChild(0).transform;
+                    tempEnhancement.transform.GetChild(0).GetComponent<RawImage>().texture =
                         Resources.Load<Texture>("Sprites/Enhancements/" + data.stat);
-                    tempEnhancement.Init(data.stat, data.enhanceCount, data.value, data.price);
+                    tempEnhancement.transform.GetChild(1).GetComponent<TMP_Text>().text = data.stat;
+                    for (int idx = 0; idx < MAX_ENHANCE_COUNT; idx++)
+                    {
+                        if (idx < data.enhanceCount)
+                            upgradeState = Instantiate(upgradeDone, upgradeStateViewport, true);
+                        else
+                        {
+                            upgradeState = Instantiate(upgradeUndone, upgradeStateViewport, true);
+                        }
+                    }
+
+                    tempEnhancement.Init(data.stat, data.enhanceCount, data.value, data.price, data.description);
                     tempEnhancement.GetComponent<Button>().onClick.AddListener(ClickEnhancement);
                     if (currentSelectedStat == NULL_STRING)
                     {
@@ -241,11 +267,14 @@ public class LobbyManager : MonoBehaviour
                         updateButton(DEFAULT_PURPOSE_ENHANCEMENT);
                     }
                 }
-                
+
                 tempEnhancement = Instantiate(enhancement, viewport, true);
-                tempEnhancement.Init(DEFAULT_RESET_ENHANCEMENT, 0, 0f, 0);
-                tempEnhancement.GetComponent<RawImage>().texture =
-                    Resources.Load<Texture>("Sprites/Enhancements/reset");
+                upgradeStateViewport = tempEnhancement.transform.GetChild(2).GetChild(0).GetChild(0).transform;
+                tempEnhancement.Init(DEFAULT_RESET_ENHANCEMENT, 0, 0f, 0, "Reset all enhancements.");
+                tempEnhancement.transform.GetChild(0).GetComponent<RawImage>().texture =
+                    Resources.Load<Texture>("Sprites/Enhancements/Reset");
+                tempEnhancement.transform.GetChild(1).GetComponent<TMP_Text>().text = "Reset";
+                upgradeState = Instantiate(upgradeUndone, upgradeStateViewport, true);
                 tempEnhancement.GetComponent<Button>().onClick.AddListener(ClickEnhancement);
                 break;
             
@@ -259,6 +288,7 @@ public class LobbyManager : MonoBehaviour
     public void ClickEnhancement()
     {
         currentEnhancement = EventSystem.current.currentSelectedGameObject.transform.GetComponent<Enhancement>();
+        border.position = currentEnhancement.transform.position;
         currentSelectedStat = currentEnhancement.GetStat();
         updateSelectedEnhanceData();
         updateButton(DEFAULT_PURPOSE_ENHANCEMENT);
@@ -268,18 +298,22 @@ public class LobbyManager : MonoBehaviour
     {
         selectedImage.texture = Resources.Load<Texture>("Sprites/Enhancements/" + currentEnhancement.GetStat());
         selectedCode.text = currentEnhancement.GetStat();
-        selectedType.text = "";
-        if (currentEnhancement.GetEnhanceCount() >= 5)
+        selectedType.text = currentEnhancement.GetDescription();
+        if (currentEnhancement.GetEnhanceCount() >= MAX_ENHANCE_COUNT)
         {
-            selectedInfo.text = "Value: " + (currentEnhancement.GetValue() * currentEnhancement.GetEnhanceCount()).ToString();
-            selectedOccupation.text = "Enhance Count: MAX";
+            //selectedInfo.text = "Value: " + (currentEnhancement.GetValue() * currentEnhancement.GetEnhanceCount()).ToString();
+            //selectedOccupation.text = "Enhance Count: MAX";
+            selectedInfo.text = "";
+            selectedOccupation.text = "";
             selectedEquipStatus.text = "";
             selectedEquipPrice.text = "Price: None";
         }
         else
         {
-            selectedInfo.text = "Value: " + (currentEnhancement.GetValue() * (currentEnhancement.GetEnhanceCount() + 1)).ToString();
-            selectedOccupation.text = "Enhance Count: " + currentEnhancement.GetEnhanceCount().ToString();
+            //selectedInfo.text = "Value: " + (currentEnhancement.GetValue() * (currentEnhancement.GetEnhanceCount() + 1)).ToString();
+            //selectedOccupation.text = "Enhance Count: " + currentEnhancement.GetEnhanceCount().ToString();
+            selectedInfo.text = "";
+            selectedOccupation.text = "";
             selectedEquipStatus.text = "";
             selectedEquipPrice.text = "Price: " + 
                 (currentEnhancement.GetPrice() * (currentEnhancement.GetEnhanceCount() + 1)).ToString();
@@ -298,6 +332,7 @@ public class LobbyManager : MonoBehaviour
     public void ClickEquipment()
     {
         currentEquipment = EventSystem.current.currentSelectedGameObject.transform.GetComponent<Equipment>();
+        border.position = currentEquipment.transform.position;
         updateSelectedEquipData(currentEquipment.GetPurpose());
         updateButton(currentEquipment.GetPurpose());
     }
@@ -313,11 +348,12 @@ public class LobbyManager : MonoBehaviour
             case Equipment.EquipmentType.WEAPON:
                 WeaponInfo weaponInfo = WeaponManager.GetInstance().GetWeaponInfo(currentEquipment.GetCode());
                 selectedImage.texture = Resources.Load<Texture>("Sprites/weapons/" + weaponInfo.GetCode());
-                selectedCode.text = weaponInfo.GetCode();
-                selectedType.text = weaponInfo.GetType();
-                selectedInfo.text = weaponInfo.GetDamage() + " / " + weaponInfo.GetDuration() + " / " +
-                                    weaponInfo.GetDelay() + " / " + weaponInfo.GetProjectile();
-                selectedOccupation.text = weaponInfo.GetOccupation() + " " + weaponInfo.GetOrder();
+                selectedCode.text = weaponInfo.GetName();
+                //selectedType.text = weaponInfo.GetType();
+                selectedType.text = $"Damage: {weaponInfo.GetDamage()}";
+                selectedInfo.text = $"Attack Speed: {weaponInfo.GetSpeedDescription()}";
+                //selectedOccupation.text = weaponInfo.GetOccupation() + " " + weaponInfo.GetOrder();
+                selectedOccupation.text = "";
                 break;
 
             default:
