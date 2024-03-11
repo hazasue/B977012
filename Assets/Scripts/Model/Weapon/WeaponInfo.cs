@@ -18,8 +18,9 @@ public class WeaponInfo
     public int order;
     public int price;
     public string description;
+    public string speedDescription;
 
-    public WeaponInfo(string code, string name, string type, int damage, float duration, float delay, int projectile, float range, float speed, string occupation, int order, int price, string description)
+    public WeaponInfo(string code, string name, string type, int damage, float duration, float delay, int projectile, float range, float speed, string occupation, int order, int price, string description, string speedDescription)
     {
         this.code = code;
         this.name = name;
@@ -34,6 +35,7 @@ public class WeaponInfo
         this.order = order;
         this.price = price;
         this.description = description;
+        this.speedDescription = speedDescription;
     }
 
     public string GetCode() { return code; }
@@ -61,4 +63,6 @@ public class WeaponInfo
     public int GetPrice() { return price; }
 
     public string GetDescription() { return description; }
+
+    public string GetSpeedDescription() { return speedDescription; }
 }
