@@ -1,38 +1,44 @@
 {
-    "hp":{
-        "stat":"hp",
+    "HP":{
+        "stat":"HP",
         "enhanceCount":0,
         "value":10.0,
-        "price":10
+        "price":10,
+        "description":"Increase max health by 10% per level. (Max +50%)"
     },
-    "damage":{
-        "stat":"damage",
+    "Damage":{
+        "stat":"Damage",
         "enhanceCount":0,
         "value":10.0,
-        "price":10
+        "price":10,
+        "description":"Increase damage by 10% per level. (Max +50%)"
     },
-    "moveSpeed":{
-        "stat":"moveSpeed",
+    "Move Speed":{
+        "stat":"Move Speed",
         "enhanceCount":0,
         "value":10.0,
-        "price":10
+        "price":10,
+        "description":"Increase move speed by 10% per level. (Max +50%)"
     },
-    "coin":{
-        "stat":"coin",
+    "Coin":{
+        "stat":"Coin",
         "enhanceCount":0,
         "value":10.0,
-        "price":10
+        "price":10,
+        "description":"Gain 10% more coins per level. (Max +50%)"
         },
-    "exp":{
-        "stat":"exp",
+    "Exp":{
+        "stat":"Exp",
         "enhanceCount":0,
         "value":10.0,
-        "price":10
+        "price":10,
+        "description":"Gain 10% more exps per level. (Max +50%)"
         },
-    "skillDelay":{
-        "stat":"skillDelay",
+    "Skill Delay":{
+        "stat":"Skill Delay",
         "enhanceCount":0,
         "value":10.0,
-        "price":10
+        "price":10,
+        "description":"Reduce skill delay by 10% per level. (Max -50%)"
     }
 }
