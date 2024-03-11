@@ -73,15 +73,15 @@ public class GameManager : MonoBehaviour
 
     public void FailGame()
     {
-        gameStatus = GameStatus.FAIL;
         PauseGame();
+        gameStatus = GameStatus.FAIL;
         mUIManager.ActivateFailScreen();
     }
 
     public void ClearGame()
     {
-        gameStatus = GameStatus.CLEAR;
         PauseGame();
+        gameStatus = GameStatus.CLEAR;
         mUIManager.ActivateClearScreen();
 
     }
@@ -136,7 +136,15 @@ public class GameManager : MonoBehaviour
 
     public Player GetPlayer() { return player; }
 
-    public void PauseGame() { Time.timeScale = 0; }
+    public void PauseGame()
+    {
+        gameStatus = GameStatus.PAUSED;
+        Time.timeScale = 0;
+    }
 
-    public void ResumeGame() { Time.timeScale = 1; }
+    public void ResumeGame()
+    {
+        gameStatus = GameStatus.PLAYING;
+        Time.timeScale = 1;
+    }
 }
