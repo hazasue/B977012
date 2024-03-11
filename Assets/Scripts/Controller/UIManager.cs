@@ -28,6 +28,7 @@ public class UIManager : MonoBehaviour
 
     public GameObject clearScreen;
     public GameObject failScreen;
+    public GameObject pauseScreen;
 
     public GameObject optionBorder;
     
@@ -143,6 +144,10 @@ public class UIManager : MonoBehaviour
     public void ActivateClearScreen() { clearScreen.SetActive(true); }
 
     public void ActivateFailScreen() { failScreen.SetActive(true); }
+
+    public void ActivatePauseScreen(bool state) { pauseScreen.SetActive(state); }
+
+    public bool CheckPauseScreenActivate() { return pauseScreen.activeSelf; }
 
     public void UpdateAugmentOptions(List<WeaponInfo> weaponInfos)
     {
