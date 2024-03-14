@@ -9,7 +9,8 @@ public class SoundManager : MonoBehaviour
     private const string DEFAULT_BASIC_NAME = "basic";
     private const string DEFAULT_STAGE_NAME = "stage";    
     
-    private AudioSource audioSource;
+    public AudioSource audioSourceBgm;
+    public AudioSource audioSourceSfx;
 
     public AudioClip basicBgm;
     public AudioClip stageBgm1;
@@ -21,8 +22,8 @@ public class SoundManager : MonoBehaviour
     {
         DontDestroyOnLoad(this);
 
-        audioSource = this.gameObject.GetComponent<AudioSource>();
-        audioSource.clip = basicBgm;
+        audioSourceBgm.clip = basicBgm;
+        audioSourceBgm.Play();
     }
 
     public static SoundManager GetInstance()
@@ -38,19 +39,19 @@ public class SoundManager : MonoBehaviour
         switch (name)
         {
             case DEFAULT_BASIC_NAME:
-                audioSource.clip = basicBgm;
+                audioSourceBgm.clip = basicBgm;
                 break;
             
             case DEFAULT_STAGE_NAME + "1":
-                audioSource.clip = stageBgm1;
+                audioSourceBgm.clip = stageBgm1;
                 break;
             
             case DEFAULT_STAGE_NAME + "2":
-                audioSource.clip = stageBgm2;
+                audioSourceBgm.clip = stageBgm2;
                 break;
             
             case DEFAULT_STAGE_NAME + "3":
-                audioSource.clip = stageBgm3;
+                audioSourceBgm.clip = stageBgm3;
                 break;
             
             default:
@@ -58,5 +59,10 @@ public class SoundManager : MonoBehaviour
                 break;
             
         }
+    }
+
+    public void PlaySfx()
+    {
+        
     }
 }
