@@ -20,6 +20,7 @@ public class LobbyManager : MonoBehaviour
 
     private const string DEFAULT_NAME_STAGE_SCREEN = "stage";
     private const string DEFAULT_NAME_INFO_SCREEN = "info";
+    private const string DEFAULT_NAME_SETTING = "setting";
 
     private const string DEFAULT_RESET_ENHANCEMENT = "Reset";
     private const string NULL_STRING = "";
@@ -44,6 +45,7 @@ public class LobbyManager : MonoBehaviour
 
     public GameObject selectStageScreen;
     public GameObject infoScreen;
+    public GameObject settingScreen;
 
     public Image shopButtonImage;
     public Image inventoryButtonImage;
@@ -503,6 +505,11 @@ public class LobbyManager : MonoBehaviour
                 panels.Push(infoScreen);
                 break;
             
+            case DEFAULT_NAME_SETTING:
+                settingScreen.SetActive(true);
+                panels.Push(settingScreen);
+                break;
+            
             default:
                 Debug.Log("Invalid screen name: " + name);
                 break;
@@ -519,6 +526,10 @@ public class LobbyManager : MonoBehaviour
             
             case DEFAULT_NAME_INFO_SCREEN:
                 infoScreen.SetActive(false);
+                break;
+            
+            case DEFAULT_NAME_SETTING:
+                settingScreen.SetActive(false);
                 break;
             
             default:
