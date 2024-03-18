@@ -14,8 +14,20 @@ public class UIManager : MonoBehaviour
     private static Vector3 DEFAULT_OPTION_POSITION = new Vector3(500f, 270f, 0f);
     private const float DEFAULT_OPTION_POSITION_GAP = 180f;
 
+    private const string DEFAULT_PAUSE_SCREEN = "PAUSE";
+    private const string DEFAULT_SETTING_SCREEN = "SETTINGS";
+    private const string DEFAULT_EXIT_SCREEN = "EXIT";
+    
+    private const int DAMAGE_TEXT_COUNT = 800;
+    private const float DAMAGE_TEXT_DURATION = 2f;
+    private const float CONVERSION_CONSTANT_VALUE = 22.5f;
+    private const float DEFAULT_SCREEN_HEIGHT = 1080f;
+    private static float CONVERSTION_MULTIPLY_VALUE = 1f;
+
     private float time;
 
+    public RectTransform canvas;
+    
     public Slider playerHp;
     public Slider playerExp;
     public Slider playerSkill;
@@ -23,12 +35,14 @@ public class UIManager : MonoBehaviour
     public TMP_Text playerHpText;
     public GameObject skillText;
     public TMP_Text levelText;
-
     public TMP_Text timeText;
 
     public GameObject clearScreen;
     public GameObject failScreen;
     public GameObject pauseScreen;
+    public GameObject settingScreen;
+    public GameObject exitScreen;
+    private Stack<GameObject> screens;
 
     public GameObject optionBorder;
     
@@ -40,6 +54,13 @@ public class UIManager : MonoBehaviour
     public TMP_Text[] coinCount = new TMP_Text[DEFAULT_UI_COUNT];
     public TMP_Text[] enemyCount = new TMP_Text[DEFAULT_UI_COUNT];
 
+    public TMP_Text damageText;
+    public Transform damageTextTransform;
+    private Queue<TMP_Text> allDamageTexts;
+    private Dictionary<TMP_Text, Vector3> activatedTexts;
+    private bool showDamage;
+
+    
     private GameManager mGameManager;
     private WeaponManager mWeaponManager;
     private Player player;
@@ -53,6 +74,8 @@ public class UIManager : MonoBehaviour
     void Update()
     {
         updateTime();
+        updateDamageTexts();
+        applyKeyInput();
     }
 
     public static UIManager GetInstance()
@@ -82,6 +105,20 @@ public class UIManager : MonoBehaviour
         playerSkill.maxValue = player.GetInventory().GetSkill().GetDelay();
         playerSkill.value = 0;
         StartCoroutine(updateSkillBar());
+        
+        CONVERSTION_MULTIPLY_VALUE = canvas.rect.height / DEFAULT_SCREEN_HEIGHT;
+
+        allDamageTexts = new Queue<TMP_Text>();
+        activatedTexts = new Dictionary<TMP_Text, Vector3>();
+        TMP_Text tempText;
+        for (int i = 0; i < DAMAGE_TEXT_COUNT; i++)
+        {
+            tempText = Instantiate(damageText, damageTextTransform, true);
+            tempText.gameObject.SetActive(false);
+            allDamageTexts.Enqueue(tempText);
+        }
+
+        screens = new Stack<GameObject>();
     }
 
     private void updateTime()
@@ -101,6 +138,16 @@ public class UIManager : MonoBehaviour
                 yield break;
             }
             playerSkill.value += Time.deltaTime;
+        }
+    }
+
+    private void updateDamageTexts()
+    {
+        Vector3 posDiff;
+        foreach (KeyValuePair<TMP_Text, Vector3> data in activatedTexts)
+        {
+            posDiff = data.Value - GameManager.GetInstance().GetPlayer().transform.position;
+            data.Key.transform.localPosition = convertPositionToRect(posDiff);
         }
     }
 
@@ -144,10 +191,75 @@ public class UIManager : MonoBehaviour
     public void ActivateClearScreen() { clearScreen.SetActive(true); }
 
     public void ActivateFailScreen() { failScreen.SetActive(true); }
+    
+    private void applyKeyInput()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (screens.Count > 0)
+                InactivateScreen();
+            else
+            {
+                ActivateScreen(DEFAULT_PAUSE_SCREEN);
+                AddToActivatedScreens(DEFAULT_PAUSE_SCREEN);
+                GameManager.GetInstance().PauseGame();
+            }
+        }
+    }
 
-    public void ActivatePauseScreen(bool state) { pauseScreen.SetActive(state); }
+    public void ActivateScreen(string name)
+    {
+        if (screens.Count > 0) screens.Peek().SetActive(false);
+        
+        switch (name)
+        {
+            case DEFAULT_PAUSE_SCREEN:
+                pauseScreen.SetActive(true);
+                break;
+            
+            case DEFAULT_SETTING_SCREEN:
+                settingScreen.SetActive(true);
+                break;
+            
+            case DEFAULT_EXIT_SCREEN:
+                exitScreen.SetActive(true);
+                break;
+            
+            default:
+                Debug.Log($"No any scene match with name ({name})");
+                break;
+        }
+    }
 
-    public bool CheckPauseScreenActivate() { return pauseScreen.activeSelf; }
+    public void InactivateScreen()
+    {
+        GameObject screen = screens.Pop();
+        screen.SetActive(false);
+        if (screens.Count > 0) screens.Peek().SetActive(true);
+        if(screen == pauseScreen) GameManager.GetInstance().ResumeGame();
+    }
+
+    public void AddToActivatedScreens(string name)
+    {
+        switch (name)
+        {
+            case DEFAULT_PAUSE_SCREEN:
+                screens.Push(pauseScreen);
+                break;
+            
+            case DEFAULT_SETTING_SCREEN:
+                screens.Push(settingScreen);
+                break;
+            
+            case DEFAULT_EXIT_SCREEN:
+                screens.Push(exitScreen);
+                break;
+            
+            default:
+                Debug.Log($"No any scene match with name ({name})");
+                break;
+        }
+    }
 
     public void UpdateAugmentOptions(List<WeaponInfo> weaponInfos)
     {
@@ -218,6 +330,35 @@ public class UIManager : MonoBehaviour
             mGameManager.ResumeGame();
         }
     }
+    
+    public void ShowDamageText(Vector3 pos, int damage)
+    {
+        if (!showDamage) return;
+
+        TMP_Text damageText = allDamageTexts.Dequeue();
+        allDamageTexts.Enqueue(damageText);
+
+        Vector3 posDiff = pos - GameManager.GetInstance().GetPlayer().transform.position;
+        damageText.gameObject.SetActive(true);
+        damageText.transform.localPosition = convertPositionToRect(posDiff);
+        damageText.text = damage.ToString();
+        activatedTexts.Add(damageText, pos);
+        StartCoroutine(inactivateText(damageText, DAMAGE_TEXT_DURATION));
+    }
+    
+    private Vector3 convertPositionToRect(Vector3 posDiff)
+    {
+        return new Vector3(posDiff.x * DEFAULT_SCREEN_HEIGHT / CONVERSION_CONSTANT_VALUE * CONVERSTION_MULTIPLY_VALUE,
+            posDiff.z * DEFAULT_SCREEN_HEIGHT / CONVERSION_CONSTANT_VALUE * CONVERSTION_MULTIPLY_VALUE, 0f);
+    }
+
+    private IEnumerator inactivateText(TMP_Text text, float duration)
+    {
+        yield return new WaitForSeconds(duration);
+
+        text.gameObject.SetActive(false);
+        activatedTexts.Remove(text);
+    }
 
     public void HoverOption(int idx)
     {
@@ -236,6 +377,11 @@ public class UIManager : MonoBehaviour
         if (optionBorder.activeSelf == false) return;
         
         optionBorder.SetActive(false);
+    }
+
+    public void ShowDamage(bool state)
+    {
+        showDamage = state;
     }
 
 }
