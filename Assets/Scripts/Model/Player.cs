@@ -47,19 +47,19 @@ public class Player : Character
         switch (characterState)
         {
             case CharacterState.ALIVE:
-                ApplyKeyInput();
+                applyKeyInput();
                 switch (playerState)
                 {
                     case PlayerState.IDLE:
                         break;
                     
                     case PlayerState.MOVE:
-                        Move();
+                        move();
                         break;
                     
                     case PlayerState.ATTACK:
-                        Move();
-                        Attack();
+                        move();
+                        attack();
                         break;
 
                     default:
@@ -96,14 +96,14 @@ public class Player : Character
         timeToAttack = false;
     }
 
-    protected override void Move()
+    protected override void move()
     {
         this.transform.position += moveDirection * (moveSpeed * Time.deltaTime);
         this.transform.rotation = Quaternion.Lerp(this.transform.rotation, Quaternion.LookRotation(attackDirection), DEFAULT_ROTATE_SPEED * Time.deltaTime);
         inventory.transform.rotation = Quaternion.Euler(0f, -this.transform.rotation.y, 0f);
     }
 
-    protected override void Attack()
+    protected override void attack()
     {
         foreach (KeyValuePair<string, Weapon> weapon in inventory.GetWeapons())
         {
@@ -111,9 +111,9 @@ public class Player : Character
         }
     }
     
-    protected override void UpdateState() {}
+    protected override void updateState() {}
 
-    private void ApplyKeyInput()
+    private void applyKeyInput()
     {
         Vector3 direction = Vector3.zero;
         if (Input.GetKey(KeyCode.UpArrow))
@@ -142,10 +142,10 @@ public class Player : Character
         }
         
         direction = direction.normalized;
-        SetDirections(direction);
+        setDirections(direction);
     }
 
-    protected override void SetDirections(Vector3 direction)
+    protected override void setDirections(Vector3 direction)
     {
         this.moveDirection = direction;
         if (this.moveDirection != Vector3.zero) this.attackDirection = this.moveDirection;

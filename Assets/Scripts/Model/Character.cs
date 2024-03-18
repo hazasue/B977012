@@ -27,15 +27,15 @@ public abstract class Character : MonoBehaviour
     // methods
     public abstract void Init(int maxHp, int damage, float speed, int armor);
     
-    protected abstract void Move();
+    protected abstract void move();
     
-    protected abstract void Attack();
+    protected abstract void attack();
     
-    protected abstract void UpdateState();
+    protected abstract void updateState();
    
     public abstract void TakeDamage(int damage);
 
-    protected abstract void SetDirections(Vector3 direction);
+    protected abstract void setDirections(Vector3 direction);
 
     public CharacterState GetCharacterState()
     {

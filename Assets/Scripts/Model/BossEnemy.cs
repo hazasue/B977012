@@ -23,18 +23,18 @@ public class BossEnemy : Enemy
         switch (characterState)
         {
             case Character.CharacterState.ALIVE:
-                UpdateBossState();
+                updateBossState();
                 switch (bossEnemyState)
                 {
                     case BossEnemyState.MOVE:
-                        Move();
+                        move();
                         break;
 
                     case BossEnemyState.RUSH:
                         break;
                     
                     case BossEnemyState.ATTACK:
-                        Attack();
+                        attack();
                         break;
 
                     case BossEnemyState.USESKILL:
@@ -52,12 +52,12 @@ public class BossEnemy : Enemy
         isAttacking = false;
     }
 
-    private void Attack()
+    private void attack()
     {
         
     }
 
-    private void UpdateBossState()
+    private void updateBossState()
     {
         switch (bossEnemyState)
         {
@@ -67,7 +67,7 @@ public class BossEnemy : Enemy
                     animator.SetBool("isAttack", true);
                     bossEnemyState = BossEnemyState.ATTACK;
                     isAttacking = true;
-                    StartCoroutine(InactivateAttack());
+                    StartCoroutine(inactivateAttack());
                 }
                 break;
             
@@ -88,11 +88,11 @@ public class BossEnemy : Enemy
         }
     }
 
-    private IEnumerator InactivateAttack()
+    private IEnumerator inactivateAttack()
     {
         yield return new WaitForSeconds(DEFAULT_ATTACK_DURATION);
         if (Vector3.Distance(this.transform.position, target.position) <= DEFAULT_ATTACK_RANGE)
-            StartCoroutine(InactivateAttack());
+            StartCoroutine(inactivateAttack());
         else
         {
             isAttacking = false;

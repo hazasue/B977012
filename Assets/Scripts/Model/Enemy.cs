@@ -14,6 +14,8 @@ public class Enemy : Character
     public enum EnemyGrade
     {
         NORMAL,
+        GROUP,
+        GUARD,
         ELITE,
         BOSS,
     }
@@ -28,6 +30,7 @@ public class Enemy : Character
 
     protected float tickTime;
     protected bool canAttack;
+    private int currentDamage;
 
     protected List<ItemInfo> itemInfos;
 
@@ -43,7 +46,7 @@ public class Enemy : Character
         switch (characterState)
         {
             case Character.CharacterState.ALIVE:
-                Move();
+                move();
                 break;
             
             case Character.CharacterState.DEAD:
@@ -53,7 +56,7 @@ public class Enemy : Character
 
     public override void Init(int maxHp, int damage, float speed, int armor) { }
 
-    public void Init(EnemyInfo enemyInfo, Transform target, int key)
+    public void Init(EnemyInfo enemyInfo, Transform target, int key, Vector3? moveDirection = null)
     {
         itemInfos = new List<ItemInfo>();
         
@@ -67,8 +70,9 @@ public class Enemy : Character
         this.armor = enemyInfo.GetArmor();
         this.tickTime = enemyInfo.GetTickTime();
         if (enemyInfo.GetExp() > 0) itemInfos.Add(new ItemInfo(DEFAULT_ITEM_TYPE_EXP, enemyInfo.GetExp()));
+        currentDamage = 0;
         // if (enemyInfo.GetCoin() > 0) itemInfos.Add(new ItemInfo(DEFAULT_ITEM_TYPE_COIN, enemyInfo.GetCoin()));
-        
+
         switch (enemyInfo.GetType())
         {
             case "MELEE":
@@ -94,6 +98,15 @@ public class Enemy : Character
                 this.enemyGrade = Enemy.EnemyGrade.NORMAL;
                 break;
             
+            case "GROUP":
+                this.enemyGrade = Enemy.EnemyGrade.GROUP;
+                this.moveDirection = (Vector3)moveDirection;
+                break;
+            
+            case "GUARD":
+                this.enemyGrade = Enemy.EnemyGrade.GUARD;
+                break;
+            
             case "ELITE":
                 this.enemyGrade = Enemy.EnemyGrade.ELITE;
                 break;
@@ -103,7 +116,7 @@ public class Enemy : Character
                 break;
             
             default:
-                Debug.Log("Invalid enemy grade: " + enemyGrade);
+                Debug.Log("Invalid enemy grade: " + enemyInfo.GetGrade());
                 break;
         }
         
@@ -114,23 +127,24 @@ public class Enemy : Character
         this.key = key;
     }
 
-    protected override void Move()
+    protected override void move()
     {
-        moveDirection = (target.position - this.transform.position).normalized;
+        if (enemyGrade != Enemy.EnemyGrade.GROUP) moveDirection = (target.position - this.transform.position).normalized;
         this.transform.position += Time.deltaTime * moveSpeed * moveDirection;
         this.transform.rotation = Quaternion.Lerp(this.transform.rotation, Quaternion.LookRotation(target.position - this.transform.position), DEFAULT_ROTATE_SPEED * Time.deltaTime);
     }
     
-    protected override void Attack() {}
+    protected override void attack() {}
     
-    protected override void SetDirections(Vector3 direction) {}
+    protected override void setDirections(Vector3 direction) {}
 
     public override void TakeDamage(int damage)
     {
         if (damage <= armor) return;
         
         this.hp -= damage - armor;
-        UpdateState();
+        currentDamage = damage - armor;
+        updateState();
     }
 
     protected void DropItems()
@@ -144,7 +158,7 @@ public class Enemy : Character
         }
     }
 
-    protected override void UpdateState()
+    protected override void updateState()
     {
         switch (characterState)
         {
@@ -153,6 +167,7 @@ public class Enemy : Character
                 {
                     die();
                 }
+                EnemyManager.GetInstance().UpdateEnemyStatus(enemyGrade, key);
                 break;
             
             case Character.CharacterState.DEAD:
@@ -169,9 +184,10 @@ public class Enemy : Character
         characterState = Character.CharacterState.DEAD;
         animator.SetBool("dead", true);
         DropItems();
-        EnemyManager.GetInstance().UpdateEnemyStatus(enemyGrade, key);
         this.gameObject.SetActive(false);
     }
+
+    public int GetCurrentDamage() { return currentDamage; }
 
     public void OnTriggerEnter(Collider obj)
     {
@@ -191,4 +207,6 @@ public class Enemy : Character
         yield return new WaitForSeconds(tickTime);
         canAttack = true;
     }
+
+    public int GetKey() { return key; }
 }
