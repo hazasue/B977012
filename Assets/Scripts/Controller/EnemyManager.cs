@@ -25,7 +25,13 @@ public class EnemyManager : MonoBehaviour
     private const float DEFAULT_GROUP_ENEMY_SPAWN_DELAY = 5f;
     private const int DEFAULT_SPAWN_GROUP_COUNT = 18;
     private const float DEFAULT_GROUP_ENEMY_DURATION = 10f;
+    
+    private const int DEFAULT_SPAWN_GUARD_COUNT = 60;
     private const float DEFAULT_GUARD_ENEMY_SPAWN_DELAY = 10f;
+    private const float DEFAULT_GUARD_ENEMY_SPAWN_DISTANCE = 15f;
+
+    private const float DEFAULT_TWO_RADIANS = 360f;
+    private const float DEFAULT_ONE_THIRD_RADIAN = 60f;
 
     private const int MAX_DAMAGE = 9999;
     
@@ -168,9 +174,9 @@ public class EnemyManager : MonoBehaviour
         Enemy tempEnemy;
         int posIdx = Random.Range(0, DEFAULT_ENEMY_SPAWN_POS_COUNT);
         float interval = 1f;
-        float angle = 60f;
+        float angle = DEFAULT_ONE_THIRD_RADIAN;
         float current = 0f;
-        float max = 360 / angle;
+        float max = DEFAULT_TWO_RADIANS / angle;
 
         for (int count = 0; count < DEFAULT_SPAWN_GROUP_COUNT; count++)
         {
@@ -186,7 +192,7 @@ public class EnemyManager : MonoBehaviour
             if (current >= max)
             {
                 angle /= 2f;
-                max = 360f / angle;
+                max = DEFAULT_TWO_RADIANS / angle;
                 current = 0f;
                 interval += 1f;
             }
@@ -203,13 +209,13 @@ public class EnemyManager : MonoBehaviour
         Enemy tempEnemy;
         int current = 0;
 
-        for (int count = 0; count < 60; count++)
+        for (int count = 0; count < DEFAULT_SPAWN_GUARD_COUNT; count++)
         {
             tempEnemy = inactiveEnemies.Dequeue();
             tempEnemy.gameObject.SetActive(true);
             tempEnemy.transform.position = player.position + 
-                                           (Quaternion.Euler(0f, 6f * current++, 0f)
-                                            * new Vector3(15f, 0f, 0f));
+                                           (Quaternion.Euler(0f, DEFAULT_TWO_RADIANS / DEFAULT_SPAWN_GUARD_COUNT * current++, 0f)
+                                            * new Vector3(DEFAULT_GUARD_ENEMY_SPAWN_DISTANCE, 0f, 0f));
             tempEnemy.Init(enemyInfos[normalEnemyList[DEFAULT_GUARD_ENEMY_INDEX]], player, key);
             activeEnemies.Add(key++, tempEnemy);
             StartCoroutine(removeEnemy(tempEnemy, DEFAULT_GROUP_ENEMY_DURATION));
