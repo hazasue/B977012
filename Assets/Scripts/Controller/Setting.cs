@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class Setting : MonoBehaviour
 {
@@ -18,10 +19,12 @@ public class Setting : MonoBehaviour
     private const string DEFAULT_NAME_BGM = "BGM";
     private const string DEFAULT_NAME_SFX = "SFX";
     private const string DEFAULT_NAME_FULL_SCREEN = "FULLSCREEN";
+    private const string DEFAULT_NAME_SHOW_DAMAGE = "SHOWDAMAGE";
 
     public Toggle fullScreenToggle;
     public Slider bgmSlider;
     public Slider sfxSlider;
+    public Toggle showDamageToggle;
 
     private SettingInfo settingInfo;
 
@@ -46,10 +49,12 @@ public class Setting : MonoBehaviour
         fullScreenToggle.isOn = settingInfo.fullScreen;
         bgmSlider.value = settingInfo.volumeBgm;
         sfxSlider.value = settingInfo.volumeSfx;
+        showDamageToggle.isOn = settingInfo.showDamage;
 
         ApplySetting(DEFAULT_NAME_RESOLUTION);
         ApplySetting(DEFAULT_NAME_BGM);
         ApplySetting(DEFAULT_NAME_SFX);
+        ApplySetting(DEFAULT_NAME_SHOW_DAMAGE);
 
         instance = this;
     }
@@ -80,6 +85,10 @@ public class Setting : MonoBehaviour
             case DEFAULT_NAME_SFX:
                 settingInfo.volumeSfx = sfxSlider.value;
                 break;
+            
+            case DEFAULT_NAME_SHOW_DAMAGE:
+                settingInfo.showDamage = showDamageToggle.isOn;
+                break;
 
             default:
                 break;
@@ -101,6 +110,14 @@ public class Setting : MonoBehaviour
             
             case DEFAULT_NAME_SFX:
                 SoundManager.GetInstance().audioSourceSfx.volume = settingInfo.volumeSfx;
+                break;
+            
+            case DEFAULT_NAME_SHOW_DAMAGE:
+                if (SceneManager.GetActiveScene().name == "InGame")
+                {
+                    UIManager.GetInstance().ShowDamage(settingInfo.showDamage);
+                }
+
                 break;
 
             default:
