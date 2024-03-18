@@ -30,7 +30,7 @@ public class SoundManager : MonoBehaviour
     {
         if (instance != null) return instance;
         instance = FindObjectOfType<SoundManager>();
-        if (instance == null) Debug.Log("There's no active InputManager object");
+        if (instance == null) Debug.Log("There's no active SoundManager object");
         return instance;
     }
 
