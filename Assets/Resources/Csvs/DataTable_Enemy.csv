@@ -1,4 +1,6 @@
 EnemyCode,EnemyType,EnemyGrade,MaxHp,Damage,Speed,Armor,TickTime,Exp
 normal_slime,MELEE,NORMAL,10,5,3,0,3,2
+group_slime,MELEE,GROUP,1,5,15,0,3,2
 normal_turtle,MELEE,NORMAL,15,10,3,0,3,3
+guard_turtle,MELEE,GUARD,100,10,1,0,3,3
 elite_dragon,MELEE,ELITE,150,20,3,0,1,200

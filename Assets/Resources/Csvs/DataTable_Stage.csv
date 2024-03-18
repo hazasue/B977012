@@ -1,4 +1,4 @@
 StageCode,NormalEnemyCount,BossEnemyCount,NormalEnemy1,NormalEnemy2,NormalEnemy3,BossEnemy1,BossEnemy2,BossEnemy3,BasicReward,Texture
-0,2,2,normal_slime,normal_turtle,,elite_dragon,elite_dragon,,100,Grass
+0,3,2,normal_slime,guard_turtle,group_slime,elite_dragon,elite_dragon,,100,Grass
 1,2,2,normal_slime,normal_turtle,,elite_dragon,elite_dragon,,200,Wood
 2,2,2,normal_slime,normal_turtle,,elite_dragon,elite_dragon,,300,Rock
