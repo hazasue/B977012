@@ -361,9 +361,9 @@ GameObject:
   m_Component:
   - component: {fileID: 7498142190150400792}
   - component: {fileID: 8035681660144644490}
-  - component: {fileID: 5596953120960998539}
   - component: {fileID: 8429289464415946444}
   - component: {fileID: 5589277586312441459}
+  - component: {fileID: 7727503406876359971}
   m_Layer: 0
   m_Name: group_slime
   m_TagString: enemy
@@ -409,18 +409,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &5596953120960998539
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7153141402127884706}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: af636a59d971cb84886194ba9244d873, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!54 &8429289464415946444
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -451,6 +439,18 @@ CapsuleCollider:
   m_Height: 1
   m_Direction: 1
   m_Center: {x: 0, y: 0.5, z: 0}
+--- !u!114 &7727503406876359971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7153141402127884706}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57f7b1f79d2a6974398697f8bb9684b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7446019047767849115
 GameObject:
   m_ObjectHideFlags: 0
