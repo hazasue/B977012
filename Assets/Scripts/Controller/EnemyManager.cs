@@ -49,7 +49,7 @@ public class EnemyManager : MonoBehaviour
 
     private int bossPhase;
     private bool isBossActive;
-
+    
     private Dictionary<string, Enemy> enemyObjects;
 
     // Stage enemy info
@@ -137,12 +137,12 @@ public class EnemyManager : MonoBehaviour
     {
         Enemy tempEnemy;
 
-        for (int count = 0; count < MAX_ENEMY_COUNT; count++)
-        {
-            tempEnemy = Instantiate(enemyObjects[normalEnemyList[DEFAULT_NORMAL_ENEMY_INDEX]], this.transform, true);
-            inactiveEnemies.Enqueue(tempEnemy);
-            tempEnemy.gameObject.SetActive(false);
-        }
+        //for (int count = 0; count < MAX_ENEMY_COUNT; count++)
+        //{
+        //    tempEnemy = Instantiate(enemyObjects[normalEnemyList[DEFAULT_NORMAL_ENEMY_INDEX]], this.transform, true);
+        //    inactiveEnemies.Enqueue(tempEnemy);
+        //    tempEnemy.gameObject.SetActive(false);
+        //}
     }
 
     private IEnumerator spawnNormalEnemies()
@@ -153,12 +153,13 @@ public class EnemyManager : MonoBehaviour
         Enemy tempEnemy;
         for (int count = 0; count < DEFAULT_SPAWN_COUNT; count++)
         {
-            tempEnemy = inactiveEnemies.Dequeue();
-            tempEnemy.gameObject.SetActive(true);
-            tempEnemy.transform.position = player.position +
-                                           (Quaternion.Euler(0f,
-                                               Random.Range(-DEFAULT_ENEMY_SPAWN_RANGE, DEFAULT_ENEMY_SPAWN_RANGE),
-                                               0f) * basicEnemySpawnPos[Random.Range(0, DEFAULT_ENEMY_SPAWN_POS_COUNT)]);
+            tempEnemy = Instantiate(enemyObjects[normalEnemyList[DEFAULT_NORMAL_ENEMY_INDEX]],
+                player.position +
+                (Quaternion.Euler(0f,
+                    Random.Range(-DEFAULT_ENEMY_SPAWN_RANGE, DEFAULT_ENEMY_SPAWN_RANGE),
+                    0f) * basicEnemySpawnPos[Random.Range(0, DEFAULT_ENEMY_SPAWN_POS_COUNT)]),
+                Quaternion.identity,
+                this.transform); //inactiveEnemies.Dequeue();
             tempEnemy.Init(enemyInfos[normalEnemyList[DEFAULT_NORMAL_ENEMY_INDEX]], player, key);
             activeEnemies.Add(key++, tempEnemy);
         }
@@ -180,11 +181,13 @@ public class EnemyManager : MonoBehaviour
 
         for (int count = 0; count < DEFAULT_SPAWN_GROUP_COUNT; count++)
         {
-            tempEnemy = inactiveEnemies.Dequeue();
+            tempEnemy = Instantiate(enemyObjects[normalEnemyList[DEFAULT_GROUP_ENEMY_INDEX]],
+                player.position + basicEnemySpawnPos[posIdx] + 
+                (Quaternion.Euler(0f, angle * current++, 0f)
+                 * new Vector3(interval, 0f, 0f)),
+                Quaternion.identity,
+                this.transform);
             tempEnemy.gameObject.SetActive(true);
-            tempEnemy.transform.position = player.position + basicEnemySpawnPos[posIdx] + 
-                                           (Quaternion.Euler(0f, angle * current++, 0f)
-                                            * new Vector3(interval, 0f, 0f));
             tempEnemy.Init(enemyInfos[normalEnemyList[DEFAULT_GROUP_ENEMY_INDEX]], player, key, -basicEnemySpawnPos[posIdx].normalized);
             activeEnemies.Add(key++, tempEnemy);
             StartCoroutine(removeEnemy(tempEnemy, DEFAULT_GROUP_ENEMY_DURATION));
@@ -211,12 +214,15 @@ public class EnemyManager : MonoBehaviour
 
         for (int count = 0; count < DEFAULT_SPAWN_GUARD_COUNT; count++)
         {
-            tempEnemy = inactiveEnemies.Dequeue();
+            tempEnemy = Instantiate(enemyObjects[normalEnemyList[DEFAULT_GUARD_ENEMY_INDEX]],
+                player.position + 
+                (Quaternion.Euler(0f, DEFAULT_TWO_RADIANS / DEFAULT_SPAWN_GUARD_COUNT * current++, 0f)
+                 * new Vector3(DEFAULT_GUARD_ENEMY_SPAWN_DISTANCE, 0f, 0f)),
+                Quaternion.identity,
+                this.transform);
             tempEnemy.gameObject.SetActive(true);
-            tempEnemy.transform.position = player.position + 
-                                           (Quaternion.Euler(0f, DEFAULT_TWO_RADIANS / DEFAULT_SPAWN_GUARD_COUNT * current++, 0f)
-                                            * new Vector3(DEFAULT_GUARD_ENEMY_SPAWN_DISTANCE, 0f, 0f));
-            tempEnemy.Init(enemyInfos[normalEnemyList[DEFAULT_GUARD_ENEMY_INDEX]], player, key);
+            tempEnemy.Init(enemyInfos[normalEnemyList[DEFAULT_GUARD_ENEMY_INDEX]], player, key,
+                (player.position - tempEnemy.transform.position).normalized);
             activeEnemies.Add(key++, tempEnemy);
             StartCoroutine(removeEnemy(tempEnemy, DEFAULT_GROUP_ENEMY_DURATION));
         }
