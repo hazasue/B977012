@@ -2,64 +2,58 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : Character
+public class BossEnemy : Enemy
 {
-    public enum EnemyType
+    public enum BossEnemyState
     {
-        MELEE,
-        RANGED,
-        EXPLOSIVE,
-    }
-    
-    public enum EnemyGrade
-    {
-        NORMAL,
-        GROUP,
-        GUARD,
-        ELITE,
-        BOSS,
+        MOVE,
+        RUSH,
+        ATTACK,
+        USESKILL,
     }
 
-    protected static string DEFAULT_ITEM_TYPE_EXP = "EXP";
-    protected static string DEFAULT_ITEM_TYPE_COIN = "COIN";
-    protected static Vector3 DEFAULT_ITEM_POS_Y = new Vector3(0f, 0.5f, 0f);
+    private static float DEFAULT_ATTACK_RANGE = 3f;
+    private static float DEFAULT_ATTACK_DURATION = 0.8f;
 
-    // attributes
-    protected EnemyType enemyType;
-    protected EnemyGrade enemyGrade;
+    private BossEnemyState bossEnemyState;
+    private bool isAttacking;
 
-    protected float tickTime;
-    protected bool canAttack;
-    private int currentDamage;
-
-    protected List<ItemInfo> itemInfos;
-
-    protected int key;
-
-    // associations
-    protected List<Item> items;
-    protected Transform target;
-
-    // Update is called once per frame
     void Update()
     {
         switch (characterState)
         {
             case Character.CharacterState.ALIVE:
-                move();
+                updateBossState();
+                switch (bossEnemyState)
+                {
+                    case BossEnemyState.MOVE:
+                        setDirections(target.position - this.transform.position);
+                        move();
+                        break;
+
+                    case BossEnemyState.RUSH:
+                        break;
+
+                    case BossEnemyState.ATTACK:
+                        attack();
+                        break;
+
+                    case BossEnemyState.USESKILL:
+                        break;
+                }
+
                 break;
-            
             case Character.CharacterState.DEAD:
                 break;
         }
     }
 
-    public override void Init(int maxHp, int damage, float speed, int armor) { }
+    public override void Init(int maxHp, int damage, float speed, int armor) {}
 
-    public void Init(EnemyInfo enemyInfo, Transform target, int key, Vector3? moveDirection = null)
+    public override void Init(EnemyInfo enemyInfo, Transform target, int key, Vector3? moveDirection = null)
     {
         itemInfos = new List<ItemInfo>();
-        
+
         characterState = Character.CharacterState.ALIVE;
         animator = this.GetComponent<Animator>();
 
@@ -78,15 +72,15 @@ public class Enemy : Character
             case "MELEE":
                 this.enemyType = Enemy.EnemyType.MELEE;
                 break;
-            
+
             case "RANGED":
                 this.enemyType = Enemy.EnemyType.RANGED;
                 break;
-            
+
             case "EXPLOSIVE":
                 this.enemyType = Enemy.EnemyType.EXPLOSIVE;
                 break;
-            
+
             default:
                 Debug.Log("Invalid enemy type: " + enemyType);
                 break;
@@ -97,65 +91,56 @@ public class Enemy : Character
             case "NORMAL":
                 this.enemyGrade = Enemy.EnemyGrade.NORMAL;
                 break;
-            
+
             case "GROUP":
                 this.enemyGrade = Enemy.EnemyGrade.GROUP;
-                this.moveDirection = (Vector3)moveDirection;
                 break;
-            
+
             case "GUARD":
                 this.enemyGrade = Enemy.EnemyGrade.GUARD;
                 break;
-            
+
             case "ELITE":
                 this.enemyGrade = Enemy.EnemyGrade.ELITE;
                 break;
-            
+
             case "BOSS":
                 this.enemyGrade = Enemy.EnemyGrade.BOSS;
                 break;
-            
+
             default:
                 Debug.Log("Invalid enemy grade: " + enemyInfo.GetGrade());
                 break;
         }
-        
-        canAttack = true;
+    }
 
-        this.target = target;
-
-        this.key = key;
+    public void InitBoss()
+    {
+        bossEnemyState = BossEnemyState.MOVE;
+        isAttacking = false;
     }
 
     protected override void move()
     {
-        if (enemyGrade != Enemy.EnemyGrade.GROUP) moveDirection = (target.position - this.transform.position).normalized;
         this.transform.position += Time.deltaTime * moveSpeed * moveDirection;
-        this.transform.rotation = Quaternion.Lerp(this.transform.rotation, Quaternion.LookRotation(target.position - this.transform.position), DEFAULT_ROTATE_SPEED * Time.deltaTime);
+        this.transform.rotation = Quaternion.Lerp(this.transform.rotation,
+            Quaternion.LookRotation(target.position - this.transform.position), DEFAULT_ROTATE_SPEED * Time.deltaTime);
     }
-    
+
     protected override void attack() {}
-    
-    protected override void setDirections(Vector3 direction) {}
+
+    protected override void setDirections(Vector3 direction)
+    {
+        moveDirection = direction.normalized;
+    }
 
     public override void TakeDamage(int damage)
     {
         if (damage <= armor) return;
-        
+
         this.hp -= damage - armor;
         currentDamage = damage - armor;
         updateState();
-    }
-
-    protected void DropItems()
-    {
-        Item tempItem;
-        foreach (ItemInfo itemInfo in itemInfos)
-        {
-            tempItem = ItemManager.GetInstance().GetNewItem(itemInfo.GetItemType());
-            tempItem.Init(itemInfo.GetItemType(), itemInfo.GetValue());
-            tempItem.transform.position = this.transform.position + DEFAULT_ITEM_POS_Y;
-        }
     }
 
     protected override void updateState()
@@ -167,46 +152,61 @@ public class Enemy : Character
                 {
                     die();
                 }
+
                 EnemyManager.GetInstance().UpdateEnemyStatus(enemyGrade, key);
                 break;
-            
+
             case Character.CharacterState.DEAD:
                 break;
-            
+
             default:
                 Debug.Log("Invalid character state: " + characterState);
                 break;
         }
     }
 
-    protected void die()
+    private void updateBossState()
     {
-        characterState = Character.CharacterState.DEAD;
-        animator.SetBool("dead", true);
-        DropItems();
-        this.gameObject.SetActive(false);
+        switch (bossEnemyState)
+        {
+            case BossEnemyState.MOVE:
+                if (Vector3.Distance(this.transform.position, target.position) <= DEFAULT_ATTACK_RANGE)
+                {
+                    animator.SetBool("isAttack", true);
+                    bossEnemyState = BossEnemyState.ATTACK;
+                    isAttacking = true;
+                    StartCoroutine(inactivateAttack());
+                }
+
+                break;
+
+            case BossEnemyState.RUSH:
+                break;
+
+            case BossEnemyState.ATTACK:
+                if (isAttacking) break;
+                if (Vector3.Distance(this.transform.position, target.position) > DEFAULT_ATTACK_RANGE)
+                {
+                    animator.SetBool("isAttack", false);
+                    bossEnemyState = BossEnemyState.MOVE;
+                }
+
+                break;
+
+            case BossEnemyState.USESKILL:
+                break;
+        }
     }
 
-    public int GetCurrentDamage() { return currentDamage; }
-
-    public void OnTriggerEnter(Collider obj)
+    private IEnumerator inactivateAttack()
     {
-        if (!canAttack) return;
-        if (!obj.CompareTag("player")) return;
-
-        canAttack = false;
-
-        Player player = obj.GetComponent<Player>();
-        player.TakeDamage(damage);
-
-        StartCoroutine(timeToAttack());
+        yield return new WaitForSeconds(DEFAULT_ATTACK_DURATION);
+        if (Vector3.Distance(this.transform.position, target.position) <= DEFAULT_ATTACK_RANGE)
+            StartCoroutine(inactivateAttack());
+        else
+        {
+            isAttacking = false;
+        }
     }
 
-    protected IEnumerator timeToAttack()
-    {
-        yield return new WaitForSeconds(tickTime);
-        canAttack = true;
-    }
-
-    public int GetKey() { return key; }
 }
