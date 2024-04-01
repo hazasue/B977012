@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class BarrierWeapon : Weapon
 {
+    private const int DEFAULT_BASIC_COLLIDER_OBJECT_COUNT = 3;
+    
     public override void Init(WeaponInfo weaponInfo, RangeCollider rangeCollider, float damageMultiple, bool mainWeapon = false)
     {
         this.damageMultiple = damageMultiple;
@@ -132,15 +134,21 @@ public class BarrierWeapon : Weapon
 
     public override IEnumerator ActivateWeaponObjectAuto()
     {
-        yield return new WaitForSeconds(delay);
-        WeaponObject tempObject = weaponObjects.Dequeue();
-        tempObject.gameObject.SetActive(true);
-        tempObject.Init(damage, speed, Vector3.zero, weaponType);
-        tempObject.transform.position = this.transform.position;
-        
-        weaponObjects.Enqueue(tempObject);
+        float angle = 360f / DEFAULT_BASIC_COLLIDER_OBJECT_COUNT;
 
-        StartCoroutine(InactivateWeaponObject(tempObject, duration));
+        WeaponObject tempObject;
+        for (int i = 0; i < DEFAULT_BASIC_COLLIDER_OBJECT_COUNT; i++)
+        {
+            tempObject = weaponObjects.Dequeue();
+            weaponObjects.Enqueue(tempObject);
+            tempObject.gameObject.SetActive(true);
+            tempObject.transform.localRotation = Quaternion.Euler(new Vector3(90f, angle * i, 0f));
+            tempObject.transform.position = this.transform.position + DEFAULT_OBJECT_POS_Y;
+            tempObject.Init(damage, speed, Vector3.zero, weaponType);
+            StartCoroutine(InactivateWeaponObject(tempObject, duration));
+        }
+
+        yield return new WaitForSeconds(delay);
         StartCoroutine(ActivateWeaponObjectAuto());
     }
 }
