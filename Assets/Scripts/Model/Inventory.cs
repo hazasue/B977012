@@ -42,6 +42,15 @@ public class Inventory : MonoBehaviour
         return weapons;
     }
 
+    public void RemoveWeapon(string code)
+    {
+        if (weapons.ContainsKey(code))
+        {
+            Destroy(weapons[code].gameObject);
+            weapons.Remove(code);
+        }
+    }
+
     public void AddWeapon(WeaponInfo weaponInfo, bool mainWeapon = false)
     {
         if (weaponInfo == null) return;
@@ -74,6 +83,10 @@ public class Inventory : MonoBehaviour
                 break;
             
             case "EXPLOSIVE":
+                break;
+            
+            case "BOOMERANG":
+                tempWeapon.AddComponent<BoomerangWeapon>();
                 break;
             
             default:
