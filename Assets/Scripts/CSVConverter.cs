@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ public class CSVConverter : MonoBehaviour
     private static string CSV_FILENAME_CHARACTER = "DataTable_Character";
     private static string CSV_FILENAME_SKILL = "DataTable_Skill";
     private static string CSV_FILENAME_ENHANCEMENT = "DataTable_Enhancement";
+    private static string CSV_FILENAME_GUARDINFO = "DataTable_GuardInfo";
 
     private static int DEFAULT_ORDER_NUMBER = 1;
     
@@ -37,7 +39,9 @@ public class CSVConverter : MonoBehaviour
                     (int)weaponInfo["Order"],
                     (int)weaponInfo["Price"],
                     weaponInfo["Description"].ToString(),
-                    weaponInfo["SpeedDescription"].ToString()
+                    weaponInfo["SpeedDescription"].ToString(),
+                    weaponInfo["Ingr1"].ToString(),
+                    weaponInfo["Ingr2"].ToString()
                 ));
         }
 
@@ -81,24 +85,46 @@ public class CSVConverter : MonoBehaviour
         List<Dictionary<string, object>> StageDB = CSVReader.Read(CSV_FILENAME_STAGE);
         Dictionary<string, StageInfo> stageInfos = new Dictionary<string, StageInfo>();
         List<string> normalEnemies = new List<string>();
+        List<string> specialEnemies = new List<string>();
+        List<string> eliteEnemies = new List<string>();
         List<string> bossEnemies = new List<string>();
+        List<string> guardPatterns = new List<string>();
         foreach (Dictionary<string, object> stageInfo in StageDB)
         {
             normalEnemies.Clear();
+            specialEnemies.Clear();
+            eliteEnemies.Clear();
             bossEnemies.Clear();
+            guardPatterns.Clear();
             normalEnemies.Add(stageInfo["NormalEnemy1"].ToString());
             normalEnemies.Add(stageInfo["NormalEnemy2"].ToString());
             normalEnemies.Add(stageInfo["NormalEnemy3"].ToString());
+            specialEnemies.Add(stageInfo["SpecialEnemy1"].ToString());
+            specialEnemies.Add(stageInfo["SpecialEnemy2"].ToString());
+            specialEnemies.Add(stageInfo["SpecialEnemy3"].ToString());
+            eliteEnemies.Add(stageInfo["EliteEnemy1"].ToString());
+            eliteEnemies.Add(stageInfo["EliteEnemy2"].ToString());
+            eliteEnemies.Add(stageInfo["EliteEnemy3"].ToString());
             bossEnemies.Add(stageInfo["BossEnemy1"].ToString());
             bossEnemies.Add(stageInfo["BossEnemy2"].ToString());
             bossEnemies.Add(stageInfo["BossEnemy3"].ToString());
+            guardPatterns.Add(stageInfo["GuardPattern1"].ToString());
+            guardPatterns.Add(stageInfo["GuardPattern2"].ToString());
+            guardPatterns.Add(stageInfo["GuardPattern3"].ToString());
+            
 
             stageInfos.Add(stageInfo["StageCode"].ToString(),
                 new StageInfo(stageInfo["StageCode"].ToString(),
                     (int)stageInfo["NormalEnemyCount"],
+                    (int)stageInfo["SpecialEnemyCount"],
+                    (int)stageInfo["EliteEnemyCount"],
                     (int)stageInfo["BossEnemyCount"],
+                    (int)stageInfo["GuardPatternCount"],
                     normalEnemies.ToList(),
+                    specialEnemies.ToList(),
+                    eliteEnemies.ToList(),
                     bossEnemies.ToList(),
+                    guardPatterns.ToList(),
                     (int)stageInfo["BasicReward"],
                     stageInfo["Texture"].ToString()
                 ));
@@ -164,5 +190,26 @@ public class CSVConverter : MonoBehaviour
         
         JsonManager.CreateJsonFile(JsonManager.DEFAULT_ENHANCEMENT_DATA_NAME, enhanceInfos);
         */
+        
+        
+        // GuardInfo
+        
+        List<Dictionary<string, object>> GuardDB = CSVReader.Read(CSV_FILENAME_GUARDINFO);
+        Dictionary<string, GuardInfo> guardInfos = new Dictionary<string, GuardInfo>();
+        foreach (Dictionary<string, object> guardInfo in GuardDB)
+        {
+            guardInfos.Add(guardInfo["Code"].ToString(),
+                new GuardInfo(guardInfo["Code"].ToString(),
+                    guardInfo["GuardType"].ToString(),
+                    float.Parse(guardInfo["Width"].ToString()),
+                    float.Parse(guardInfo["Height"].ToString()),
+                    (int)guardInfo["Count"],
+                    float.Parse(guardInfo["SpawnDelay"].ToString()),
+                    float.Parse(guardInfo["SpawnDuration"].ToString()),
+                    Convert.ToBoolean(guardInfo["Loop"].ToString())
+                ));
+        }
+        
+        JsonManager.CreateJsonFile(JsonManager.DEFAULT_GUARD_DATA_NAME, guardInfos);
     }
 }
