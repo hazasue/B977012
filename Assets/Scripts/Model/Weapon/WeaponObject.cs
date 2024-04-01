@@ -21,7 +21,7 @@ public class WeaponObject : MonoBehaviour
                 break;
             
             case Weapon.WeaponType.TRACKING:
-                Move();
+                move();
                 break;
             
             case Weapon.WeaponType.CHAINING:
@@ -31,9 +31,15 @@ public class WeaponObject : MonoBehaviour
                 break;
             
             case Weapon.WeaponType.BARRIER:
+                spin();
                 break;
             
             case Weapon.WeaponType.EXPLOSIVE:
+                break;
+            
+            case Weapon.WeaponType.BOOMERANG:
+                move();
+                this.speed -= 10 * Time.deltaTime;
                 break;
             
             default:
@@ -50,12 +56,17 @@ public class WeaponObject : MonoBehaviour
         this.weaponType = weaponType;
     }
 
-    private void Move()
+    private void move()
     {
         this.transform.position += attackDirection * (Time.deltaTime * speed);
     }
 
-    private void Attack()
+    private void spin()
+    {
+        transform.Rotate(new Vector3(0f, -90f, 0f) * (speed * Time.deltaTime), Space.World);
+    }
+
+    private void attack()
     {
         
     }
