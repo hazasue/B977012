@@ -1,4 +1,4 @@
-StageCode,NormalEnemyCount,BossEnemyCount,NormalEnemy1,NormalEnemy2,NormalEnemy3,BossEnemy1,BossEnemy2,BossEnemy3,BasicReward,Texture
-0,3,2,normal_slime,guard_turtle,group_slime,elite_dragon,elite_dragon,,100,Grass
-1,2,2,normal_slime,normal_turtle,,elite_dragon,elite_dragon,,200,Wood
-2,2,2,normal_slime,normal_turtle,,elite_dragon,elite_dragon,,300,Rock
+StageCode,NormalEnemyCount,SpecialEnemyCount,EliteEnemyCount,BossEnemyCount,GuardPatternCount,NormalEnemy1,NormalEnemy2,NormalEnemy3,SpecialEnemy1,SpecialEnemy2,SpecialEnemy3,EliteEnemy1,EliteEnemy2,EliteEnemy3,BossEnemy1,BossEnemy2,BossEnemy3,GuardPattern1,GuardPattern2,GuardPattern3,BasicReward,Texture
+0,3,2,2,2,1,normal_slime,normal_turtle,normal_turtle,group_slime,guard_turtle,,elite_slime,elite_turtle,,boss_golem,boss_dragon,,Stay1,,,100,Grass
+1,2,2,2,2,2,normal_slime,normal_turtle,group_slime,group_slime,guard_turtle,,elite_slime,elite_turtle,,boss_dragon,boss_dragon,,ChaseLeft,ChaseRight,,200,Wood
+2,2,2,2,2,2,normal_slime,normal_turtle,group_slime,group_slime,guard_turtle,,elite_slime,elite_turtle,,boss_dragon,boss_dragon,,,,,300,Rock

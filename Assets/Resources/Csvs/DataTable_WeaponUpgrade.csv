@@ -14,3 +14,5 @@ wizardTracking32,damage,10,,0
 tempBarrier,damage,10,,0
 tempBeam,damage,10,,0
 tempChaining,delay,0.25,,0
+tempBoomerang,damage,10,,0
+tempSpin,damage,5,,0
