@@ -83,9 +83,7 @@ public class NormalEnemy : Enemy
                 Debug.Log("Invalid enemy grade: " + enemyInfo.GetGrade());
                 break;
         }
-        
-        this.moveDirection = (Vector3)moveDirection;
-        
+
         canAttack = true;
 
         this.target = target;
@@ -105,6 +103,7 @@ public class NormalEnemy : Enemy
     protected override void setDirections(Vector3 direction)
     {
         moveDirection = direction.normalized;
+        attackDirection = moveDirection;
     }
 
     public override void TakeDamage(int damage)
