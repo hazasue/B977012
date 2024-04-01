@@ -31,6 +31,7 @@ public class UIManager : MonoBehaviour
     public Slider playerHp;
     public Slider playerExp;
     public Slider playerSkill;
+    private bool skillGageFull;
 
     public TMP_Text playerHpText;
     public GameObject skillText;
@@ -74,6 +75,7 @@ public class UIManager : MonoBehaviour
     void Update()
     {
         updateTime();
+        updateSkillBar();
         updateDamageTexts();
         applyKeyInput();
     }
@@ -104,8 +106,8 @@ public class UIManager : MonoBehaviour
 
         playerSkill.maxValue = player.GetInventory().GetSkill().GetDelay();
         playerSkill.value = 0;
-        StartCoroutine(updateSkillBar());
-        
+        skillGageFull = false;
+
         CONVERSTION_MULTIPLY_VALUE = canvas.rect.height / DEFAULT_SCREEN_HEIGHT;
 
         allDamageTexts = new Queue<TMP_Text>();
@@ -127,17 +129,14 @@ public class UIManager : MonoBehaviour
         timeText.text = ((int)(time / 60)).ToString("D2") + " : " + ((int)(time % 60)).ToString("D2");
     }
 
-    private IEnumerator updateSkillBar()
+    private void updateSkillBar()
     {
-        while (true)
+        if (skillGageFull) return;
+        playerSkill.value += Time.deltaTime;
+        if (playerSkill.value >= playerSkill.maxValue)
         {
-            yield return new WaitForSeconds(Time.deltaTime);
-            if (playerSkill.value >= playerSkill.maxValue)
-            {
-                skillText.SetActive(true);
-                yield break;
-            }
-            playerSkill.value += Time.deltaTime;
+            skillText.SetActive(true);
+            skillGageFull = true;
         }
     }
 
@@ -155,7 +154,7 @@ public class UIManager : MonoBehaviour
     {
         playerSkill.value = 0f;
         skillText.SetActive(false);
-        StartCoroutine(updateSkillBar());
+        skillGageFull = false;
     }
 
     public void UpdatePlayerCurrentStatus()
