@@ -1,0 +1,4 @@
+Code,GuardType,Width,Height,Count,SpawnDelay,SpawnDuration,Loop
+Stay1,STAY,30,30,0,180,20,FALSE
+ChaseLeft,CHASE_LEFT,30,30,0,100,10,FALSE
+ChaseRight,CHASE_RIGHT,30,30,0,200,10,FALSE
