@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class WeaponManager : MonoBehaviour
 {
@@ -13,10 +14,12 @@ public class WeaponManager : MonoBehaviour
 
     private Dictionary<string, WeaponInfo> weaponInfos;
     private Dictionary<string, WeaponUpgradeInfo> weaponUpgradeInfos;
+    private List<string> removedWeaponCodes;
 
     private List<WeaponInfo> augmentOptions;
     private string playerType;
     private string basicWeaponCode;
+    private Inventory inventory;
     
     // Start is called before the first frame update
     void Awake()
@@ -24,11 +27,18 @@ public class WeaponManager : MonoBehaviour
         init();
     }
 
+    void Start()
+    {
+        if (Scenemanager.GetActiveScene().name == "InGame")
+            inventory = GameManager.GetInstance().GetPlayer().GetInventory();
+    }
+
     private void init()
     {
         weaponInfos = new Dictionary<string, WeaponInfo>();
         weaponUpgradeInfos = new Dictionary<string, WeaponUpgradeInfo>();
         augmentOptions = new List<WeaponInfo>();
+        removedWeaponCodes = new List<string>();
         
         Dictionary<string, WeaponInfo> tempWeaponInfos =
             JsonManager.LoadJsonFile<Dictionary<string, WeaponInfo>>(JsonManager.DEFAULT_WEAPON_DATA_NAME);
@@ -96,21 +106,36 @@ public class WeaponManager : MonoBehaviour
     {
         List<string> optionCodes = new List<string>();
         augmentOptions.Clear();
+        Dictionary<string, Weapon> weapons = inventory.GetWeapons();
 
         // 기본 직업 무기
         optionCodes.Add(basicWeaponCode);
         
-        // 공용 무기
+        // 공용 무기, 합성 무기 체크
         foreach (WeaponInfo data in weaponInfos.Values)
         {
+            if (data.GetOccupation() == "synthesis"
+                && weapons.ContainsKey(data.ingr1)
+                && weapons.ContainsKey(data.ingr2)
+                && weapons[data.ingr1].GetUpgradeCount() >= MAX_UPGRADE_COUNT
+                && weapons[data.ingr2].GetUpgradeCount() >= MAX_UPGRADE_COUNT)
+                optionCodes.Add(data.GetCode());
+            
             if (data.GetOccupation() != "common") continue;
             optionCodes.Add(data.GetCode());
         }
+        
 
         // 업그레이드 횟수 초과한 무기 리스트에서 제거
-        foreach (Weapon weapon in GameManager.GetInstance().GetPlayer().GetInventory().GetWeapons().Values)
+        foreach (Weapon weapon in weapons.Values)
         {
             if (weapon.GetUpgradeCount() >= MAX_UPGRADE_COUNT) optionCodes.Remove(weapon.GetCode());
+        }
+
+        // 합성에 사용된 무기 리스트에서 제거
+        foreach (string code in removedWeaponCodes)
+        {
+            if (optionCodes.Contains(code)) optionCodes.Remove(code);
         }
 
         int idx;
@@ -130,16 +155,27 @@ public class WeaponManager : MonoBehaviour
     {
         if (index >= augmentOptions.Count)
         {
-            GameManager.GetInstance().GetPlayer().GetInventory().GainCoins(DEFAULT_COIN_VALUE);
+            inventory.GainCoins(DEFAULT_COIN_VALUE);
             return;
         }
         
         Weapon selectedWeapon;
-        if (!GameManager.GetInstance().GetPlayer().GetInventory().GetWeapons().TryGetValue(augmentOptions[index].GetCode(), out selectedWeapon))
+        if (!inventory.GetWeapons().TryGetValue(augmentOptions[index].GetCode(), out selectedWeapon))
             selectedWeapon = null;
         
-        if(!selectedWeapon)
-            GameManager.GetInstance().GetPlayer().GetInventory().AddWeapon(augmentOptions[index]);
+        if(!selectedWeapon
+           && augmentOptions[index].GetOccupation() == "common")
+            inventory.AddWeapon(augmentOptions[index]);
+        else if (!selectedWeapon
+                 && augmentOptions[index].GetOccupation() == "synthesis")
+        {
+            inventory.AddWeapon(augmentOptions[index]);
+            inventory.RemoveWeapon(augmentOptions[index].ingr1);
+            inventory.RemoveWeapon(augmentOptions[index].ingr2);
+
+            removedWeaponCodes.Add(augmentOptions[index].ingr1);
+            removedWeaponCodes.Add(augmentOptions[index].ingr2);
+        }
         else
         {
             selectedWeapon.UpgradeWeapon(weaponUpgradeInfos[augmentOptions[index].GetCode()]);
@@ -160,7 +196,6 @@ public class WeaponManager : MonoBehaviour
     // test code
     public void UpgradeBasicWeaponFull()
     {
-        GameManager.GetInstance().GetPlayer().GetInventory().GetWeapons()[basicWeaponCode]
-            .UpgradeWeapon(weaponUpgradeInfos[basicWeaponCode]);
+        GameManager.GetInstance().GetPlayer().GetLevelInfo().GainExp(100);
     }
 }
