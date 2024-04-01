@@ -4,6 +4,14 @@ using UnityEngine;
 
 public class GuardEnemy : Enemy
 {
+    public enum GuardType
+    {
+        STAY,
+        CHASE_PLAYER,
+        CHASE_LEFT,
+        CHASE_RIGHT,
+    }
+    
     // Update is called once per frame
     void Update()
     {
