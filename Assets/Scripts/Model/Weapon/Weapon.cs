@@ -13,6 +13,7 @@ public abstract class Weapon : MonoBehaviour
         BEAM,
         BARRIER,
         EXPLOSIVE,
+        BOOMERANG
     }
 
     protected static int DEFAULT_OBJECT_COUNT = 200;
