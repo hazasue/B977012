@@ -8,10 +8,12 @@ public class EnemyManager : MonoBehaviour
     private static EnemyManager instance;
 
     private static string CSV_FILENAME_STAGE = "DataTable_Stage";
+    private const string NULL_STRING = "";
     private static int MAX_ENEMY_COUNT = 1200;
     private static int DEFAULT_NORMAL_ENEMY_INDEX = 0;
+    private static int DEFAULT_GROUP_ENEMY_INDEX = 0;
     private static int DEFAULT_GUARD_ENEMY_INDEX = 1;
-    private static int DEFAULT_GROUP_ENEMY_INDEX = 2;
+
     private static int DEFAULT_ENEMY_SPAWN_POS_COUNT = 4;
     private static Vector3 SPAWN_ENEMY_POSITION = new Vector3(30.0f, 0.0f, 0.0f);
     private static Vector3 SPAWN_BOSS_POSITION = new Vector3(0.0f, 0.0f, 10.0f);
@@ -20,14 +22,14 @@ public class EnemyManager : MonoBehaviour
     private static float RIGHT_ANGLE = 90f;
     private static float DEFAULT_BASIC_ENEMY_SPAWN_ANGLE = 30f;
     private static float DEFAULT_ENEMY_SPAWN_RANGE = 30f;
-    private static float DEFAULT_BOSS_ENEMY_SPAWN_DELAY = 40f;
+    private static float DEFAULT_BOSS_ENEMY_SPAWN_DELAY = 5f;
+    private static float DEFAULT_ELITE_ENEMY_SPAWN_DELAY = 60f;
 
-    private const float DEFAULT_GROUP_ENEMY_SPAWN_DELAY = 5f;
+    private const float DEFAULT_GROUP_ENEMY_SPAWN_DELAY = 120f;
     private const int DEFAULT_SPAWN_GROUP_COUNT = 18;
     private const float DEFAULT_GROUP_ENEMY_DURATION = 10f;
     
     private const int DEFAULT_SPAWN_GUARD_COUNT = 60;
-    private const float DEFAULT_GUARD_ENEMY_SPAWN_DELAY = 10f;
     private const float DEFAULT_GUARD_ENEMY_SPAWN_DISTANCE = 15f;
 
     private const float DEFAULT_TWO_RADIANS = 360f;
@@ -54,10 +56,18 @@ public class EnemyManager : MonoBehaviour
 
     // Stage enemy info
     private int normalEnemyCount;
+    private int specialEnemyCount;
+    private int eliteEnemyCount;
     private int bossEnemyCount;
+    private int guardPatternCount;
     
     private List<string> normalEnemyList;
+    private List<string> specialEnemyList;
+    private List<string> eliteEnemyList;
     private List<string> bossEnemyList;
+    private List<string> guardPatterns;
+    
+    private Dictionary<string, GuardInfo> guardInfos;
     
     private Vector3[] basicEnemySpawnPos;
     
@@ -92,7 +102,10 @@ public class EnemyManager : MonoBehaviour
         isBossActive = false;
 
         normalEnemyList = new List<string>();
+        specialEnemyList = new List<string>();
+        eliteEnemyList = new List<string>();
         bossEnemyList = new List<string>();
+        guardPatterns = new List<string>();
         
         Dictionary<string, StageInfo> stageInfos =
             JsonManager.LoadJsonFile<Dictionary<string, StageInfo>>(JsonManager.DEFAULT_STAGE_DATA_NAME);
@@ -103,10 +116,16 @@ public class EnemyManager : MonoBehaviour
                     .currentSelectedCode].currentStage.ToString()];
 
         normalEnemyCount = stageInfo.normalEnemyCount;
+        specialEnemyCount = stageInfo.specialEnemyCount;
+        eliteEnemyCount = stageInfo.eliteEnemyCount;
         bossEnemyCount = stageInfo.bossEnemyCount;
+        guardPatternCount = stageInfo.guardPatternCount;
 
         normalEnemyList = stageInfo.normalEnemies.ToList();
+        specialEnemyList = stageInfo.specialEnemies.ToList();
+        eliteEnemyList = stageInfo.eliteEnemies.ToList();
         bossEnemyList = stageInfo.bossEnemies.ToList();
+        guardPatterns = stageInfo.guardPatterns.ToList();
 
         // enemy spawn position
         basicEnemySpawnPos = new Vector3[DEFAULT_ENEMY_SPAWN_POS_COUNT];
@@ -119,10 +138,11 @@ public class EnemyManager : MonoBehaviour
 
         player = GameManager.GetInstance().GetPlayer().transform;
         InstantiateEnemies();
-        //StartCoroutine(spawnNormalEnemies());
-        StartCoroutine(spawnGroupEnemies());
-        StartCoroutine(spawnGuardEnemies());
-        StartCoroutine(spawnBossEnemy(DEFAULT_BOSS_ENEMY_SPAWN_DELAY));
+        
+        // guard enemy infos;
+        guardInfos = JsonManager.LoadJsonFile<Dictionary<string, GuardInfo>>(JsonManager.DEFAULT_GUARD_DATA_NAME);
+
+        startSpawnRoutine();
     }
 
     public static EnemyManager GetInstance()
@@ -153,14 +173,14 @@ public class EnemyManager : MonoBehaviour
         Enemy tempEnemy;
         for (int count = 0; count < DEFAULT_SPAWN_COUNT; count++)
         {
-            tempEnemy = Instantiate(enemyObjects[normalEnemyList[DEFAULT_NORMAL_ENEMY_INDEX]],
+            tempEnemy = Instantiate(enemyObjects[normalEnemyList[bossPhase]],
                 player.position +
                 (Quaternion.Euler(0f,
                     Random.Range(-DEFAULT_ENEMY_SPAWN_RANGE, DEFAULT_ENEMY_SPAWN_RANGE),
                     0f) * basicEnemySpawnPos[Random.Range(0, DEFAULT_ENEMY_SPAWN_POS_COUNT)]),
                 Quaternion.identity,
                 this.transform); //inactiveEnemies.Dequeue();
-            tempEnemy.Init(enemyInfos[normalEnemyList[DEFAULT_NORMAL_ENEMY_INDEX]], player, key);
+            tempEnemy.Init(enemyInfos[normalEnemyList[bossPhase]], player, key);
             activeEnemies.Add(key++, tempEnemy);
         }
 
@@ -172,44 +192,134 @@ public class EnemyManager : MonoBehaviour
         yield return new WaitForSeconds(DEFAULT_GROUP_ENEMY_SPAWN_DELAY);
         if (isBossActive) yield break;
         
-        Enemy tempEnemy;
-        int posIdx = Random.Range(0, DEFAULT_ENEMY_SPAWN_POS_COUNT);
-        float interval = 1f;
-        float angle = DEFAULT_ONE_THIRD_RADIAN;
-        float current = 0f;
-        float max = DEFAULT_TWO_RADIANS / angle;
-
-        for (int count = 0; count < DEFAULT_SPAWN_GROUP_COUNT; count++)
-        {
-            tempEnemy = Instantiate(enemyObjects[normalEnemyList[DEFAULT_GROUP_ENEMY_INDEX]],
-                player.position + basicEnemySpawnPos[posIdx] + 
-                (Quaternion.Euler(0f, angle * current++, 0f)
-                 * new Vector3(interval, 0f, 0f)),
-                Quaternion.identity,
-                this.transform);
-            tempEnemy.gameObject.SetActive(true);
-            tempEnemy.Init(enemyInfos[normalEnemyList[DEFAULT_GROUP_ENEMY_INDEX]], player, key, -basicEnemySpawnPos[posIdx].normalized);
-            activeEnemies.Add(key++, tempEnemy);
-            StartCoroutine(removeEnemy(tempEnemy, DEFAULT_GROUP_ENEMY_DURATION));
-
-            if (current >= max)
-            {
-                angle /= 2f;
-                max = DEFAULT_TWO_RADIANS / angle;
-                current = 0f;
-                interval += 1f;
-            }
-        }
-        
         StartCoroutine(spawnGroupEnemies());
+
+        for (int i = 0; i < 4; i++)
+        {
+            Enemy tempEnemy;
+            int posIdx = Random.Range(0, DEFAULT_ENEMY_SPAWN_POS_COUNT);
+            float interval = 1f;
+            float angle = DEFAULT_ONE_THIRD_RADIAN;
+            float current = 0f;
+            float max = DEFAULT_TWO_RADIANS / angle;
+
+            for (int count = 0; count < DEFAULT_SPAWN_GROUP_COUNT; count++)
+            {
+                tempEnemy = Instantiate(enemyObjects[specialEnemyList[DEFAULT_GROUP_ENEMY_INDEX]],
+                    player.position + basicEnemySpawnPos[posIdx] +
+                    (Quaternion.Euler(0f, angle * current++, 0f)
+                     * new Vector3(interval, 0f, 0f)),
+                    Quaternion.identity,
+                    this.transform);
+                tempEnemy.gameObject.SetActive(true);
+                tempEnemy.Init(enemyInfos[specialEnemyList[DEFAULT_GROUP_ENEMY_INDEX]], player, key,
+                    -basicEnemySpawnPos[posIdx].normalized);
+                activeEnemies.Add(key++, tempEnemy);
+                StartCoroutine(removeEnemy(tempEnemy, DEFAULT_GROUP_ENEMY_DURATION));
+
+                if (current >= max)
+                {
+                    angle /= 2f;
+                    max = DEFAULT_TWO_RADIANS / angle;
+                    current = 0f;
+                    interval += 1f;
+                }
+            }
+
+            yield return new WaitForSeconds(5f);
+        }
+
+
     }
 
-    private IEnumerator spawnGuardEnemies()
+    private IEnumerator spawnGuardEnemies(string type, float width, float height, float spawnDelay, float spawnDuration, bool loop)
     {
-        yield return new WaitForSeconds(DEFAULT_GUARD_ENEMY_SPAWN_DELAY);
+        yield return new WaitForSeconds(spawnDelay);
         if (isBossActive) yield break;
 
         Enemy tempEnemy;
+        switch (type)
+        {
+            case "STAY":
+                for (float i = -1.5f * (width - 1); i <= 1.5f * (width - 1); i++)
+                {
+                    tempEnemy = Instantiate(enemyObjects[specialEnemyList[DEFAULT_GUARD_ENEMY_INDEX]],
+                        player.position + new Vector3(i, 0f, -0.5f * (height - 1)),
+                        Quaternion.identity,
+                        this.transform);
+                    tempEnemy.gameObject.SetActive(true);
+                    tempEnemy.Init(enemyInfos[specialEnemyList[DEFAULT_GUARD_ENEMY_INDEX]], player, key, Vector3.zero);
+                    activeEnemies.Add(key++, tempEnemy);
+                    StartCoroutine(removeEnemy(tempEnemy, spawnDuration));
+                    
+                    tempEnemy = Instantiate(enemyObjects[specialEnemyList[DEFAULT_GUARD_ENEMY_INDEX]],
+                        player.position + new Vector3(i, 0f, 0.5f * (height - 1)),
+                        Quaternion.identity,
+                        this.transform);
+                    tempEnemy.gameObject.SetActive(true);
+                    tempEnemy.Init(enemyInfos[specialEnemyList[DEFAULT_GUARD_ENEMY_INDEX]], player, key, Vector3.zero);
+                    activeEnemies.Add(key++, tempEnemy);
+                    StartCoroutine(removeEnemy(tempEnemy, spawnDuration));
+                }
+
+                for (float i = -1.5f * (height - 1); i <= 1.5f * (height - 1); i++)
+                {
+                    tempEnemy = Instantiate(enemyObjects[specialEnemyList[DEFAULT_GUARD_ENEMY_INDEX]],
+                        player.position + new Vector3(-0.5f * (width - 1), 0f, i),
+                        Quaternion.identity,
+                        this.transform);
+                    tempEnemy.gameObject.SetActive(true);
+                    tempEnemy.Init(enemyInfos[specialEnemyList[DEFAULT_GUARD_ENEMY_INDEX]], player, key, Vector3.zero);
+                    activeEnemies.Add(key++, tempEnemy);
+                    StartCoroutine(removeEnemy(tempEnemy, spawnDuration));
+                    
+                    tempEnemy = Instantiate(enemyObjects[specialEnemyList[DEFAULT_GUARD_ENEMY_INDEX]],
+                        player.position + new Vector3(0.5f * (width - 1), 0f, i),
+                        Quaternion.identity,
+                        this.transform);
+                    tempEnemy.gameObject.SetActive(true);
+                    tempEnemy.Init(enemyInfos[specialEnemyList[DEFAULT_GUARD_ENEMY_INDEX]], player, key, Vector3.zero);
+                    activeEnemies.Add(key++, tempEnemy);
+                    StartCoroutine(removeEnemy(tempEnemy, spawnDuration));
+                }
+                break;
+            
+            case "CHASE_PLAYER":
+                break;
+            
+            case "CHASE_LEFT":
+                for (float i = -0.5f * (height - 1); i <= 0.5f * (height - 1); i++)
+                {
+                    tempEnemy = Instantiate(enemyObjects[specialEnemyList[DEFAULT_GUARD_ENEMY_INDEX]],
+                        player.position + new Vector3(width, 0f, i),
+                        Quaternion.identity,
+                        this.transform);
+                    tempEnemy.gameObject.SetActive(true);
+                    tempEnemy.Init(enemyInfos[specialEnemyList[DEFAULT_GUARD_ENEMY_INDEX]], player, key, Vector3.left);
+                    activeEnemies.Add(key++, tempEnemy);
+                    StartCoroutine(removeEnemy(tempEnemy, spawnDuration));
+                }
+                break;
+            
+            case "CHASE_RIGHT":
+                for (float i = -0.5f * (height - 1); i <= 0.5f * (height - 1); i++)
+                {
+                    tempEnemy = Instantiate(enemyObjects[specialEnemyList[DEFAULT_GUARD_ENEMY_INDEX]],
+                        player.position + new Vector3(-width, 0f, i),
+                        Quaternion.identity,
+                        this.transform);
+                    tempEnemy.gameObject.SetActive(true);
+                    tempEnemy.Init(enemyInfos[specialEnemyList[DEFAULT_GUARD_ENEMY_INDEX]], player, key, Vector3.right);
+                    activeEnemies.Add(key++, tempEnemy);
+                    StartCoroutine(removeEnemy(tempEnemy, spawnDuration));
+                }
+                break;
+
+            default:
+                break;
+        }
+        
+        /*
         int current = 0;
 
         for (int count = 0; count < DEFAULT_SPAWN_GUARD_COUNT; count++)
@@ -226,8 +336,34 @@ public class EnemyManager : MonoBehaviour
             activeEnemies.Add(key++, tempEnemy);
             StartCoroutine(removeEnemy(tempEnemy, DEFAULT_GROUP_ENEMY_DURATION));
         }
+        */
 
-        StartCoroutine(spawnGuardEnemies());
+        if(loop) StartCoroutine(spawnGuardEnemies(type, width, height, spawnDelay, spawnDuration, loop));
+    }
+
+    private IEnumerator spawnEliteEnemy(float delay, bool spawn)
+    {
+        yield return new WaitForSeconds(delay);
+        if (isBossActive) yield break;
+
+        if (!spawn) spawn = true;
+        else
+        {
+            Enemy tempEnemy;
+
+            tempEnemy = Instantiate(enemyObjects[eliteEnemyList[bossPhase]],
+                player.position +
+                (Quaternion.Euler(0f,
+                    Random.Range(-DEFAULT_ENEMY_SPAWN_RANGE, DEFAULT_ENEMY_SPAWN_RANGE),
+                    0f) * basicEnemySpawnPos[Random.Range(0, DEFAULT_ENEMY_SPAWN_POS_COUNT)]),
+                Quaternion.identity,
+                this.transform); //inactiveEnemies.Dequeue();
+            tempEnemy.Init(enemyInfos[eliteEnemyList[bossPhase]], player, key);
+            bossEnemy.Add(key++, tempEnemy);
+            spawn = false;
+        }
+
+        StartCoroutine(spawnEliteEnemy(delay, spawn));
     }
 
     private IEnumerator spawnBossEnemy(float waitingTime)
@@ -239,8 +375,7 @@ public class EnemyManager : MonoBehaviour
         tempEnemy.Init(enemyInfos[bossEnemyList[bossPhase]], player, key);
         tempEnemy.transform.localPosition = player.gameObject.transform.localPosition + SPAWN_BOSS_POSITION;
         tempEnemy.GetComponent<BossEnemy>().InitBoss();
-        bossEnemy.Add(key, tempEnemy);
-        key++;
+        bossEnemy.Add(key++, tempEnemy);;
 
         foreach (Enemy enemy in activeEnemies.Values)
         {
@@ -275,6 +410,9 @@ public class EnemyManager : MonoBehaviour
             
             case Enemy.EnemyGrade.ELITE:
             case Enemy.EnemyGrade.BOSS:
+                UIManager.GetInstance().ShowDamageText(bossEnemy[key].transform.position,
+                    bossEnemy[key].GetCurrentDamage());
+                
                 if (bossEnemy[key].GetCharacterState() == Character.CharacterState.DEAD)
                 {
                     Enemy tempEnemy = bossEnemy[key];
@@ -291,10 +429,7 @@ public class EnemyManager : MonoBehaviour
                     }
 
                     isBossActive = false;
-                    StartCoroutine(spawnNormalEnemies());
-                    StartCoroutine(spawnGroupEnemies());
-                    StartCoroutine(spawnGuardEnemies());
-                    StartCoroutine(spawnBossEnemy(DEFAULT_BOSS_ENEMY_SPAWN_DELAY));
+                    startSpawnRoutine();
                 }
 
                 break;
@@ -317,5 +452,21 @@ public class EnemyManager : MonoBehaviour
         activeEnemies.Remove(enemy.GetKey());
 
 
+    }
+
+    private void startSpawnRoutine()
+    {
+        GuardInfo info;
+        StartCoroutine(spawnNormalEnemies());
+        StartCoroutine(spawnGroupEnemies());
+        StartCoroutine(spawnEliteEnemy(DEFAULT_ELITE_ENEMY_SPAWN_DELAY, true));
+        StartCoroutine(spawnBossEnemy(DEFAULT_BOSS_ENEMY_SPAWN_DELAY));
+        foreach (string code in guardPatterns)
+        {
+            if (code == NULL_STRING) break;
+            
+            info = guardInfos[code];
+            StartCoroutine(spawnGuardEnemies(info.guardType, info.width, info.height, info.spawnDelay, info.spawnDuration, info.loop));
+        }
     }
 }
