@@ -12,11 +12,17 @@ public class BossEnemy : Enemy
         USESKILL,
     }
 
+    private const float DEFAULT_PROJECTILE_SPEED = 6f;
+    private const float DEFAULT_PROJECTILE_DURATION = 7f;
     private static float DEFAULT_ATTACK_RANGE = 3f;
     private static float DEFAULT_ATTACK_DURATION = 0.8f;
+    private const float DEFAULT_SKILL_DELAY = 5f;
+    private const float DEFAULT_SKILL_DURATION = 1f;
 
     private BossEnemyState bossEnemyState;
     private bool isAttacking;
+    private bool usingSkill;
+    private bool canUseSkill;
 
     void Update()
     {
@@ -39,6 +45,7 @@ public class BossEnemy : Enemy
                         break;
 
                     case BossEnemyState.USESKILL:
+                        skill();
                         break;
                 }
 
@@ -57,6 +64,8 @@ public class BossEnemy : Enemy
         characterState = Character.CharacterState.ALIVE;
         animator = this.GetComponent<Animator>();
 
+        this.key = key;
+
         this.maxHp = enemyInfo.GetMaxHp();
         this.hp = this.maxHp;
         this.damage = enemyInfo.GetDamage();
@@ -65,6 +74,8 @@ public class BossEnemy : Enemy
         this.tickTime = enemyInfo.GetTickTime();
         if (enemyInfo.GetExp() > 0) itemInfos.Add(new ItemInfo(DEFAULT_ITEM_TYPE_EXP, enemyInfo.GetExp()));
         currentDamage = 0;
+
+        this.target = target;
         // if (enemyInfo.GetCoin() > 0) itemInfos.Add(new ItemInfo(DEFAULT_ITEM_TYPE_COIN, enemyInfo.GetCoin()));
 
         switch (enemyInfo.GetType())
@@ -118,6 +129,10 @@ public class BossEnemy : Enemy
     {
         bossEnemyState = BossEnemyState.MOVE;
         isAttacking = false;
+        usingSkill = false;
+        canUseSkill = false;
+        DEFAULT_ATTACK_RANGE = GetComponent<CapsuleCollider>().radius - 0.1f;
+        StartCoroutine(skillDelay());
     }
 
     protected override void move()
@@ -129,9 +144,19 @@ public class BossEnemy : Enemy
 
     protected override void attack() {}
 
+    protected void skill()
+    {
+        if (!canUseSkill) return;
+        canUseSkill = false;
+        EnemyProjectile projectile = Instantiate(Resources.Load<EnemyProjectile>("prefabs/enemies/dragonProjectile"),
+            this.transform.position, Quaternion.identity, EnemyManager.GetInstance().transform);
+        projectile.Init(damage, DEFAULT_PROJECTILE_SPEED, attackDirection, DEFAULT_PROJECTILE_DURATION);
+    }
+
     protected override void setDirections(Vector3 direction)
     {
         moveDirection = direction.normalized;
+        attackDirection = moveDirection;
     }
 
     public override void TakeDamage(int damage)
@@ -175,7 +200,15 @@ public class BossEnemy : Enemy
                     animator.SetBool("isAttack", true);
                     bossEnemyState = BossEnemyState.ATTACK;
                     isAttacking = true;
+                    canAttack = true;
                     StartCoroutine(inactivateAttack());
+                }
+                else if (canUseSkill)
+                {
+                    animator.SetBool("isSkill", true);
+                    bossEnemyState = BossEnemyState.USESKILL;
+                    usingSkill = true;
+                    StartCoroutine(stopUsingSkill());
                 }
 
                 break;
@@ -194,6 +227,12 @@ public class BossEnemy : Enemy
                 break;
 
             case BossEnemyState.USESKILL:
+                if (!usingSkill)
+                {
+                    animator.SetBool("isSkill", false);
+                    bossEnemyState = BossEnemyState.MOVE;
+                    StartCoroutine(skillDelay());
+                }
                 break;
         }
     }
@@ -201,12 +240,26 @@ public class BossEnemy : Enemy
     private IEnumerator inactivateAttack()
     {
         yield return new WaitForSeconds(DEFAULT_ATTACK_DURATION);
-        if (Vector3.Distance(this.transform.position, target.position) <= DEFAULT_ATTACK_RANGE)
-            StartCoroutine(inactivateAttack());
+        if (Vector3.Distance(this.transform.position, target.position) > DEFAULT_ATTACK_RANGE)
+            isAttacking = false;
         else
         {
-            isAttacking = false;
+            canAttack = true;
+            StartCoroutine(inactivateAttack());
         }
+    }
+    
+    private IEnumerator stopUsingSkill()
+    {
+        yield return new WaitForSeconds(DEFAULT_SKILL_DURATION);
+        usingSkill = false;
+    }
+
+    private IEnumerator skillDelay()
+    {
+        yield return new WaitForSeconds(DEFAULT_SKILL_DELAY);
+
+        canUseSkill = true;
     }
 
 }
