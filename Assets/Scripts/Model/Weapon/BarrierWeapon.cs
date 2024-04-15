@@ -142,7 +142,7 @@ public class BarrierWeapon : Weapon
             tempObject = weaponObjects.Dequeue();
             weaponObjects.Enqueue(tempObject);
             tempObject.gameObject.SetActive(true);
-            tempObject.transform.localRotation = Quaternion.Euler(new Vector3(90f, angle * i, 0f));
+            tempObject.transform.localRotation = Quaternion.Euler(new Vector3(0f, angle * i, 0f));
             tempObject.transform.position = this.transform.position + DEFAULT_OBJECT_POS_Y;
             tempObject.Init(damage, speed, Vector3.zero, weaponType);
             StartCoroutine(InactivateWeaponObject(tempObject, duration));
