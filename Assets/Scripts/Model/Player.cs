@@ -159,6 +159,13 @@ public class Player : Character
         UIManager.GetInstance().UpdatePlayerCurrentStatus();
     }
 
+    public void Heal(int value)
+    {
+        hp += value;
+        if (hp > maxHp) hp = maxHp;
+        UIManager.GetInstance().UpdatePlayerCurrentStatus();
+    }
+
     public void ApplyEnhancedOptions(Dictionary<string, EnhanceInfo> enhanceInfos)
     {
         foreach (KeyValuePair<string, EnhanceInfo> data in enhanceInfos)
