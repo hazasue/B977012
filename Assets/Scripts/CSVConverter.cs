@@ -76,7 +76,9 @@ public class CSVConverter : MonoBehaviour
                     float.Parse(enemyInfo["Speed"].ToString()),
                     (int)enemyInfo["Armor"],
                     float.Parse(enemyInfo["TickTime"].ToString()),
-                    (int)enemyInfo["Exp"]
+                    (int)enemyInfo["Exp"],
+                    Convert.ToBoolean(enemyInfo["CanRangeAttack"].ToString()),
+                    Convert.ToBoolean(enemyInfo["CanUseSkill"].ToString())
                 ));
         }
         JsonManager.CreateJsonFile(JsonManager.DEFAULT_ENEMY_DATA_NAME, enemyInfos);
@@ -99,12 +101,14 @@ public class CSVConverter : MonoBehaviour
             normalEnemies.Add(stageInfo["NormalEnemy1"].ToString());
             normalEnemies.Add(stageInfo["NormalEnemy2"].ToString());
             normalEnemies.Add(stageInfo["NormalEnemy3"].ToString());
+            normalEnemies.Add(stageInfo["NormalEnemy4"].ToString());
             specialEnemies.Add(stageInfo["SpecialEnemy1"].ToString());
             specialEnemies.Add(stageInfo["SpecialEnemy2"].ToString());
             specialEnemies.Add(stageInfo["SpecialEnemy3"].ToString());
             eliteEnemies.Add(stageInfo["EliteEnemy1"].ToString());
             eliteEnemies.Add(stageInfo["EliteEnemy2"].ToString());
             eliteEnemies.Add(stageInfo["EliteEnemy3"].ToString());
+            eliteEnemies.Add(stageInfo["EliteEnemy4"].ToString());
             bossEnemies.Add(stageInfo["BossEnemy1"].ToString());
             bossEnemies.Add(stageInfo["BossEnemy2"].ToString());
             bossEnemies.Add(stageInfo["BossEnemy3"].ToString());
