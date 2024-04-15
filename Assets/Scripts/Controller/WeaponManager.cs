@@ -8,6 +8,7 @@ public class WeaponManager : MonoBehaviour
     private static WeaponManager instance;
     
     public const int DEFAULT_OPTION_COUNT = 4;
+    public const int MAX_WEAPON_COUNT = 5;
     public const int MAX_UPGRADE_COUNT = 5;
     public const string DEFAULT_AUGMENT_COIN = "coin";
     public const int DEFAULT_COIN_VALUE = 10;
@@ -29,7 +30,7 @@ public class WeaponManager : MonoBehaviour
 
     void Start()
     {
-        if (Scenemanager.GetActiveScene().name == "InGame")
+        if (SceneManager.GetActiveScene().name == "InGame")
             inventory = GameManager.GetInstance().GetPlayer().GetInventory();
     }
 
@@ -107,6 +108,7 @@ public class WeaponManager : MonoBehaviour
         List<string> optionCodes = new List<string>();
         augmentOptions.Clear();
         Dictionary<string, Weapon> weapons = inventory.GetWeapons();
+        int weaponCount = weapons.Count;
 
         // 기본 직업 무기
         optionCodes.Add(basicWeaponCode);
@@ -119,10 +121,19 @@ public class WeaponManager : MonoBehaviour
                 && weapons.ContainsKey(data.ingr2)
                 && weapons[data.ingr1].GetUpgradeCount() >= MAX_UPGRADE_COUNT
                 && weapons[data.ingr2].GetUpgradeCount() >= MAX_UPGRADE_COUNT)
+            {
                 optionCodes.Add(data.GetCode());
-            
-            if (data.GetOccupation() != "common") continue;
-            optionCodes.Add(data.GetCode());
+                continue;
+            }
+
+            if (data.GetOccupation() == "common")
+            {
+                if(weaponCount < MAX_WEAPON_COUNT) optionCodes.Add(data.GetCode());
+                else if (weapons.ContainsKey(data.GetCode()))
+                {
+                    optionCodes.Add(data.GetCode());
+                }
+            }
         }
         
 
