@@ -16,16 +16,17 @@ public class EnemyManager : MonoBehaviour
 
     private static int DEFAULT_ENEMY_SPAWN_POS_COUNT = 4;
     private static Vector3 SPAWN_ENEMY_POSITION = new Vector3(30.0f, 0.0f, 0.0f);
-    private static Vector3 SPAWN_BOSS_POSITION = new Vector3(0.0f, 0.0f, 10.0f);
+    private static Vector3 SPAWN_BOSS_POSITION = new Vector3(0.0f, 0.0f, 15.0f);
     private const float DEFAULT_SPAWN_CYCLE = 1f;
     private const int DEFAULT_SPAWN_COUNT = 2;
     private static float RIGHT_ANGLE = 90f;
     private static float DEFAULT_BASIC_ENEMY_SPAWN_ANGLE = 30f;
     private static float DEFAULT_ENEMY_SPAWN_RANGE = 30f;
-    private static float DEFAULT_BOSS_ENEMY_SPAWN_DELAY = 5f;
-    private static float DEFAULT_ELITE_ENEMY_SPAWN_DELAY = 60f;
+    private static float DEFAULT_BOSS_ENEMY_SPAWN_DELAY = 120f;
+    private static float DEFAULT_ELITE_ENEMY_SPAWN_DELAY = 40f;
+    private const float DEFAULT_SPAWN_PHASE_CHANGE_DELAY = 60f;
 
-    private const float DEFAULT_GROUP_ENEMY_SPAWN_DELAY = 120f;
+    private const float DEFAULT_GROUP_ENEMY_SPAWN_DELAY = 60f;
     private const int DEFAULT_SPAWN_GROUP_COUNT = 18;
     private const float DEFAULT_GROUP_ENEMY_DURATION = 10f;
     
@@ -36,12 +37,15 @@ public class EnemyManager : MonoBehaviour
     private const float DEFAULT_ONE_THIRD_RADIAN = 60f;
 
     private const int MAX_DAMAGE = 9999;
+    private const float DEFAULT_BOMB_RANGE = 30f;
     
     // attributes
     private int killedEnemiesCount;
     private Transform player;
     
     // associations
+    public Light light;
+    
     private Dictionary<string, EnemyInfo> enemyInfos;
     
     private Dictionary<int, Enemy> activeEnemies;
@@ -50,6 +54,7 @@ public class EnemyManager : MonoBehaviour
     private int key;
 
     private int bossPhase;
+    private int spawnPhase;
     private bool isBossActive;
     
     private Dictionary<string, Enemy> enemyObjects;
@@ -99,6 +104,7 @@ public class EnemyManager : MonoBehaviour
         killedEnemiesCount = 0;
 
         bossPhase = 0;
+        spawnPhase = 0;
         isBossActive = false;
 
         normalEnemyList = new List<string>();
@@ -142,6 +148,7 @@ public class EnemyManager : MonoBehaviour
         // guard enemy infos;
         guardInfos = JsonManager.LoadJsonFile<Dictionary<string, GuardInfo>>(JsonManager.DEFAULT_GUARD_DATA_NAME);
 
+        StartCoroutine(spawnNormalEnemies());
         startSpawnRoutine();
     }
 
@@ -168,19 +175,18 @@ public class EnemyManager : MonoBehaviour
     private IEnumerator spawnNormalEnemies()
     {
         yield return new WaitForSeconds(DEFAULT_SPAWN_CYCLE);
-        if (isBossActive) yield break;
 
         Enemy tempEnemy;
         for (int count = 0; count < DEFAULT_SPAWN_COUNT; count++)
         {
-            tempEnemy = Instantiate(enemyObjects[normalEnemyList[bossPhase]],
+            tempEnemy = Instantiate(enemyObjects[normalEnemyList[spawnPhase]],
                 player.position +
                 (Quaternion.Euler(0f,
                     Random.Range(-DEFAULT_ENEMY_SPAWN_RANGE, DEFAULT_ENEMY_SPAWN_RANGE),
                     0f) * basicEnemySpawnPos[Random.Range(0, DEFAULT_ENEMY_SPAWN_POS_COUNT)]),
                 Quaternion.identity,
                 this.transform); //inactiveEnemies.Dequeue();
-            tempEnemy.Init(enemyInfos[normalEnemyList[bossPhase]], player, key);
+            tempEnemy.Init(enemyInfos[normalEnemyList[spawnPhase]], player, key);
             activeEnemies.Add(key++, tempEnemy);
         }
 
@@ -190,46 +196,39 @@ public class EnemyManager : MonoBehaviour
     private IEnumerator spawnGroupEnemies()
     {
         yield return new WaitForSeconds(DEFAULT_GROUP_ENEMY_SPAWN_DELAY);
-        if (isBossActive) yield break;
-        
+        if (isBossActive && bossPhase >= bossEnemyCount) yield break;
+
         StartCoroutine(spawnGroupEnemies());
 
-        for (int i = 0; i < 4; i++)
+        Enemy tempEnemy;
+        int posIdx = Random.Range(0, DEFAULT_ENEMY_SPAWN_POS_COUNT);
+        float interval = 1f;
+        float angle = DEFAULT_ONE_THIRD_RADIAN;
+        float current = 0f;
+        float max = DEFAULT_TWO_RADIANS / angle;
+
+        for (int count = 0; count < DEFAULT_SPAWN_GROUP_COUNT; count++)
         {
-            Enemy tempEnemy;
-            int posIdx = Random.Range(0, DEFAULT_ENEMY_SPAWN_POS_COUNT);
-            float interval = 1f;
-            float angle = DEFAULT_ONE_THIRD_RADIAN;
-            float current = 0f;
-            float max = DEFAULT_TWO_RADIANS / angle;
+            tempEnemy = Instantiate(enemyObjects[specialEnemyList[DEFAULT_GROUP_ENEMY_INDEX]],
+                player.position + basicEnemySpawnPos[posIdx] +
+                (Quaternion.Euler(0f, angle * current++, 0f)
+                 * new Vector3(interval, 0f, 0f)),
+                Quaternion.identity,
+                this.transform);
+            tempEnemy.gameObject.SetActive(true);
+            tempEnemy.Init(enemyInfos[specialEnemyList[DEFAULT_GROUP_ENEMY_INDEX]], player, key,
+                -basicEnemySpawnPos[posIdx].normalized);
+            activeEnemies.Add(key++, tempEnemy);
+            StartCoroutine(removeEnemy(tempEnemy, DEFAULT_GROUP_ENEMY_DURATION));
 
-            for (int count = 0; count < DEFAULT_SPAWN_GROUP_COUNT; count++)
+            if (current >= max)
             {
-                tempEnemy = Instantiate(enemyObjects[specialEnemyList[DEFAULT_GROUP_ENEMY_INDEX]],
-                    player.position + basicEnemySpawnPos[posIdx] +
-                    (Quaternion.Euler(0f, angle * current++, 0f)
-                     * new Vector3(interval, 0f, 0f)),
-                    Quaternion.identity,
-                    this.transform);
-                tempEnemy.gameObject.SetActive(true);
-                tempEnemy.Init(enemyInfos[specialEnemyList[DEFAULT_GROUP_ENEMY_INDEX]], player, key,
-                    -basicEnemySpawnPos[posIdx].normalized);
-                activeEnemies.Add(key++, tempEnemy);
-                StartCoroutine(removeEnemy(tempEnemy, DEFAULT_GROUP_ENEMY_DURATION));
-
-                if (current >= max)
-                {
-                    angle /= 2f;
-                    max = DEFAULT_TWO_RADIANS / angle;
-                    current = 0f;
-                    interval += 1f;
-                }
+                angle /= 2f;
+                max = DEFAULT_TWO_RADIANS / angle;
+                current = 0f;
+                interval += 1f;
             }
-
-            yield return new WaitForSeconds(5f);
         }
-
-
     }
 
     private IEnumerator spawnGuardEnemies(string type, float width, float height, float spawnDelay, float spawnDuration, bool loop)
@@ -341,29 +340,24 @@ public class EnemyManager : MonoBehaviour
         if(loop) StartCoroutine(spawnGuardEnemies(type, width, height, spawnDelay, spawnDuration, loop));
     }
 
-    private IEnumerator spawnEliteEnemy(float delay, bool spawn)
+    private IEnumerator spawnEliteEnemy(float delay)
     {
         yield return new WaitForSeconds(delay);
         if (isBossActive) yield break;
+        
+        Enemy tempEnemy;
 
-        if (!spawn) spawn = true;
-        else
-        {
-            Enemy tempEnemy;
+        tempEnemy = Instantiate(enemyObjects[eliteEnemyList[spawnPhase]],
+            player.position +
+            (Quaternion.Euler(0f,
+                Random.Range(-DEFAULT_ENEMY_SPAWN_RANGE, DEFAULT_ENEMY_SPAWN_RANGE),
+                0f) * basicEnemySpawnPos[Random.Range(0, DEFAULT_ENEMY_SPAWN_POS_COUNT)]),
+            Quaternion.identity,
+            this.transform); //inactiveEnemies.Dequeue();
+        tempEnemy.Init(enemyInfos[eliteEnemyList[spawnPhase]], player, key);
+        activeEnemies.Add(key++, tempEnemy);
 
-            tempEnemy = Instantiate(enemyObjects[eliteEnemyList[bossPhase]],
-                player.position +
-                (Quaternion.Euler(0f,
-                    Random.Range(-DEFAULT_ENEMY_SPAWN_RANGE, DEFAULT_ENEMY_SPAWN_RANGE),
-                    0f) * basicEnemySpawnPos[Random.Range(0, DEFAULT_ENEMY_SPAWN_POS_COUNT)]),
-                Quaternion.identity,
-                this.transform); //inactiveEnemies.Dequeue();
-            tempEnemy.Init(enemyInfos[eliteEnemyList[bossPhase]], player, key);
-            bossEnemy.Add(key++, tempEnemy);
-            spawn = false;
-        }
-
-        StartCoroutine(spawnEliteEnemy(delay, spawn));
+        StartCoroutine(spawnEliteEnemy(delay));
     }
 
     private IEnumerator spawnBossEnemy(float waitingTime)
@@ -375,18 +369,22 @@ public class EnemyManager : MonoBehaviour
         tempEnemy.Init(enemyInfos[bossEnemyList[bossPhase]], player, key);
         tempEnemy.transform.localPosition = player.gameObject.transform.localPosition + SPAWN_BOSS_POSITION;
         tempEnemy.GetComponent<BossEnemy>().InitBoss();
-        bossEnemy.Add(key++, tempEnemy);;
+        bossEnemy.Add(key++, tempEnemy);
 
-        foreach (Enemy enemy in activeEnemies.Values)
+        bossPhase++;
+
+        if (bossPhase >= bossEnemyCount)
         {
-            enemy.gameObject.SetActive(false);
-            inactiveEnemies.Enqueue(enemy);
+            foreach (Enemy enemy in activeEnemies.Values)
+            {
+                enemy.gameObject.SetActive(false);
+                inactiveEnemies.Enqueue(enemy);
+            }
+
+            activeEnemies.Clear();
         }
 
-        activeEnemies.Clear();
-
         isBossActive = true;
-        bossPhase++;
     }
 
     public void UpdateEnemyStatus(Enemy.EnemyGrade enemyGrade, int key)
@@ -396,9 +394,11 @@ public class EnemyManager : MonoBehaviour
             case Enemy.EnemyGrade.NORMAL:
             case Enemy.EnemyGrade.GROUP:
             case Enemy.EnemyGrade.GUARD:
-                UIManager.GetInstance().ShowDamageText(activeEnemies[key].transform.position,
-                    activeEnemies[key].GetCurrentDamage());
-                
+            case Enemy.EnemyGrade.ELITE:
+                if (activeEnemies[key].GetCurrentDamage() != MAX_DAMAGE)
+                    UIManager.GetInstance().ShowDamageText(activeEnemies[key].transform.position,
+                        activeEnemies[key].GetCurrentDamage());
+
                 if (activeEnemies[key].GetCharacterState() == Character.CharacterState.DEAD)
                 {
                     inactiveEnemies.Enqueue(activeEnemies[key]);
@@ -408,7 +408,6 @@ public class EnemyManager : MonoBehaviour
                 }
                 break;
             
-            case Enemy.EnemyGrade.ELITE:
             case Enemy.EnemyGrade.BOSS:
                 UIManager.GetInstance().ShowDamageText(bossEnemy[key].transform.position,
                     bossEnemy[key].GetCurrentDamage());
@@ -420,6 +419,8 @@ public class EnemyManager : MonoBehaviour
                     Destroy(tempEnemy.gameObject);
                     killedEnemiesCount++;
                     UIManager.GetInstance().UpdateKilledEnemyCount(killedEnemiesCount);
+                    spawnPhase++;
+                    StartCoroutine(makeLightDarker(0.05f, 10));
 
                     if (bossPhase >= bossEnemyCount)
                     {
@@ -434,6 +435,19 @@ public class EnemyManager : MonoBehaviour
 
                 break;
         }
+    }
+
+    private IEnumerator changeSpawnPhase(float delay)
+    {
+        yield return new WaitForSeconds(DEFAULT_SPAWN_PHASE_CHANGE_DELAY);
+
+        if (spawnPhase < normalEnemyCount - 1
+            && !isBossActive)
+        {
+            spawnPhase++;
+            StartCoroutine(changeSpawnPhase(delay));
+        }
+        
     }
 
     public int GetKilledEnemiesCount()
@@ -457,10 +471,11 @@ public class EnemyManager : MonoBehaviour
     private void startSpawnRoutine()
     {
         GuardInfo info;
-        StartCoroutine(spawnNormalEnemies());
         StartCoroutine(spawnGroupEnemies());
-        StartCoroutine(spawnEliteEnemy(DEFAULT_ELITE_ENEMY_SPAWN_DELAY, true));
         StartCoroutine(spawnBossEnemy(DEFAULT_BOSS_ENEMY_SPAWN_DELAY));
+        StartCoroutine(spawnEliteEnemy(DEFAULT_ELITE_ENEMY_SPAWN_DELAY));
+        StartCoroutine(changeSpawnPhase(DEFAULT_SPAWN_PHASE_CHANGE_DELAY));
+
         foreach (string code in guardPatterns)
         {
             if (code == NULL_STRING) break;
@@ -469,4 +484,29 @@ public class EnemyManager : MonoBehaviour
             StartCoroutine(spawnGuardEnemies(info.guardType, info.width, info.height, info.spawnDelay, info.spawnDuration, info.loop));
         }
     }
+
+    public void Bomb()
+    {
+        List<Enemy> tempEnemies = new List<Enemy>();
+        foreach (Enemy enemy in activeEnemies.Values)
+        {
+            if (Vector3.Distance(player.position, enemy.transform.position) <= DEFAULT_BOMB_RANGE)
+                tempEnemies.Add(enemy);
+        }
+
+        for (int i = tempEnemies.Count - 1; i >= 0; i--)
+        {
+            tempEnemies[i].TakeDamage(MAX_DAMAGE);
+        }
+    }
+
+    private IEnumerator makeLightDarker(float value, int repeatTime)
+    {
+        for (int i = 0; i < repeatTime; i++)
+        {
+            yield return new WaitForSeconds(0.5f);
+            light.intensity -= value;
+        }
+    }
+
 }
