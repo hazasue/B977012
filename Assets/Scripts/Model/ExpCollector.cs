@@ -5,8 +5,8 @@ using UnityEngine;
 public class ExpCollector : MonoBehaviour
 {
     private static float DEFAULT_SCALE_Y = 1f;
-    private const float DEFAULT_RANGE = 2f;
-    private const float DEFAULT_MOVESPEED = 7f;
+    private const float DEFAULT_RANGE = 4f;
+    private const float DEFAULT_MOVESPEED = 14f;
 
     private List<Transform> expList;
     private float range;
@@ -20,14 +20,25 @@ public class ExpCollector : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        removeExpsFromList();
+        moveExps();
+    }
+
+    private void removeExpsFromList()
+    {
         for (int i = expList.Count - 1; i >= 0; i--)
         {
             if (!expList[i]) expList.Remove(expList[i]);
-            else
-            {
-                expList[i].position += (this.transform.position - expList[i].position).normalized * DEFAULT_MOVESPEED *
-                                      Time.deltaTime;
-            }
+        }
+    }
+
+    private void moveExps()
+    {
+        for (int i = expList.Count - 1; i >= 0; i--)
+        {
+
+            expList[i].position += (this.transform.position - expList[i].position).normalized * DEFAULT_MOVESPEED *
+                                   Time.deltaTime;
         }
     }
     
