@@ -139,6 +139,7 @@ public class BeamWeapon : Weapon
     public override IEnumerator ActivateWeaponObjectAuto()
     {
         yield return new WaitForSeconds(delay);
+        StartCoroutine(ActivateWeaponObjectAuto());
         
         WeaponObject tempObject = weaponObjects.Dequeue();
 
@@ -154,6 +155,5 @@ public class BeamWeapon : Weapon
         weaponObjects.Enqueue(tempObject);
 
         StartCoroutine(InactivateWeaponObject(tempObject, duration));
-        StartCoroutine(ActivateWeaponObjectAuto());
     }
 }
