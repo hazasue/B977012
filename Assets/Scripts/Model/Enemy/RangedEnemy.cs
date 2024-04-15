@@ -61,6 +61,8 @@ public class RangedEnemy : Enemy
         this.moveSpeed = enemyInfo.GetSpeed();
         this.armor = enemyInfo.GetArmor();
         this.tickTime = enemyInfo.GetTickTime();
+        this.canRangeAttack = enemyInfo.canRangeAttack;
+        this.canUseSkill = enemyInfo.canUseSkill;
         if (enemyInfo.GetExp() > 0) itemInfos.Add(new ItemInfo(DEFAULT_ITEM_TYPE_EXP, enemyInfo.GetExp()));
         currentDamage = 0;
         // if (enemyInfo.GetCoin() > 0) itemInfos.Add(new ItemInfo(DEFAULT_ITEM_TYPE_COIN, enemyInfo.GetCoin()));
@@ -122,22 +124,21 @@ public class RangedEnemy : Enemy
     
     protected override void move()
     {
-        moveDirection = (target.position - this.transform.position).normalized;
         this.transform.position += Time.deltaTime * moveSpeed * moveDirection;
-        this.transform.rotation = Quaternion.Lerp(this.transform.rotation, Quaternion.LookRotation(target.position - this.transform.position), DEFAULT_ROTATE_SPEED * Time.deltaTime);
     }
 
     protected override void attack()
     {
         EnemyProjectile projectile = Instantiate(Resources.Load<EnemyProjectile>("prefabs/enemies/enemyProjectile"),
             this.transform.position, Quaternion.identity, EnemyManager.GetInstance().transform);
-        projectile.Init(damage, DEFAULT_PROJECTILE_SPEED, attackDirection, DEFAULT_PROJECTILE_DURATION);
+        projectile.Init(damage, DEFAULT_PROJECTILE_SPEED, attackDirection, DEFAULT_PROJECTILE_DURATION, EnemyProjectile.AttackType.ONE_OFF);
     }
     
     protected override void setDirections(Vector3 direction)
     {
         moveDirection = direction.normalized;
         attackDirection = moveDirection;
+        this.transform.rotation = Quaternion.Lerp(this.transform.rotation, Quaternion.LookRotation(direction), DEFAULT_ROTATE_SPEED * Time.deltaTime);
     }
     
     public override void TakeDamage(int damage)
