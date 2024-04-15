@@ -8,6 +8,7 @@ TagManager:
   - player
   - exp
   - coin
+  - SupplyBox
   layers:
   - Default
   - TransparentFX
