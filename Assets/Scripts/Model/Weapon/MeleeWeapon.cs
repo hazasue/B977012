@@ -140,6 +140,7 @@ public class MeleeWeapon : Weapon
         tempObject.Init(damage, speed, Vector3.zero, weaponType);
         tempObject.transform.position = this.transform.position;
         tempObject.transform.position += DEFAULT_OBJECT_POS_Y;
+        tempObject.transform.rotation = player.rotation;
         
         weaponObjects.Enqueue(tempObject);
 
