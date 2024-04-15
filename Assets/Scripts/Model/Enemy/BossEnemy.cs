@@ -12,17 +12,21 @@ public class BossEnemy : Enemy
         USESKILL,
     }
 
-    private const float DEFAULT_PROJECTILE_SPEED = 6f;
+    private const float DEFAULT_PROJECTILE_SPEED = 8f;
     private const float DEFAULT_PROJECTILE_DURATION = 7f;
-    private static float DEFAULT_ATTACK_RANGE = 3f;
-    private static float DEFAULT_ATTACK_DURATION = 0.8f;
-    private const float DEFAULT_SKILL_DELAY = 5f;
-    private const float DEFAULT_SKILL_DURATION = 1f;
+    private static float DEFAULT_MELEE_ATTACK_RANGE = 3f;
+    private static float DEFAULT_MELEE_ATTACK_DURATION = 0.8f;
+    private static float MIN_RANGED_ATTACK_RANGE = 8f;
+    private static float MAX_RANGED_ATTACK_RANGE = 12f;
+    private static float DEFAULT_RANGED_ATTACK_DURATION = 0.8f;
+    private const float DEFAULT_SKILL_DELAY = 15f;
+    private const float DEFAULT_SKILL_DURATION = 6.9f;
 
     private BossEnemyState bossEnemyState;
     private bool isAttacking;
     private bool usingSkill;
-    private bool canUseSkill;
+    private bool skillUsable;
+    private bool isRanged;
 
     void Update()
     {
@@ -30,10 +34,10 @@ public class BossEnemy : Enemy
         {
             case Character.CharacterState.ALIVE:
                 updateBossState();
+                setDirections(target.position - this.transform.position);
                 switch (bossEnemyState)
                 {
                     case BossEnemyState.MOVE:
-                        setDirections(target.position - this.transform.position);
                         move();
                         break;
 
@@ -72,6 +76,8 @@ public class BossEnemy : Enemy
         this.moveSpeed = enemyInfo.GetSpeed();
         this.armor = enemyInfo.GetArmor();
         this.tickTime = enemyInfo.GetTickTime();
+        this.canRangeAttack = enemyInfo.canRangeAttack;
+        this.canUseSkill = enemyInfo.canUseSkill;
         if (enemyInfo.GetExp() > 0) itemInfos.Add(new ItemInfo(DEFAULT_ITEM_TYPE_EXP, enemyInfo.GetExp()));
         currentDamage = 0;
 
@@ -130,33 +136,36 @@ public class BossEnemy : Enemy
         bossEnemyState = BossEnemyState.MOVE;
         isAttacking = false;
         usingSkill = false;
-        canUseSkill = false;
-        DEFAULT_ATTACK_RANGE = GetComponent<CapsuleCollider>().radius - 0.1f;
+        skillUsable = false;
+        isRanged = false;
+        DEFAULT_MELEE_ATTACK_RANGE = GetComponent<CapsuleCollider>().radius - 0.1f;
         StartCoroutine(skillDelay());
     }
 
     protected override void move()
     {
         this.transform.position += Time.deltaTime * moveSpeed * moveDirection;
-        this.transform.rotation = Quaternion.Lerp(this.transform.rotation,
-            Quaternion.LookRotation(target.position - this.transform.position), DEFAULT_ROTATE_SPEED * Time.deltaTime);
     }
 
     protected override void attack() {}
 
     protected void skill()
     {
-        if (!canUseSkill) return;
-        canUseSkill = false;
-        EnemyProjectile projectile = Instantiate(Resources.Load<EnemyProjectile>("prefabs/enemies/dragonProjectile"),
-            this.transform.position, Quaternion.identity, EnemyManager.GetInstance().transform);
-        projectile.Init(damage, DEFAULT_PROJECTILE_SPEED, attackDirection, DEFAULT_PROJECTILE_DURATION);
+        if (!skillUsable) return;
+        skillUsable = false;
+        EnemyProjectile projectile = Instantiate(Resources.Load<EnemyProjectile>("prefabs/enemies/enemyBreath"),
+            this.transform.position, Quaternion.identity, this.transform);//EnemyManager.GetInstance().transform);
+        projectile.transform.localPosition += new Vector3(0f, 0f, 2f);
+        projectile.transform.localRotation = Quaternion.identity;
+        projectile.Init(damage, 0f, attackDirection, DEFAULT_PROJECTILE_DURATION, EnemyProjectile.AttackType.CONTINUING);
     }
 
     protected override void setDirections(Vector3 direction)
     {
         moveDirection = direction.normalized;
         attackDirection = moveDirection;
+        this.transform.rotation = Quaternion.Lerp(this.transform.rotation,
+            Quaternion.LookRotation(target.position - this.transform.position), DEFAULT_ROTATE_SPEED * Time.deltaTime);
     }
 
     public override void TakeDamage(int damage)
@@ -195,15 +204,20 @@ public class BossEnemy : Enemy
         switch (bossEnemyState)
         {
             case BossEnemyState.MOVE:
-                if (Vector3.Distance(this.transform.position, target.position) <= DEFAULT_ATTACK_RANGE)
+                if (Vector3.Distance(this.transform.position, target.position) <= DEFAULT_MELEE_ATTACK_RANGE
+                    || (Vector3.Distance(this.transform.position, target.position) >= MIN_RANGED_ATTACK_RANGE
+                        && Vector3.Distance(this.transform.position, target.position) <= MAX_RANGED_ATTACK_RANGE
+                        && canRangeAttack))
                 {
                     animator.SetBool("isAttack", true);
                     bossEnemyState = BossEnemyState.ATTACK;
                     isAttacking = true;
                     canAttack = true;
+                    changeAttackType();
+                    instantiateAttackProjectile();
                     StartCoroutine(inactivateAttack());
                 }
-                else if (canUseSkill)
+                else if (skillUsable && canUseSkill)
                 {
                     animator.SetBool("isSkill", true);
                     bossEnemyState = BossEnemyState.USESKILL;
@@ -218,12 +232,15 @@ public class BossEnemy : Enemy
 
             case BossEnemyState.ATTACK:
                 if (isAttacking) break;
-                if (Vector3.Distance(this.transform.position, target.position) > DEFAULT_ATTACK_RANGE)
+                if (Vector3.Distance(this.transform.position, target.position) > DEFAULT_MELEE_ATTACK_RANGE
+                    && (Vector3.Distance(this.transform.position, target.position) < MIN_RANGED_ATTACK_RANGE
+                        || Vector3.Distance(this.transform.position, target.position) > MAX_RANGED_ATTACK_RANGE
+                        || !canRangeAttack))
                 {
                     animator.SetBool("isAttack", false);
+                    animator.SetBool("isRanged", false);
                     bossEnemyState = BossEnemyState.MOVE;
                 }
-
                 break;
 
             case BossEnemyState.USESKILL:
@@ -239,13 +256,21 @@ public class BossEnemy : Enemy
 
     private IEnumerator inactivateAttack()
     {
-        yield return new WaitForSeconds(DEFAULT_ATTACK_DURATION);
-        if (Vector3.Distance(this.transform.position, target.position) > DEFAULT_ATTACK_RANGE)
-            isAttacking = false;
-        else
+        yield return new WaitForSeconds(DEFAULT_MELEE_ATTACK_DURATION);
+        if (Vector3.Distance(this.transform.position, target.position) <= DEFAULT_MELEE_ATTACK_RANGE
+            || (Vector3.Distance(this.transform.position, target.position) >= MIN_RANGED_ATTACK_RANGE
+                && Vector3.Distance(this.transform.position, target.position) <= MAX_RANGED_ATTACK_RANGE
+                && canRangeAttack))
         {
             canAttack = true;
+            changeAttackType();
+            instantiateAttackProjectile();
             StartCoroutine(inactivateAttack());
+        }
+        else
+        {
+            animator.SetBool("isRanged", false);
+            isAttacking = false;
         }
     }
     
@@ -259,7 +284,40 @@ public class BossEnemy : Enemy
     {
         yield return new WaitForSeconds(DEFAULT_SKILL_DELAY);
 
-        canUseSkill = true;
+        skillUsable = true;
     }
 
+    private void changeAttackType()
+    {
+        if (Vector3.Distance(this.transform.position, target.position) <= DEFAULT_MELEE_ATTACK_RANGE) 
+            isRanged = false;
+        else if(Vector3.Distance(this.transform.position, target.position) >= MIN_RANGED_ATTACK_RANGE
+                && Vector3.Distance(this.transform.position, target.position) <= MAX_RANGED_ATTACK_RANGE)
+        {
+            if (canRangeAttack) isRanged = true;
+            else
+            {
+                isRanged = false;
+            }
+        }
+
+        animator.SetBool("isRanged", isRanged);
+    }
+
+    private void instantiateAttackProjectile()
+    {
+        if (isRanged) rangedAttack();
+        else
+        {
+
+        }
+    }
+
+    private void rangedAttack()
+    {
+        EnemyProjectile projectile = Instantiate(Resources.Load<EnemyProjectile>("prefabs/enemies/dragonProjectile"),
+            this.transform.position, Quaternion.identity, EnemyManager.GetInstance().transform);
+        projectile.transform.localRotation = Quaternion.identity;
+        projectile.Init(damage, DEFAULT_PROJECTILE_SPEED, attackDirection, DEFAULT_PROJECTILE_DURATION, EnemyProjectile.AttackType.ONE_OFF);
+    }
 }
