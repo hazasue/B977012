@@ -122,7 +122,7 @@ public class TrackingWeapon : Weapon
         WeaponObject tempObject = weaponObjects.Dequeue();
         tempObject.gameObject.SetActive(true);
         tempObject.Init(damage, speed, attackDirection, weaponType);
-        tempObject.transform.position = this.transform.position;
+        tempObject.transform.position = this.transform.position + DEFAULT_OBJECT_POS_Y;
         tempObject.transform.rotation = Quaternion.LookRotation(-attackDirection);
         
         weaponObjects.Enqueue(tempObject);
@@ -136,11 +136,23 @@ public class TrackingWeapon : Weapon
         yield return new WaitForSeconds(delay);
         
         WeaponObject tempObject = weaponObjects.Dequeue();
-        tempObject.gameObject.SetActive(true);
-        tempObject.Init(damage, speed, Vector3.zero, weaponType);
-        tempObject.transform.position = this.transform.position;
-        
         weaponObjects.Enqueue(tempObject);
+        Enemy targetEnemy = rangeCollider.GetClosestEnemy();
+
+        Vector3 targetDirection;
+        if (targetEnemy == null)
+            targetDirection = new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f)).normalized;
+        else
+        {
+            targetDirection = (targetEnemy.transform.position - this.transform.position).normalized;
+        }
+        
+        
+        tempObject.gameObject.SetActive(true);
+        tempObject.Init(damage, speed, targetDirection, weaponType);
+        tempObject.transform.position = this.transform.position + DEFAULT_OBJECT_POS_Y;
+        tempObject.transform.rotation = Quaternion.LookRotation(-targetDirection);
+
 
         StartCoroutine(InactivateWeaponObject(tempObject, duration));
         StartCoroutine(ActivateWeaponObjectAuto());
