@@ -17,4 +17,9 @@ tempChaining,Chaining,CHAINING,10,0.2,2,4,20,0,common,0,0,Hit the nearest enemy 
 tempBoomerang,Boomerang,BOOMERANG,10,3,4,1,20,10,common,0,0,Throw a boomerang.,,,
 tempSpin,Protecter,BARRIER,5,3,7,3,0,4,common,0,0,Summon 3 spheres that protects the player every period,,,
 chainBoomerang,Lightning Boomerang,BOOMERANG,60,3,2,1,20,10,synthesis,0,0,Throw a lightning boomerang.,,tempChaining,tempBoomerang
-barrierProtecter,Permanent Barrier,BARRIER,30,1000,1000,4,0,4,synthesis,0,0,Protector won't let monsters approach you.,.,tempBarrier,tempSpin
+barrierProtecter,Permanent Barrier,BARRIER,30,1000,1000,4,0,4,synthesis,0,0,Protector won't let monsters approach you.,,tempBarrier,tempSpin
+tempGrenade,Grenade,GRENADE,5,1,3,1,10,0,common,0,0,Throw Grenade.,.,,
+autoTracking,Tracker,TRACKING,5,5,1,1,20,10,common,0,0,Tracker will find enemy automatically.,,,
+tempMelee,Smash,MELEE,10,0.5,2,1,4.5,0,common,0,0,Smash in front of the player.,,,
+tempSpear,Riposte,DELAYMELEE,20,0.2,3,1,4.5,0,common,0,0,Stab in front of the player.,,,
+smashpear,Smashpear,COMBO,40,0.5,3,4,4.5,0,synthesis,0,0,Combo attack.,.,tempMelee,tempSpear
