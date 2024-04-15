@@ -33,6 +33,8 @@ public class GroupEnemy : Enemy
         this.moveSpeed = enemyInfo.GetSpeed();
         this.armor = enemyInfo.GetArmor();
         this.tickTime = enemyInfo.GetTickTime();
+        this.canRangeAttack = enemyInfo.canRangeAttack;
+        this.canUseSkill = enemyInfo.canUseSkill;
         if (enemyInfo.GetExp() > 0) itemInfos.Add(new ItemInfo(DEFAULT_ITEM_TYPE_EXP, enemyInfo.GetExp()));
         currentDamage = 0;
         // if (enemyInfo.GetCoin() > 0) itemInfos.Add(new ItemInfo(DEFAULT_ITEM_TYPE_COIN, enemyInfo.GetCoin()));
@@ -95,7 +97,7 @@ public class GroupEnemy : Enemy
     protected override void move()
     {
         this.transform.position += Time.deltaTime * moveSpeed * moveDirection;
-        this.transform.rotation = Quaternion.Lerp(this.transform.rotation, Quaternion.LookRotation(target.position - this.transform.position), DEFAULT_ROTATE_SPEED * Time.deltaTime);
+        this.transform.rotation = Quaternion.LookRotation(moveDirection); //Quaternion.Lerp(this.transform.rotation, Quaternion.LookRotation(target.position - this.transform.position), DEFAULT_ROTATE_SPEED * Time.deltaTime));
     }
     
     protected override void attack() {}
