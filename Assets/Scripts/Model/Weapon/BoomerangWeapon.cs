@@ -140,7 +140,7 @@ public class BoomerangWeapon : Weapon
         WeaponObject tempObject = weaponObjects.Dequeue();
         tempObject.gameObject.SetActive(true);
         tempObject.transform.position = this.transform.position + DEFAULT_OBJECT_POS_Y;
-        
+
         if(tempEnemy) tempObject.Init(damage, speed, (tempEnemy.transform.position - this.transform.position).normalized, weaponType);
         else
         {
