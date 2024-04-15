@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Item : MonoBehaviour
 {
+    private const float DEFAULT_SPEED = 50f;
+    
     public enum ItemType
     {
         EXP,
@@ -24,4 +26,19 @@ public class Item : MonoBehaviour
 
     public ItemType GetItemType() { return itemType; }
     public int GetValue() { return value; }
+
+    public void UseMagnet(Transform player)
+    {
+        StartCoroutine(trackPlayer(player));
+    }
+
+    private IEnumerator trackPlayer(Transform player)
+    {
+        while (this.gameObject.activeSelf == true)
+        {
+            yield return new WaitForSeconds(Time.deltaTime);
+            this.transform.position += (player.position - this.transform.position).normalized * DEFAULT_SPEED * Time.deltaTime;
+        }
+
+    }
 }
