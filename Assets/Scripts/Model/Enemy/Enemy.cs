@@ -31,6 +31,8 @@ public abstract class Enemy : Character
     protected float tickTime;
     protected bool canAttack;
     protected int currentDamage;
+    protected bool canRangeAttack;
+    protected bool canUseSkill;
 
     protected List<ItemInfo> itemInfos;
 
@@ -39,9 +41,7 @@ public abstract class Enemy : Character
     // associations
     protected List<Item> items;
     protected Transform target;
-    
-    
-    
+
     public abstract void Init(EnemyInfo enemyInfo, Transform target, int key, Vector3? moveDirection = null);
 
     protected void DropItems()
