@@ -39,7 +39,18 @@ public class WeaponObject : MonoBehaviour
             
             case Weapon.WeaponType.BOOMERANG:
                 move();
+                spin();
                 this.speed -= 10 * Time.deltaTime;
+                break;
+            
+            case Weapon.WeaponType.GRENADE:
+                move();
+                break;
+            
+            case Weapon.WeaponType.DELAYMELEE:
+                break;
+            
+            case Weapon.WeaponType.COMBO:
                 break;
             
             default:
@@ -58,6 +69,7 @@ public class WeaponObject : MonoBehaviour
 
     private void move()
     {
+        if (speed == 0f) return;
         this.transform.position += attackDirection * (Time.deltaTime * speed);
     }
 
@@ -73,9 +85,19 @@ public class WeaponObject : MonoBehaviour
 
     public void OnTriggerEnter(Collider obj)
     {
-        if (!obj.CompareTag("enemy")) return;
-
-        Enemy enemy = obj.gameObject.GetComponent<Enemy>();
-        enemy.TakeDamage(damage);
+        switch (obj.tag)
+        {
+            case "enemy":
+                Enemy enemy = obj.gameObject.GetComponent<Enemy>();
+                enemy.TakeDamage(damage);
+                break;
+            
+            case "SupplyBox":
+                obj.gameObject.GetComponent<SupplyBox>().DestroySupplyBox();
+                break;
+            
+            default:
+                break;
+        }
     }
 }
