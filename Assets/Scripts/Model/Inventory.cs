@@ -89,6 +89,18 @@ public class Inventory : MonoBehaviour
                 tempWeapon.AddComponent<BoomerangWeapon>();
                 break;
             
+            case "GRENADE":
+                tempWeapon.AddComponent<GrenadeWeapon>();
+                break;
+            
+            case "DELAYMELEE":
+                tempWeapon.AddComponent<DelayMeleeWeapon>();
+                break;
+            
+            case "COMBO":
+                tempWeapon.AddComponent<ComboWeapon>();
+                break;
+            
             default:
                 break;
         }
@@ -97,6 +109,7 @@ public class Inventory : MonoBehaviour
         tempRangeCollider.transform.localPosition = Vector3.zero;
         Weapon tempWeaponScript = tempWeapon.GetComponent<Weapon>();
         tempWeaponScript.Init(weaponInfo, tempRangeCollider, this.damageMultiple, mainWeapon);
+        tempWeaponScript.InitPlayerTransform(this.transform.parent.transform);
         weapons.Add(tempWeaponScript.GetCode(), tempWeaponScript);
     }
 
