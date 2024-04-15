@@ -10,8 +10,11 @@ public class ItemManager : MonoBehaviour
     private Queue<Item> exps;
     private Queue<Item> coins;
     private Queue<Item> itemBoxs;
+
+    private List<Item> activatedItems;
     
     public Transform itemTransform;
+    private Transform player;
 
     private void Start()
     {
@@ -23,6 +26,10 @@ public class ItemManager : MonoBehaviour
         exps = new Queue<Item>();
         coins = new Queue<Item>();
         itemBoxs = new Queue<Item>();
+
+        activatedItems = new List<Item>();
+
+        player = GameManager.GetInstance().GetPlayer().transform;
 
         Item tempItem;
         
@@ -55,23 +62,38 @@ public class ItemManager : MonoBehaviour
                 tempItem = exps.Dequeue();
                 tempItem.gameObject.SetActive(true);
                 exps.Enqueue(tempItem);
+                activatedItems.Add(tempItem);
                 return tempItem;
 
             case Item.ItemType.COIN:
                 tempItem = coins.Dequeue();
                 tempItem.gameObject.SetActive(true);
                 coins.Enqueue(tempItem);
+                activatedItems.Add(tempItem);
                 return tempItem;
                 
             case Item.ItemType.ITEMBOX:
                 tempItem = itemBoxs.Dequeue();
                 tempItem.gameObject.SetActive(true);
                 itemBoxs.Enqueue(tempItem);
+                activatedItems.Add(tempItem);
                 return tempItem;
                 
             default:
                 Debug.Log("Invalid item type: " + itemType);
                 return new Item();
+        }
+    }
+
+    public void Magnet()
+    {
+        for (int i = activatedItems.Count - 1; i >= 0; i--)
+        {
+            if (activatedItems[i].gameObject.activeSelf == false) activatedItems.RemoveAt(i);
+            else
+            {
+                activatedItems[i].UseMagnet(player);
+            }
         }
     }
 }
