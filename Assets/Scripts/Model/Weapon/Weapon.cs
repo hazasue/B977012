@@ -13,9 +13,13 @@ public abstract class Weapon : MonoBehaviour
         BEAM,
         BARRIER,
         EXPLOSIVE,
-        BOOMERANG
+        BOOMERANG,
+        GRENADE,
+        DELAYMELEE,
+        COMBO
     }
 
+    protected const float DEFAULT_EFFECT_DELAY = 1f;
     protected static int DEFAULT_OBJECT_COUNT = 200;
     protected const string NONE_OPTION_STRING = "";
     protected static Vector3 DEFAULT_OBJECT_POS_Y = new Vector3(0f, 0.5f, 0f);
@@ -31,6 +35,7 @@ public abstract class Weapon : MonoBehaviour
     protected float speed;
     protected WeaponType weaponType;
     protected bool mainWeapon;
+    protected Transform player;
 
     protected float damageMultiple;
 
@@ -54,6 +59,11 @@ public abstract class Weapon : MonoBehaviour
     public abstract void ActivateWeaponObject(Vector3 attackDirection);
 
     public abstract IEnumerator ActivateWeaponObjectAuto();
+
+    public void InitPlayerTransform(Transform player)
+    {
+        this.player = player;
+    }
 
     public IEnumerator ApplyBuffSkill(string stat, float value, float duration)
     {
