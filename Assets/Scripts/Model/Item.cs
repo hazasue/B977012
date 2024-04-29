@@ -16,12 +16,20 @@ public class Item : MonoBehaviour
     // attributes
     private ItemType itemType;
     private int value;
+    private bool isTracking;
+    private Transform player;
 
+    void Update()
+    {
+        if (isTracking) trackPlayer();
+    }
+    
     // methods
     public void Init(ItemType itemType, int value)
     {
         this.itemType = itemType;
         this.value = value;
+        isTracking = false;
     }
 
     public ItemType GetItemType() { return itemType; }
@@ -29,16 +37,13 @@ public class Item : MonoBehaviour
 
     public void UseMagnet(Transform player)
     {
-        StartCoroutine(trackPlayer(player));
+        isTracking = true;
+        this.player = player;
     }
 
-    private IEnumerator trackPlayer(Transform player)
+    private void trackPlayer()
     {
-        while (this.gameObject.activeSelf == true)
-        {
-            yield return new WaitForSeconds(Time.deltaTime);
-            this.transform.position += (player.position - this.transform.position).normalized * DEFAULT_SPEED * Time.deltaTime;
-        }
-
+        this.transform.position +=
+            (player.position - this.transform.position).normalized * DEFAULT_SPEED * Time.deltaTime;
     }
 }
