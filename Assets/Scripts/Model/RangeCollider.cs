@@ -47,6 +47,8 @@ public class RangeCollider : MonoBehaviour
         return targetEnemy;
     }
 
+    public List<Enemy> GetEnemies() { return enemyList; }
+
     public Enemy GetClosestEnemy(Vector3 centralPosition, List<Enemy> enemies, float range)
     {
         if (enemyList.Count <= 0) return null;
