@@ -155,6 +155,7 @@ public class Setting : MonoBehaviour
             
             case DEFAULT_NAME_SFX:
                 SoundManager.GetInstance().audioSourceSfx.volume = settingInfo.volumeSfx;
+                SoundManager.GetInstance().UpdateSfxVolumes();
                 break;
             
             case DEFAULT_NAME_SHOW_DAMAGE:
