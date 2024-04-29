@@ -18,6 +18,35 @@ public class GrenadeWeapon : Weapon
         range = weaponInfo.GetRange();
         speed = weaponInfo.GetSpeed();
         weaponType = Weapon.WeaponType.GRENADE;
+
+        audioSource = this.GetComponent<AudioSource>();
+        audioClip = Resources.Load<AudioClip>($"Sfxs/weapons/{code}_sound");
+        SoundManager.GetInstance().AddToSfxList(audioSource);
+        audioSource.volume = SoundManager.GetInstance().audioSourceSfx.volume;
+        audioSource.clip = audioClip;
+
+        switch(weaponInfo.GetOccupation()){
+            case "WARRIOR":
+                weaponOccupation = Weapon.WeaponOccupation.WARRIOR;
+                break;
+
+            case "WIZARD":
+                weaponOccupation = Weapon.WeaponOccupation.WIZARD;
+                break;
+
+            case "common":
+                weaponOccupation = Weapon.WeaponOccupation.COMMON;
+                break;
+
+            case "synthesis":
+                weaponOccupation = Weapon.WeaponOccupation.SYNTHESIS;
+                break;
+
+            default:
+                Debug.Log($"Invalid Weapon Occupation: {weaponInfo.GetOccupation()}");
+                break;
+        }
+
         upgradeCount = 1;
 
         enableToAttack = false;
@@ -137,7 +166,7 @@ public class GrenadeWeapon : Weapon
         
         WeaponObject tempObject = weaponObjects.Dequeue();
         tempObject.gameObject.SetActive(true);
-        tempObject.Init(damage, speed, attackDirection, weaponType);
+        tempObject.Init(damage, speed, attackDirection, weaponType, weaponOccupation, audioClip);
         tempObject.transform.position = this.transform.position;
         tempObject.transform.rotation = Quaternion.LookRotation(-attackDirection);
         
@@ -165,7 +194,7 @@ public class GrenadeWeapon : Weapon
 
         tempObject.gameObject.SetActive(true);
         tempObject.transform.position = this.transform.position + DEFAULT_OBJECT_POS_Y;
-        tempObject.Init(0, targetPosition.magnitude, targetPosition.normalized, weaponType);
+        tempObject.Init(0, targetPosition.magnitude, targetPosition.normalized, weaponType, weaponOccupation, null);
 
         StartCoroutine(instantiateEffect(tempObject.transform, DEFAULT_EFFECT_DELAY));
         StartCoroutine(InactivateWeaponObject(tempObject, DEFAULT_EFFECT_DELAY));
@@ -180,7 +209,9 @@ public class GrenadeWeapon : Weapon
         effects.Enqueue(tempEffect);
         tempEffect.gameObject.SetActive(true);
         tempEffect.transform.position = pos.position;
-        tempEffect.Init(damage, 0f, Vector3.zero, weaponType);
+        tempEffect.Init(damage, 0f, Vector3.zero, weaponType, weaponOccupation, null);
+
+        audioSource.Play();
 
         StartCoroutine(InactivateWeaponObject(tempEffect, duration));
     }

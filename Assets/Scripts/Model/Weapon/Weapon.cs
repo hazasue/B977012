@@ -19,6 +19,13 @@ public abstract class Weapon : MonoBehaviour
         COMBO
     }
 
+    public enum WeaponOccupation {
+        WARRIOR,
+        WIZARD,
+        COMMON,
+        SYNTHESIS,
+    }
+
     protected const float DEFAULT_EFFECT_DELAY = 1f;
     protected static int DEFAULT_OBJECT_COUNT = 200;
     protected const string NONE_OPTION_STRING = "";
@@ -34,6 +41,7 @@ public abstract class Weapon : MonoBehaviour
     protected float range;
     protected float speed;
     protected WeaponType weaponType;
+    protected WeaponOccupation weaponOccupation;
     protected bool mainWeapon;
     protected Transform player;
 
@@ -48,6 +56,9 @@ public abstract class Weapon : MonoBehaviour
     protected Queue<WeaponObject> weaponObjects;
 
     protected Transform instanceTransform;
+
+    protected AudioSource audioSource;
+    protected AudioClip audioClip;
 
     // methods
     public abstract void Init(WeaponInfo weaponInfo, RangeCollider rangeCollider,  float damageMultiple, bool mainWeapon = false);
@@ -137,6 +148,11 @@ public abstract class Weapon : MonoBehaviour
         yield return new WaitForSeconds(duration);
 
         weaponObject.gameObject.SetActive(false);
+    }
+
+    protected IEnumerator StopAudioClip(float delay) {
+        yield return new WaitForSeconds(delay);
+        audioSource.Stop();
     }
 
     public int GetUpgradeCount() { return upgradeCount; }

@@ -20,6 +20,35 @@ public class DelayMeleeWeapon : Weapon
         range = weaponInfo.GetRange();
         speed = weaponInfo.GetSpeed();
         weaponType = Weapon.WeaponType.DELAYMELEE;
+
+        audioSource = this.GetComponent<AudioSource>();
+        audioClip = Resources.Load<AudioClip>($"Sfxs/weapons/{code}_sound");
+        SoundManager.GetInstance().AddToSfxList(audioSource);
+        audioSource.volume = SoundManager.GetInstance().audioSourceSfx.volume;
+        audioSource.clip = audioClip;
+
+        switch(weaponInfo.GetOccupation()){
+            case "WARRIOR":
+                weaponOccupation = Weapon.WeaponOccupation.WARRIOR;
+                break;
+
+            case "WIZARD":
+                weaponOccupation = Weapon.WeaponOccupation.WIZARD;
+                break;
+
+            case "common":
+                weaponOccupation = Weapon.WeaponOccupation.COMMON;
+                break;
+
+            case "synthesis":
+                weaponOccupation = Weapon.WeaponOccupation.SYNTHESIS;
+                break;
+
+            default:
+                Debug.Log($"Invalid Weapon Occupation: {weaponInfo.GetOccupation()}");
+                break;
+        }
+
         upgradeCount = 1;
 
         enableToAttack = false;
@@ -139,7 +168,7 @@ public class DelayMeleeWeapon : Weapon
         
         WeaponObject tempObject = weaponObjects.Dequeue();
         tempObject.gameObject.SetActive(true);
-        tempObject.Init(damage, speed, attackDirection, weaponType);
+        tempObject.Init(damage, speed, attackDirection, weaponType, weaponOccupation, audioClip);
         tempObject.transform.position = this.transform.position;
         tempObject.transform.position += DEFAULT_OBJECT_POS_Y;
         
@@ -155,10 +184,12 @@ public class DelayMeleeWeapon : Weapon
      
         WeaponObject tempObject = weaponObjects.Dequeue();
         tempObject.gameObject.SetActive(true);
-        tempObject.Init(damage, speed, Vector3.zero, weaponType);
+        tempObject.Init(damage, speed, Vector3.zero, weaponType, weaponOccupation, null);
         tempObject.transform.position = this.transform.position;
         tempObject.transform.position += DEFAULT_OBJECT_POS_Y;
         tempObject.transform.rotation = player.rotation * Quaternion.Euler(new Vector3(0f, 0f, 90f));
+        
+        audioSource.Play();
         
         weaponObjects.Enqueue(tempObject);
 
@@ -176,7 +207,7 @@ public class DelayMeleeWeapon : Weapon
         tempEffect.gameObject.SetActive(true);
         tempEffect.transform.position = pos.position;
         tempEffect.transform.rotation = pos.rotation;
-        tempEffect.Init(damage, 0f, Vector3.zero, weaponType);
+        tempEffect.Init(damage, 0f, Vector3.zero, weaponType, weaponOccupation, null);
 
         StartCoroutine(InactivateWeaponObject(tempEffect, duration));
     }

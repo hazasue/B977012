@@ -16,6 +16,34 @@ public class BoomerangWeapon : Weapon
         range = weaponInfo.GetRange();
         speed = weaponInfo.GetSpeed();
         weaponType = Weapon.WeaponType.BOOMERANG;
+        
+        audioSource = this.GetComponent<AudioSource>();
+        audioClip = Resources.Load<AudioClip>($"Sfxs/weapons/{code}_sound");
+        audioSource.volume = SoundManager.GetInstance().audioSourceSfx.volume;
+        audioSource.clip = audioClip;
+
+        switch(weaponInfo.GetOccupation()){
+            case "WARRIOR":
+                weaponOccupation = Weapon.WeaponOccupation.WARRIOR;
+                break;
+
+            case "WIZARD":
+                weaponOccupation = Weapon.WeaponOccupation.WIZARD;
+                break;
+
+            case "common":
+                weaponOccupation = Weapon.WeaponOccupation.COMMON;
+                break;
+
+            case "synthesis":
+                weaponOccupation = Weapon.WeaponOccupation.SYNTHESIS;
+                break;
+
+            default:
+                Debug.Log($"Invalid Weapon Occupation: {weaponInfo.GetOccupation()}");
+                break;
+        }
+
         upgradeCount = 1;
 
         enableToAttack = false;
@@ -121,9 +149,11 @@ public class BoomerangWeapon : Weapon
         
         WeaponObject tempObject = weaponObjects.Dequeue();
         tempObject.gameObject.SetActive(true);
-        tempObject.Init(damage, speed, attackDirection, weaponType);
+        tempObject.Init(damage, speed, attackDirection, weaponType, weaponOccupation, null);
         tempObject.transform.position = this.transform.position;
         tempObject.transform.rotation = Quaternion.LookRotation(-attackDirection);
+        
+        audioSource.Play();
         
         weaponObjects.Enqueue(tempObject);
 
@@ -141,15 +171,18 @@ public class BoomerangWeapon : Weapon
         tempObject.gameObject.SetActive(true);
         tempObject.transform.position = this.transform.position + DEFAULT_OBJECT_POS_Y;
 
-        if(tempEnemy) tempObject.Init(damage, speed, (tempEnemy.transform.position - this.transform.position).normalized, weaponType);
+        if(tempEnemy) tempObject.Init(damage, speed, (tempEnemy.transform.position - this.transform.position).normalized, weaponType, weaponOccupation, null);
         else
         {
-            tempObject.Init(damage, speed, new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f)).normalized, weaponType);
+            tempObject.Init(damage, speed, new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f)).normalized, weaponType, weaponOccupation, null);
         }
+        
+        audioSource.Play();
         
         weaponObjects.Enqueue(tempObject);
 
         StartCoroutine(InactivateWeaponObject(tempObject, duration));
+        StartCoroutine(StopAudioClip(duration));
         StartCoroutine(ActivateWeaponObjectAuto());
     }
 }

@@ -18,6 +18,36 @@ public class BarrierWeapon : Weapon
         range = weaponInfo.GetRange();
         speed = weaponInfo.GetSpeed();
         weaponType = Weapon.WeaponType.BARRIER;
+
+        audioSource = this.GetComponent<AudioSource>();
+        audioClip = Resources.Load<AudioClip>($"Sfxs/weapons/{code}_sound");
+        SoundManager.GetInstance().AddToSfxList(audioSource);
+        audioSource.volume = SoundManager.GetInstance().audioSourceSfx.volume;
+        audioSource.clip = audioClip;
+        audioSource.loop = false;
+
+        switch(weaponInfo.GetOccupation()){
+            case "WARRIOR":
+                weaponOccupation = Weapon.WeaponOccupation.WARRIOR;
+                break;
+
+            case "WIZARD":
+                weaponOccupation = Weapon.WeaponOccupation.WIZARD;
+                break;
+
+            case "common":
+                weaponOccupation = Weapon.WeaponOccupation.COMMON;
+                break;
+
+            case "synthesis":
+                weaponOccupation = Weapon.WeaponOccupation.SYNTHESIS;
+                break;
+
+            default:
+                Debug.Log($"Invalid Weapon Occupation: {weaponInfo.GetOccupation()}");
+                break;
+        }
+        
         upgradeCount = 1;
 
         enableToAttack = false;
@@ -123,8 +153,10 @@ public class BarrierWeapon : Weapon
         
         WeaponObject tempObject = weaponObjects.Dequeue();
         tempObject.gameObject.SetActive(true);
-        tempObject.Init(damage, speed, attackDirection, weaponType);
+        tempObject.Init(damage, speed, attackDirection, weaponType, weaponOccupation, null);
         tempObject.transform.position = this.transform.position;
+
+        audioSource.Play();
         
         weaponObjects.Enqueue(tempObject);
 
@@ -144,7 +176,9 @@ public class BarrierWeapon : Weapon
             tempObject.gameObject.SetActive(true);
             tempObject.transform.localRotation = Quaternion.Euler(new Vector3(0f, angle * i, 0f));
             tempObject.transform.position = this.transform.position + DEFAULT_OBJECT_POS_Y;
-            tempObject.Init(damage, speed, Vector3.zero, weaponType);
+            tempObject.Init(damage, speed, Vector3.zero, weaponType, weaponOccupation, null);
+            if (duration >= 100f) audioSource.loop = true;
+            audioSource.Play();
             StartCoroutine(InactivateWeaponObject(tempObject, duration));
         }
 

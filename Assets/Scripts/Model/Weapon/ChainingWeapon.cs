@@ -27,6 +27,35 @@ public class ChainingWeapon : Weapon
         range = weaponInfo.GetRange();
         speed = weaponInfo.GetSpeed();
         weaponType = Weapon.WeaponType.CHAINING;
+        
+        audioSource = this.GetComponent<AudioSource>();
+        audioClip = Resources.Load<AudioClip>($"Sfxs/weapons/{code}_sound");
+        SoundManager.GetInstance().AddToSfxList(audioSource);
+        audioSource.volume = SoundManager.GetInstance().audioSourceSfx.volume;
+        audioSource.clip = audioClip;
+
+        switch(weaponInfo.GetOccupation()){
+            case "WARRIOR":
+                weaponOccupation = Weapon.WeaponOccupation.WARRIOR;
+                break;
+
+            case "WIZARD":
+                weaponOccupation = Weapon.WeaponOccupation.WIZARD;
+                break;
+
+            case "common":
+                weaponOccupation = Weapon.WeaponOccupation.COMMON;
+                break;
+
+            case "synthesis":
+                weaponOccupation = Weapon.WeaponOccupation.SYNTHESIS;
+                break;
+
+            default:
+                Debug.Log($"Invalid Weapon Occupation: {weaponInfo.GetOccupation()}");
+                break;
+        }
+
         upgradeCount = 1;
 
         enableToAttack = false;
@@ -153,6 +182,8 @@ public class ChainingWeapon : Weapon
         Enemy enemy = rangeCollider.GetClosestEnemy(this.transform.position, enemyList, DEFAULT_CHAINING_RANGE);
         if (enemy == null) yield break;
 
+        audioSource.Play();
+
         Vector3 centralPosition = Vector3.zero;
         float distance = Vector3.Distance(this.transform.position, enemy.transform.position);
         StartCoroutine(giveDelayToSkill(projectile, distance, centralPosition, enemyList, enemy));
@@ -164,6 +195,7 @@ public class ChainingWeapon : Weapon
         if (leftProjectile <= 0 || distance > DEFAULT_CHAINING_RANGE)
         {
             StartCoroutine(removeLine(duration));
+            audioSource.Stop();
             yield break;
         }
         enemyList.Add(enemy);
@@ -191,6 +223,7 @@ public class ChainingWeapon : Weapon
         if (nextEnemy == null)
         {
             StartCoroutine(removeLine(duration));
+            audioSource.Stop();
             yield break;
         }
         distance = Vector3.Distance(centralPosition, nextEnemy.transform.position);

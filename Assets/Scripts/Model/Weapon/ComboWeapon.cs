@@ -10,6 +10,9 @@ public class ComboWeapon : Weapon
 
     private string code1;
     private string code2;
+
+    private AudioClip audioClip1;
+    private AudioClip audioClip2;
     
     public override void Init(WeaponInfo weaponInfo, RangeCollider rangeCollider, float damageMultiple, bool mainWeapon = false)
     {
@@ -23,6 +26,34 @@ public class ComboWeapon : Weapon
         range = weaponInfo.GetRange();
         speed = weaponInfo.GetSpeed();
         weaponType = Weapon.WeaponType.COMBO;
+
+        audioSource = this.GetComponent<AudioSource>();
+        audioSource.volume = SoundManager.GetInstance().audioSourceSfx.volume;
+        SoundManager.GetInstance().AddToSfxList(audioSource);
+        audioSource.clip = audioClip1;
+
+        switch(weaponInfo.GetOccupation()){
+            case "WARRIOR":
+                weaponOccupation = Weapon.WeaponOccupation.WARRIOR;
+                break;
+
+            case "WIZARD":
+                weaponOccupation = Weapon.WeaponOccupation.WIZARD;
+                break;
+
+            case "common":
+                weaponOccupation = Weapon.WeaponOccupation.COMMON;
+                break;
+
+            case "synthesis":
+                weaponOccupation = Weapon.WeaponOccupation.SYNTHESIS;
+                break;
+
+            default:
+                Debug.Log($"Invalid Weapon Occupation: {weaponInfo.GetOccupation()}");
+                break;
+        }
+
         upgradeCount = 1;
 
         enableToAttack = false;
@@ -32,6 +63,9 @@ public class ComboWeapon : Weapon
 
         code1 = weaponInfo.ingr1;
         code2 = weaponInfo.ingr2;
+
+        audioClip1 = Resources.Load<AudioClip>($"Sfxs/weapons/{code1}_sound");
+        audioClip2 = Resources.Load<AudioClip>($"Sfxs/weapons/{code2}_sound");
 
         instanceTransform = this.transform;
 
@@ -152,7 +186,7 @@ public class ComboWeapon : Weapon
         
         WeaponObject tempObject = weaponObjects.Dequeue();
         tempObject.gameObject.SetActive(true);
-        tempObject.Init(damage, speed, attackDirection, weaponType);
+        tempObject.Init(damage, speed, attackDirection, weaponType, weaponOccupation, audioClip);
         tempObject.transform.position = this.transform.position;
         tempObject.transform.position += DEFAULT_OBJECT_POS_Y;
         
@@ -172,7 +206,7 @@ public class ComboWeapon : Weapon
             tempObject = weaponObjects.Dequeue();
             weaponObjects.Enqueue(tempObject);
             tempObject.gameObject.SetActive(true);
-            tempObject.Init(damage, speed, Vector3.zero, weaponType);
+            tempObject.Init(damage, speed, Vector3.zero, weaponType, weaponOccupation, audioClip1);
             tempObject.transform.position = this.transform.position;
             tempObject.transform.position += DEFAULT_OBJECT_POS_Y;
             tempObject.transform.rotation = player.rotation * Quaternion.Euler(new Vector3(0f, 0f, 180f * i));
@@ -183,7 +217,7 @@ public class ComboWeapon : Weapon
         tempObject = weaponObjects.Dequeue();
         weaponObjects.Enqueue(tempObject);
         tempObject.gameObject.SetActive(true);
-        tempObject.Init(damage, speed, Vector3.zero, weaponType);
+        tempObject.Init(damage, speed, Vector3.zero, weaponType, weaponOccupation, audioClip2);
         tempObject.transform.position = this.transform.position;
         tempObject.transform.position += DEFAULT_OBJECT_POS_Y;
         tempObject.transform.rotation = player.rotation * Quaternion.Euler(new Vector3(0f, 0f, 90f));
@@ -202,7 +236,7 @@ public class ComboWeapon : Weapon
         tempEffect.gameObject.SetActive(true);
         tempEffect.transform.position = pos.position;
         tempEffect.transform.rotation = pos.rotation;
-        tempEffect.Init(damage, 0f, Vector3.zero, weaponType);
+        tempEffect.Init(damage, 0f, Vector3.zero, Weapon.WeaponType.DELAYMELEE, weaponOccupation, null);
 
         StartCoroutine(InactivateWeaponObject(tempEffect, duration));
     }
