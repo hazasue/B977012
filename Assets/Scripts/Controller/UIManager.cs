@@ -17,9 +17,11 @@ public class UIManager : MonoBehaviour
     private const string DEFAULT_PAUSE_SCREEN = "PAUSE";
     private const string DEFAULT_SETTING_SCREEN = "SETTINGS";
     private const string DEFAULT_EXIT_SCREEN = "EXIT";
+    private const string DEFAULT_BOSS_WARNING_TEXT = "Boss Warning ";
+    private const int DEFAULT_BOSS_WARNING_TEXT_LENGTH = 13;
     
     private const int DAMAGE_TEXT_COUNT = 800;
-    private const float DAMAGE_TEXT_DURATION = 2f;
+    private const float DAMAGE_TEXT_DURATION = 0.5f;
     private const float CONVERSION_CONSTANT_VALUE = 22.5f;
     private const float DEFAULT_SCREEN_HEIGHT = 1080f;
     private static float CONVERSTION_MULTIPLY_VALUE = 1f;
@@ -45,6 +47,11 @@ public class UIManager : MonoBehaviour
     public GameObject exitScreen;
     private Stack<GameObject> screens;
 
+    public Image[] supplyImages = new Image[2];
+
+    public GameObject bossWarningScreen;
+    public TMP_Text bossWarningText;
+
     public GameObject optionBorder;
     
     public GameObject augmentScreen;
@@ -60,6 +67,8 @@ public class UIManager : MonoBehaviour
     private Queue<TMP_Text> allDamageTexts;
     private Dictionary<TMP_Text, Vector3> activatedTexts;
     private bool showDamage;
+
+    public Transform playerAttackDirection;
 
     
     private GameManager mGameManager;
@@ -78,6 +87,7 @@ public class UIManager : MonoBehaviour
         updateSkillBar();
         updateDamageTexts();
         applyKeyInput();
+
     }
 
     public static UIManager GetInstance()
@@ -342,6 +352,7 @@ public class UIManager : MonoBehaviour
         damageText.transform.localPosition = convertPositionToRect(posDiff);
         damageText.text = damage.ToString();
         activatedTexts.Add(damageText, pos);
+        StartCoroutine(moveDamageText(damageText, DAMAGE_TEXT_DURATION, posDiff));
         StartCoroutine(inactivateText(damageText, DAMAGE_TEXT_DURATION));
     }
     
@@ -357,6 +368,26 @@ public class UIManager : MonoBehaviour
 
         text.gameObject.SetActive(false);
         activatedTexts.Remove(text);
+    }
+
+    private IEnumerator moveDamageText(TMP_Text text, float duration, Vector3 direction) {   
+        float time = 0f;
+        Vector3 tempVector;
+        Vector3 tempDirection = Vector3.zero;
+        if (direction.x >= 0f) tempDirection.x += 2f;
+        else {
+            tempDirection.x -= 2f;
+        }
+        tempDirection.z += 2.4f;
+        for (float i = 0f;  i <= duration;) {
+            if(!activatedTexts.TryGetValue(text, out tempVector)) yield break;
+            time = Time.deltaTime;
+            i += time;
+            activatedTexts[text] += tempDirection * time * 2f;
+            tempDirection.z -= time * 10; 
+            yield return new WaitForSeconds(time);
+        }
+
     }
 
     public void HoverOption(int idx)
@@ -381,6 +412,82 @@ public class UIManager : MonoBehaviour
     public void ShowDamage(bool state)
     {
         showDamage = state;
+    }
+
+    public IEnumerator WarningBossStage(float delay, float duration){
+        yield return new WaitForSeconds(delay);
+
+        SoundManager.GetInstance().ChangeBGM("bossWarning", false);
+        StartCoroutine(warningBossText(duration));
+    }
+
+    private IEnumerator warningBossText(float duration) {
+        StartCoroutine(inactivateWarningText(duration));
+
+        float delay;
+        float textAddDelay = 0.033f;
+        float timer = 0.033f;
+
+        int textIdx = 0;
+        Color textColor = bossWarningText.color;
+        textColor.a = 0f;
+        bool increaseAlphaValue = true;
+        bossWarningScreen.SetActive(true);
+        bossWarningText.text = "";
+        bossWarningText.color = textColor;
+        for (float i = duration; i >= 0f;){
+            delay = Time.deltaTime;
+            i -= delay;
+            if(textIdx >= DEFAULT_BOSS_WARNING_TEXT_LENGTH) textIdx -= DEFAULT_BOSS_WARNING_TEXT_LENGTH;
+            if(timer >= textAddDelay) {
+                bossWarningText.text += DEFAULT_BOSS_WARNING_TEXT[textIdx++];
+                timer = 0f;
+            }
+            timer += delay;
+
+            if(increaseAlphaValue) {
+                textColor.a += delay;
+                if(textColor.a >= 1f) increaseAlphaValue = false;
+            }
+            else{
+                textColor.a -= delay;
+                if(textColor.a <= 0f) increaseAlphaValue = true;
+            }
+
+            bossWarningText.color = textColor;
+            
+            if(bossWarningScreen.activeSelf == false) yield break;
+            yield return new WaitForSeconds(delay);
+        }
+    }
+
+    private IEnumerator inactivateWarningText(float delay) {
+        yield return new WaitForSeconds(delay);
+        bossWarningScreen.SetActive(false);
+
+    }
+
+    public void UpdateSupplyInfos() {
+        List<Supply.SupplyType> supplies = player.GetSupplyInfos();
+
+        for(int i = 0; i < supplies.Count; i++) {
+            switch(supplies[i]) {
+                case Supply.SupplyType.healKit:
+                supplyImages[i].sprite = Resources.Load<Sprite>("Sprites/Supplies/HealKit");
+                break;
+            case Supply.SupplyType.magnet:
+                supplyImages[i].sprite = Resources.Load<Sprite>("Sprites/Supplies/Magnet");
+                break;
+            case Supply.SupplyType.bomb:
+                supplyImages[i].sprite = Resources.Load<Sprite>("Sprites/Supplies/Bomb");
+                break;
+            case Supply.SupplyType.NONE:
+                supplyImages[i].sprite = Resources.Load<Sprite>("Sprites/Supplies/NONE");
+                break;
+            default:
+                return;
+            }
+        }
     }
 
 }
