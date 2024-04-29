@@ -9,6 +9,7 @@ TagManager:
   - exp
   - coin
   - SupplyBox
+  - supply
   layers:
   - Default
   - TransparentFX
