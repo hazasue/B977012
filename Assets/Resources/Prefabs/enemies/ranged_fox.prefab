@@ -805,10 +805,10 @@ GameObject:
   - component: {fileID: 7666986768240843510}
   - component: {fileID: 3088574417142229033}
   - component: {fileID: 2287029257061059172}
-  - component: {fileID: 4572358610784692815}
   - component: {fileID: 6788659380458430506}
+  - component: {fileID: 552748820309892473}
   m_Layer: 0
-  m_Name: normal_fox
+  m_Name: ranged_fox
   m_TagString: enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -882,18 +882,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 84
   m_CollisionDetection: 0
---- !u!114 &4572358610784692815
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4020983980232809014}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2e98a08488ce6cb468a848095b0d02fb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!82 &6788659380458430506
 AudioSource:
   m_ObjectHideFlags: 0
@@ -990,6 +978,21 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &552748820309892473
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4020983980232809014}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6088bc3dfc51804aa7fca9af6c3c714, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  renderer: {fileID: 5936041138598338377}
+  basicMaterial: {fileID: 2100000, guid: fdb9c91eb4781b54685fa9fcff29470e, type: 2}
+  hitMaterial: {fileID: 2100000, guid: 4ad23863efbf001479d8ebd01ef00654, type: 2}
 --- !u!1 &4246927435662846628
 GameObject:
   m_ObjectHideFlags: 0
