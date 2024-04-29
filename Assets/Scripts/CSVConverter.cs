@@ -87,6 +87,7 @@ public class CSVConverter : MonoBehaviour
         List<Dictionary<string, object>> StageDB = CSVReader.Read(CSV_FILENAME_STAGE);
         Dictionary<string, StageInfo> stageInfos = new Dictionary<string, StageInfo>();
         List<string> normalEnemies = new List<string>();
+        List<string> rangedEnemies = new List<string>();
         List<string> specialEnemies = new List<string>();
         List<string> eliteEnemies = new List<string>();
         List<string> bossEnemies = new List<string>();
@@ -94,6 +95,7 @@ public class CSVConverter : MonoBehaviour
         foreach (Dictionary<string, object> stageInfo in StageDB)
         {
             normalEnemies.Clear();
+            rangedEnemies.Clear();
             specialEnemies.Clear();
             eliteEnemies.Clear();
             bossEnemies.Clear();
@@ -102,6 +104,10 @@ public class CSVConverter : MonoBehaviour
             normalEnemies.Add(stageInfo["NormalEnemy2"].ToString());
             normalEnemies.Add(stageInfo["NormalEnemy3"].ToString());
             normalEnemies.Add(stageInfo["NormalEnemy4"].ToString());
+            rangedEnemies.Add(stageInfo["RangedEnemy1"].ToString());
+            rangedEnemies.Add(stageInfo["RangedEnemy2"].ToString());
+            rangedEnemies.Add(stageInfo["RangedEnemy3"].ToString());
+            rangedEnemies.Add(stageInfo["RangedEnemy4"].ToString());
             specialEnemies.Add(stageInfo["SpecialEnemy1"].ToString());
             specialEnemies.Add(stageInfo["SpecialEnemy2"].ToString());
             specialEnemies.Add(stageInfo["SpecialEnemy3"].ToString());
@@ -120,11 +126,13 @@ public class CSVConverter : MonoBehaviour
             stageInfos.Add(stageInfo["StageCode"].ToString(),
                 new StageInfo(stageInfo["StageCode"].ToString(),
                     (int)stageInfo["NormalEnemyCount"],
+                    (int)stageInfo["RangedEnemyCount"],
                     (int)stageInfo["SpecialEnemyCount"],
                     (int)stageInfo["EliteEnemyCount"],
                     (int)stageInfo["BossEnemyCount"],
                     (int)stageInfo["GuardPatternCount"],
                     normalEnemies.ToList(),
+                    rangedEnemies.ToList(),
                     specialEnemies.ToList(),
                     eliteEnemies.ToList(),
                     bossEnemies.ToList(),
