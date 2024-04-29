@@ -25,6 +25,7 @@ public class GameManager : MonoBehaviour
     private Dictionary<string, CharacterData> characterDatas;
     private string characterIndex;
     private StageInfo stageInfo;
+    private string stageName;
     
     // associations
     private Player player;
@@ -49,6 +50,7 @@ public class GameManager : MonoBehaviour
         stageInfo =
             JsonManager.LoadJsonFile<Dictionary<string, StageInfo>>(JsonManager.DEFAULT_STAGE_DATA_NAME)[
                 characterDatas[characterIndex].currentStage.ToString()];
+        stageName = $"stage{characterDatas[characterIndex].currentStage + 1}";
         
         player = Instantiate(Resources.Load<Player>("prefabs/characters/" + characterDatas[characterIndex].playerType));
         player.Init(characterDatas[characterIndex].maxHp,
@@ -59,6 +61,8 @@ public class GameManager : MonoBehaviour
         player.GetInventory().AddSkill(SkillManager.GetInstance().GetSkillInfo(characterDatas[characterIndex].basicSkill));
         player.ApplyEnhancedOptions(JsonManager.LoadJsonFile<Dictionary<string, EnhanceInfo>>(JsonManager.DEFAULT_ENHANCEMENT_DATA_NAME));
         player.GetInventory().AddWeapon(WeaponManager.GetInstance().GetWeaponInfo(characterDatas[characterIndex].basicWeapon), true);
+
+        SoundManager.GetInstance().ChangeBGM(stageName, false);
     }
 
     public static GameManager GetInstance()
@@ -75,6 +79,7 @@ public class GameManager : MonoBehaviour
     {
         PauseGame();
         gameStatus = GameStatus.FAIL;
+        SoundManager.GetInstance().ChangeBGM("fail");
         mUIManager.ActivateFailScreen();
     }
 
@@ -82,6 +87,7 @@ public class GameManager : MonoBehaviour
     {
         PauseGame();
         gameStatus = GameStatus.CLEAR;
+        SoundManager.GetInstance().ChangeBGM("clear");
         mUIManager.ActivateClearScreen();
 
     }
@@ -147,4 +153,6 @@ public class GameManager : MonoBehaviour
         gameStatus = GameStatus.PLAYING;
         Time.timeScale = 1;
     }
+
+    public string GetStageName() { return stageName; }
 }
