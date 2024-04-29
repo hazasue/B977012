@@ -19,6 +19,8 @@ public class Player : Character
     }
 
     private static float DEFAULT_ATTACK_ANIM_DURATION = 0.5f;
+    private const int MAX_SUPPLY_COUNT = 2;
+    private const int DEFAULT_HEAL_VALUE = 50;
     
     // attributes
     private float pickupRange;
@@ -29,6 +31,16 @@ public class Player : Character
     private float coinMultiple;
     private float expMultiple;
     private float damageMultiple;
+
+    private AudioSource audioSource;
+    private AudioClip expClip;
+    private AudioClip damageClip;
+
+    private Rigidbody rigidBody;
+
+    private List<Supply.SupplyType> supplies;
+    private Supply.SupplyType tempSupply;
+    private int supplyCount;
 
     // associations
     [SerializeField]
@@ -93,6 +105,19 @@ public class Player : Character
 
         this.attackDirection = new Vector3(1f, 0f, 0f);
 
+        supplies = new List<Supply.SupplyType>();
+        supplies.Add(Supply.SupplyType.NONE);
+        supplies.Add(Supply.SupplyType.NONE);
+        supplyCount = 0; 
+
+        audioSource = this.GetComponent<AudioSource>();
+        audioSource.volume = SoundManager.GetInstance().audioSourceSfx.volume;
+        SoundManager.GetInstance().AddToSfxList(audioSource);
+        expClip = Resources.Load<AudioClip>($"Sfxs/players/exp_sound");
+        damageClip = Resources.Load<AudioClip>($"Sfxs/players/damage_sound");
+
+        rigidBody = this.GetComponent<Rigidbody>();
+
         timeToAttack = false;
     }
 
@@ -140,7 +165,21 @@ public class Player : Character
         {
             inventory.GetSkill().UseSkill(inventory.GetWeapons()[WeaponManager.GetInstance().GetBasicWeaponCode()]);
         }
-        
+
+        if (Input.GetKeyDown(KeyCode.A) && supplies[0] != Supply.SupplyType.NONE) {
+            tempSupply = supplies[0];
+            useSupply(ref tempSupply);
+            supplies[0] = tempSupply;
+            UIManager.GetInstance().UpdateSupplyInfos();
+        }
+
+        if (Input.GetKeyDown(KeyCode.S) && supplies[1] != Supply.SupplyType.NONE) {
+            tempSupply = supplies[1];
+            useSupply(ref tempSupply);
+            supplies[1] = tempSupply;
+            UIManager.GetInstance().UpdateSupplyInfos();
+        }
+        if(direction == Vector3.zero) {rigidBody.velocity = new Vector3(0f, 0f, 0f);}
         direction = direction.normalized;
         setDirections(direction);
     }
@@ -148,7 +187,9 @@ public class Player : Character
     protected override void setDirections(Vector3 direction)
     {
         this.moveDirection = direction;
-        if (this.moveDirection != Vector3.zero) this.attackDirection = this.moveDirection;
+        if (this.moveDirection != Vector3.zero
+        && !Input.GetKey(KeyCode.Z)) this.attackDirection = this.moveDirection;
+
     }
     
     public override void TakeDamage(int damage)
@@ -156,6 +197,8 @@ public class Player : Character
         if (damage <= armor) return;
         
         this.hp -= damage - armor;
+        audioSource.clip = damageClip;
+        audioSource.Play();
         UIManager.GetInstance().UpdatePlayerCurrentStatus();
     }
 
@@ -309,6 +352,27 @@ public class Player : Character
         timeToAttack = false;
     }
 
+    private void useSupply(ref Supply.SupplyType type) {
+        switch(type) {
+            case Supply.SupplyType.healKit:
+                Heal(DEFAULT_HEAL_VALUE);
+                break;
+            case Supply.SupplyType.magnet:
+                ItemManager.GetInstance().Magnet();
+                break;
+            case Supply.SupplyType.bomb:
+                EnemyManager.GetInstance().Bomb();
+                break;
+            default:
+                break;
+        }
+
+        supplyCount--;
+        type = Supply.SupplyType.NONE;
+    }
+
+    public List<Supply.SupplyType> GetSupplyInfos() { return supplies; }
+
     public void OnTriggerEnter(Collider obj)
     {
         switch (obj.tag)
@@ -317,6 +381,8 @@ public class Player : Character
                 playerLevel.GainExp(obj.GetComponent<Item>().GetValue());
                 UIManager.GetInstance().UpdatePlayerCurrentStatus();
                 obj.gameObject.SetActive(false);
+                audioSource.clip = expClip;
+                audioSource.Play();
                 break;
             
             case "coin":
@@ -324,7 +390,19 @@ public class Player : Character
                 obj.gameObject.SetActive(false);
                 break;
             
-            case "itemType":
+            case "supply":
+                if(supplyCount >= MAX_SUPPLY_COUNT) break;
+
+                Supply.SupplyType type = obj.GetComponent<Supply>().GetSupplyType();
+                if(supplies[0] == Supply.SupplyType.NONE) supplies[0] = type;
+                else {
+                    supplies[1] = type;
+                }
+
+                UIManager.GetInstance().UpdateSupplyInfos();
+
+                supplyCount++;
+                Destroy(obj.gameObject);
                 break;
         }
     }
