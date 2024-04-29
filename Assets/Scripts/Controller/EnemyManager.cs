@@ -19,10 +19,14 @@ public class EnemyManager : MonoBehaviour
     private static Vector3 SPAWN_BOSS_POSITION = new Vector3(0.0f, 0.0f, 15.0f);
     private const float DEFAULT_SPAWN_CYCLE = 1f;
     private const int DEFAULT_SPAWN_COUNT = 2;
+    private const float DEFAULT_RANGED_SPAWN_CYCLE = 30f;
+    private const float DEFAULT_RANGED_SPAWN_DELAY = 5f;
+    private const int DEFAULT_RANGED_SPAWN_COUNT = 4;
     private static float RIGHT_ANGLE = 90f;
     private static float DEFAULT_BASIC_ENEMY_SPAWN_ANGLE = 30f;
     private static float DEFAULT_ENEMY_SPAWN_RANGE = 30f;
     private static float DEFAULT_BOSS_ENEMY_SPAWN_DELAY = 120f;
+    private static float DEFAULT_BOSS_WARNING_DURATION = 5f;
     private static float DEFAULT_ELITE_ENEMY_SPAWN_DELAY = 40f;
     private const float DEFAULT_SPAWN_PHASE_CHANGE_DELAY = 60f;
 
@@ -61,12 +65,14 @@ public class EnemyManager : MonoBehaviour
 
     // Stage enemy info
     private int normalEnemyCount;
+    private int rangedEnemyCount;
     private int specialEnemyCount;
     private int eliteEnemyCount;
     private int bossEnemyCount;
     private int guardPatternCount;
     
     private List<string> normalEnemyList;
+    private List<string> rangedEnemyList;
     private List<string> specialEnemyList;
     private List<string> eliteEnemyList;
     private List<string> bossEnemyList;
@@ -108,6 +114,7 @@ public class EnemyManager : MonoBehaviour
         isBossActive = false;
 
         normalEnemyList = new List<string>();
+        rangedEnemyList = new List<string>();
         specialEnemyList = new List<string>();
         eliteEnemyList = new List<string>();
         bossEnemyList = new List<string>();
@@ -122,12 +129,14 @@ public class EnemyManager : MonoBehaviour
                     .currentSelectedCode].currentStage.ToString()];
 
         normalEnemyCount = stageInfo.normalEnemyCount;
+        rangedEnemyCount = stageInfo.rangedEnemyCount;
         specialEnemyCount = stageInfo.specialEnemyCount;
         eliteEnemyCount = stageInfo.eliteEnemyCount;
         bossEnemyCount = stageInfo.bossEnemyCount;
         guardPatternCount = stageInfo.guardPatternCount;
 
         normalEnemyList = stageInfo.normalEnemies.ToList();
+        rangedEnemyList = stageInfo.rangedEnemies.ToList();
         specialEnemyList = stageInfo.specialEnemies.ToList();
         eliteEnemyList = stageInfo.eliteEnemies.ToList();
         bossEnemyList = stageInfo.bossEnemies.ToList();
@@ -149,6 +158,7 @@ public class EnemyManager : MonoBehaviour
         guardInfos = JsonManager.LoadJsonFile<Dictionary<string, GuardInfo>>(JsonManager.DEFAULT_GUARD_DATA_NAME);
 
         StartCoroutine(spawnNormalEnemies());
+        StartCoroutine(spawnRangedEnemies());
         startSpawnRoutine();
     }
 
@@ -191,6 +201,29 @@ public class EnemyManager : MonoBehaviour
         }
 
         StartCoroutine(spawnNormalEnemies());
+    }
+
+    private IEnumerator spawnRangedEnemies() {
+        yield return new WaitForSeconds(DEFAULT_RANGED_SPAWN_CYCLE);
+
+        Enemy tempEnemy;
+
+        for (int spawnCount = 0; spawnCount <= DEFAULT_RANGED_SPAWN_COUNT; spawnCount++ ){
+            for (int count = 0; count < DEFAULT_RANGED_SPAWN_COUNT; count++) {
+                tempEnemy = Instantiate(enemyObjects[rangedEnemyList[spawnPhase]],
+                    player.position +
+                    (Quaternion.Euler(0f,
+                        Random.Range(-DEFAULT_ENEMY_SPAWN_RANGE, DEFAULT_ENEMY_SPAWN_RANGE),
+                        0f) * basicEnemySpawnPos[Random.Range(0, DEFAULT_ENEMY_SPAWN_POS_COUNT)]),
+                    Quaternion.identity,
+                    this.transform); //inactiveEnemies.Dequeue();
+                tempEnemy.Init(enemyInfos[rangedEnemyList[spawnPhase]], player, key);
+                activeEnemies.Add(key++, tempEnemy);
+                yield return new WaitForSeconds(DEFAULT_RANGED_SPAWN_DELAY);
+            }
+        }
+
+        StartCoroutine(spawnRangedEnemies());
     }
 
     private IEnumerator spawnGroupEnemies()
@@ -364,6 +397,8 @@ public class EnemyManager : MonoBehaviour
     {
         if (bossPhase >= bossEnemyCount) yield break;
         yield return new WaitForSeconds(waitingTime);
+
+        SoundManager.GetInstance().ChangeBGM("bossStage", false);
         
         Enemy tempEnemy = Instantiate(enemyObjects[bossEnemyList[bossPhase]], this.transform, true);
         tempEnemy.Init(enemyInfos[bossEnemyList[bossPhase]], player, key);
@@ -429,6 +464,8 @@ public class EnemyManager : MonoBehaviour
                         return;
                     }
 
+                    SoundManager.GetInstance().ChangeBGM(GameManager.GetInstance().GetStageName(), true);
+
                     isBossActive = false;
                     startSpawnRoutine();
                 }
@@ -473,6 +510,7 @@ public class EnemyManager : MonoBehaviour
         GuardInfo info;
         StartCoroutine(spawnGroupEnemies());
         StartCoroutine(spawnBossEnemy(DEFAULT_BOSS_ENEMY_SPAWN_DELAY));
+        StartCoroutine(UIManager.GetInstance().WarningBossStage(DEFAULT_BOSS_ENEMY_SPAWN_DELAY - DEFAULT_BOSS_WARNING_DURATION, DEFAULT_BOSS_WARNING_DURATION));
         StartCoroutine(spawnEliteEnemy(DEFAULT_ELITE_ENEMY_SPAWN_DELAY));
         StartCoroutine(changeSpawnPhase(DEFAULT_SPAWN_PHASE_CHANGE_DELAY));
 
