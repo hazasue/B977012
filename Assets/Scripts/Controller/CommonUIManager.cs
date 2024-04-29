@@ -15,6 +15,9 @@ public class CommonUIManager : MonoBehaviour
             case "Title":
             case "CharacterSelect":
             case "Lobby":
+                SoundManager.GetInstance().ChangeBGM("basic");
+                SceneManager.LoadScene(name);
+                break;
             case "InGame":
                 SceneManager.LoadScene(name);
                 break;
