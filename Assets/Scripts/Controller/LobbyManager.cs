@@ -503,6 +503,7 @@ public class LobbyManager : MonoBehaviour
             case DEFAULT_NAME_INFO_SCREEN:
                 infoScreen.SetActive(true);
                 panels.Push(infoScreen);
+                SoundManager.GetInstance().ChangeBGM("shop");
                 break;
             
             case DEFAULT_NAME_SETTING:
@@ -526,6 +527,7 @@ public class LobbyManager : MonoBehaviour
             
             case DEFAULT_NAME_INFO_SCREEN:
                 infoScreen.SetActive(false);
+                SoundManager.GetInstance().ChangeBGM("basic");
                 break;
             
             case DEFAULT_NAME_SETTING:
