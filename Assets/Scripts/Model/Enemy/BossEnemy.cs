@@ -18,15 +18,23 @@ public class BossEnemy : Enemy
     private static float DEFAULT_MELEE_ATTACK_DURATION = 0.8f;
     private static float MIN_RANGED_ATTACK_RANGE = 8f;
     private static float MAX_RANGED_ATTACK_RANGE = 12f;
-    private static float DEFAULT_RANGED_ATTACK_DURATION = 0.8f;
-    private const float DEFAULT_SKILL_DELAY = 15f;
-    private const float DEFAULT_SKILL_DURATION = 6.9f;
+    private static float DEFAULT_RANGED_ATTACK_DURATION = 1.0f;
+    private static float DEFAULT_RANGED_ATTACK_DELAY = 0.4f;
+    private const float DEFAULT_SKILL_DELAY = 5f;
+    private const float DEFAULT_SKILL_DURATION = 7.0f;
+    private const float BOSS_ROTATE_SPEED = 5f;
 
     private BossEnemyState bossEnemyState;
     private bool isAttacking;
     private bool usingSkill;
     private bool skillUsable;
     private bool isRanged;
+
+    private AudioClip meleeAttackClip;
+    private AudioClip rangedAttackClip;
+    private AudioClip skillClip;
+
+    public Transform skillTransform;
 
     void Update()
     {
@@ -45,7 +53,6 @@ public class BossEnemy : Enemy
                         break;
 
                     case BossEnemyState.ATTACK:
-                        attack();
                         break;
 
                     case BossEnemyState.USESKILL:
@@ -80,6 +87,13 @@ public class BossEnemy : Enemy
         this.canUseSkill = enemyInfo.canUseSkill;
         if (enemyInfo.GetExp() > 0) itemInfos.Add(new ItemInfo(DEFAULT_ITEM_TYPE_EXP, enemyInfo.GetExp()));
         currentDamage = 0;
+        
+        audioSource = this.GetComponent<AudioSource>();
+        SoundManager.GetInstance().AddToSfxList(audioSource);
+        audioSource.volume = SoundManager.GetInstance().audioSourceSfx.volume;
+        meleeAttackClip = Resources.Load<AudioClip>($"Sfxs/enemies/{enemyInfo.GetCode()}_melee_attack_sound");
+        rangedAttackClip = Resources.Load<AudioClip>($"Sfxs/enemies/{enemyInfo.GetCode()}_ranged_attack_sound");;
+        skillClip = Resources.Load<AudioClip>($"Sfxs/enemies/{enemyInfo.GetCode()}_skill_sound");;
 
         this.target = target;
         // if (enemyInfo.GetCoin() > 0) itemInfos.Add(new ItemInfo(DEFAULT_ITEM_TYPE_COIN, enemyInfo.GetCoin()));
@@ -147,17 +161,31 @@ public class BossEnemy : Enemy
         this.transform.position += Time.deltaTime * moveSpeed * moveDirection;
     }
 
-    protected override void attack() {}
+    protected override void attack() {
+        if (isRanged) {
+            StartCoroutine(rangedAttack(DEFAULT_RANGED_ATTACK_DELAY));
+            audioSource.clip = rangedAttackClip;
+            audioSource.Play();
+        }
+        else
+        {
+            audioSource.clip = meleeAttackClip;
+            audioSource.Play();
+        }
+    }
 
     protected void skill()
     {
         if (!skillUsable) return;
         skillUsable = false;
         EnemyProjectile projectile = Instantiate(Resources.Load<EnemyProjectile>("prefabs/enemies/enemyBreath"),
-            this.transform.position, Quaternion.identity, this.transform);//EnemyManager.GetInstance().transform);
-        projectile.transform.localPosition += new Vector3(0f, 0f, 2f);
+            this.transform.position, Quaternion.identity, skillTransform);//EnemyManager.GetInstance().transform);
+        projectile.transform.localPosition = new Vector3(0f, 0f, 0f);
         projectile.transform.localRotation = Quaternion.identity;
+        projectile.transform.localScale = projectile.transform.localScale * 100f;
         projectile.Init(damage, 0f, attackDirection, DEFAULT_PROJECTILE_DURATION, EnemyProjectile.AttackType.CONTINUING);
+        audioSource.clip = skillClip;
+        audioSource.Play();
     }
 
     protected override void setDirections(Vector3 direction)
@@ -165,13 +193,15 @@ public class BossEnemy : Enemy
         moveDirection = direction.normalized;
         attackDirection = moveDirection;
         this.transform.rotation = Quaternion.Lerp(this.transform.rotation,
-            Quaternion.LookRotation(target.position - this.transform.position), DEFAULT_ROTATE_SPEED * Time.deltaTime);
+            Quaternion.LookRotation(target.position - this.transform.position), BOSS_ROTATE_SPEED * Time.deltaTime);
     }
 
     public override void TakeDamage(int damage)
     {
         if (damage <= armor) return;
 
+        renderer.material = hitMaterial;
+        StartCoroutine(changeMaterialBack(DEFAULT_HIT_DURATION));
         this.hp -= damage - armor;
         currentDamage = damage - armor;
         updateState();
@@ -214,8 +244,12 @@ public class BossEnemy : Enemy
                     isAttacking = true;
                     canAttack = true;
                     changeAttackType();
-                    instantiateAttackProjectile();
-                    StartCoroutine(inactivateAttack());
+                    attack();
+                    if (isRanged) StartCoroutine(inactivateAttack(DEFAULT_RANGED_ATTACK_DURATION));
+                    else
+                    {
+                        StartCoroutine(inactivateAttack(DEFAULT_MELEE_ATTACK_DURATION));
+                    }
                 }
                 else if (skillUsable && canUseSkill)
                 {
@@ -254,9 +288,9 @@ public class BossEnemy : Enemy
         }
     }
 
-    private IEnumerator inactivateAttack()
+    private IEnumerator inactivateAttack(float delay)
     {
-        yield return new WaitForSeconds(DEFAULT_MELEE_ATTACK_DURATION);
+        yield return new WaitForSeconds(delay);
         if (Vector3.Distance(this.transform.position, target.position) <= DEFAULT_MELEE_ATTACK_RANGE
             || (Vector3.Distance(this.transform.position, target.position) >= MIN_RANGED_ATTACK_RANGE
                 && Vector3.Distance(this.transform.position, target.position) <= MAX_RANGED_ATTACK_RANGE
@@ -264,8 +298,12 @@ public class BossEnemy : Enemy
         {
             canAttack = true;
             changeAttackType();
-            instantiateAttackProjectile();
-            StartCoroutine(inactivateAttack());
+            attack();
+            if (isRanged) StartCoroutine(inactivateAttack(DEFAULT_RANGED_ATTACK_DURATION));
+			else
+			{
+                StartCoroutine(inactivateAttack(DEFAULT_MELEE_ATTACK_DURATION));
+            }
         }
         else
         {
@@ -304,17 +342,9 @@ public class BossEnemy : Enemy
         animator.SetBool("isRanged", isRanged);
     }
 
-    private void instantiateAttackProjectile()
+    private IEnumerator rangedAttack(float delay)
     {
-        if (isRanged) rangedAttack();
-        else
-        {
-
-        }
-    }
-
-    private void rangedAttack()
-    {
+        yield return new WaitForSeconds(delay);
         EnemyProjectile projectile = Instantiate(Resources.Load<EnemyProjectile>("prefabs/enemies/dragonProjectile"),
             this.transform.position, Quaternion.identity, EnemyManager.GetInstance().transform);
         projectile.transform.localRotation = Quaternion.identity;

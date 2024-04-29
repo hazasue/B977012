@@ -119,6 +119,8 @@ public class GuardEnemy : Enemy
     {
         if (damage <= armor) return;
         
+        renderer.material = hitMaterial;
+        StartCoroutine(changeMaterialBack(DEFAULT_HIT_DURATION));
         this.hp -= damage - armor;
         currentDamage = damage - armor;
         updateState();

@@ -64,8 +64,7 @@ public class EnemyProjectile : MonoBehaviour
     private void damagePlayer()
     {
         time += Time.deltaTime;
-
-        Debug.Log(time);
+        
         if (time >= DEFAULT_DAMAGE_DELAY)
         {
             time -= DEFAULT_DAMAGE_DELAY;

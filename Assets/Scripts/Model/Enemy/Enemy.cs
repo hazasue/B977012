@@ -23,6 +23,7 @@ public abstract class Enemy : Character
     protected static string DEFAULT_ITEM_TYPE_EXP = "EXP";
     protected static string DEFAULT_ITEM_TYPE_COIN = "COIN";
     protected static Vector3 DEFAULT_ITEM_POS_Y = new Vector3(0f, 0.5f, 0f);
+    protected const float DEFAULT_HIT_DURATION = 0.1f;
 
     // attributes
     protected EnemyType enemyType;
@@ -37,6 +38,11 @@ public abstract class Enemy : Character
     protected List<ItemInfo> itemInfos;
 
     protected int key;
+
+    protected AudioSource audioSource;
+    public Renderer renderer;
+    public Material basicMaterial;
+    public Material hitMaterial;
 
     // associations
     protected List<Item> items;
@@ -82,6 +88,12 @@ public abstract class Enemy : Character
     {
         yield return new WaitForSeconds(tickTime);
         canAttack = true;
+    }
+
+    protected IEnumerator changeMaterialBack(float delay) {
+        yield return new WaitForSeconds(delay);
+
+        renderer.material = basicMaterial;
     }
 
     public int GetKey() { return key; }

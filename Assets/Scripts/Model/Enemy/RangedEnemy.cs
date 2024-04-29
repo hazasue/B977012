@@ -132,6 +132,7 @@ public class RangedEnemy : Enemy
         EnemyProjectile projectile = Instantiate(Resources.Load<EnemyProjectile>("prefabs/enemies/enemyProjectile"),
             this.transform.position, Quaternion.identity, EnemyManager.GetInstance().transform);
         projectile.Init(damage, DEFAULT_PROJECTILE_SPEED, attackDirection, DEFAULT_PROJECTILE_DURATION, EnemyProjectile.AttackType.ONE_OFF);
+        animator.Play("Base Layer." + animator.GetCurrentAnimatorClipInfo(0)[0].clip.name, 0, 0f);
     }
     
     protected override void setDirections(Vector3 direction)
@@ -145,6 +146,8 @@ public class RangedEnemy : Enemy
     {
         if (damage <= armor) return;
         
+        renderer.material = hitMaterial;
+        StartCoroutine(changeMaterialBack(DEFAULT_HIT_DURATION));
         this.hp -= damage - armor;
         currentDamage = damage - armor;
         updateState();
@@ -176,13 +179,17 @@ public class RangedEnemy : Enemy
         switch (enemyState)
         {
             case RangedEnemyState.CHASE:
-                if (Vector3.Distance(target.position, this.transform.position) <= DEFAULT_ATTACK_RANGE) 
+                if (Vector3.Distance(target.position, this.transform.position) <= DEFAULT_ATTACK_RANGE) {
                     enemyState = RangedEnemyState.ATTACK;
+                    animator.SetBool("attack", true);
+                }
                     break;
             
             case RangedEnemyState.ATTACK:
-                if (Vector3.Distance(target.position, this.transform.position) >= 1.5f * DEFAULT_ATTACK_RANGE) 
+                if (Vector3.Distance(target.position, this.transform.position) >= 1.5f * DEFAULT_ATTACK_RANGE) {
                     enemyState = RangedEnemyState.CHASE;
+                    animator.SetBool("attack", false);
+                }
                 break;
             
             default:
