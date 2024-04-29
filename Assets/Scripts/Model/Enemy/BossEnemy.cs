@@ -20,7 +20,7 @@ public class BossEnemy : Enemy
     private static float MAX_RANGED_ATTACK_RANGE = 12f;
     private static float DEFAULT_RANGED_ATTACK_DURATION = 1.0f;
     private static float DEFAULT_RANGED_ATTACK_DELAY = 0.4f;
-    private const float DEFAULT_SKILL_DELAY = 5f;
+    private const float DEFAULT_SKILL_DELAY = 15f;
     private const float DEFAULT_SKILL_DURATION = 7.0f;
     private const float BOSS_ROTATE_SPEED = 5f;
 
