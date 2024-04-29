@@ -11,6 +11,7 @@ public class Supply : MonoBehaviour
         healKit, 
         magnet,
         bomb,
+        NONE
     };
 
     private SupplyType SUPPLY_TYPE;
@@ -35,25 +36,5 @@ public class Supply : MonoBehaviour
         }
     }
 
-    public void OnTriggerEnter(Collider player)
-    {
-        if (!player.CompareTag("player")) return;
-
-        switch (SUPPLY_TYPE)
-        {
-            case SupplyType.healKit:
-                player.GetComponent<Player>().Heal(DEFAULT_HEAL_VALUE);
-                break;
-            case SupplyType.magnet:
-                ItemManager.GetInstance().Magnet();
-                break;
-            case SupplyType.bomb:
-                EnemyManager.GetInstance().Bomb();
-                break;
-            default:
-                break;
-        }
-
-        Destroy(this.gameObject);
-    }
+    public SupplyType GetSupplyType() { return SUPPLY_TYPE; }
 }
