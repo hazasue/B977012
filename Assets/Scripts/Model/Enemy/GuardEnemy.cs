@@ -22,6 +22,8 @@ public class GuardEnemy : Enemy
                 break;
             
             case Character.CharacterState.DEAD:
+                knockBack();
+                invisible();
                 break;
         }
     }
@@ -118,12 +120,15 @@ public class GuardEnemy : Enemy
     public override void TakeDamage(int damage)
     {
         if (damage <= armor) return;
-        
-        renderer.material = hitMaterial;
-        StartCoroutine(changeMaterialBack(DEFAULT_HIT_DURATION));
+        if (this.hp <= 0f) return;
+
         this.hp -= damage - armor;
         currentDamage = damage - armor;
-        updateState();
+        if (currentDamage > 0) updateState();
+        if(this.hp > 0f) {
+            renderer.material = hitMaterial;
+            StartCoroutine(changeMaterialBack(DEFAULT_HIT_DURATION));
+        }
     }
     
     protected override void updateState()

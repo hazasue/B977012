@@ -24,6 +24,7 @@ public abstract class Enemy : Character
     protected static string DEFAULT_ITEM_TYPE_COIN = "COIN";
     protected static Vector3 DEFAULT_ITEM_POS_Y = new Vector3(0f, 0.5f, 0f);
     protected const float DEFAULT_HIT_DURATION = 0.1f;
+    protected const float DEFAULT_KNOCK_BACK_DURATION = 0.3f;
 
     // attributes
     protected EnemyType enemyType;
@@ -66,7 +67,8 @@ public abstract class Enemy : Character
         characterState = Character.CharacterState.DEAD;
         animator.SetBool("dead", true);
         DropItems();
-        this.gameObject.SetActive(false);
+        StartCoroutine(inactivateEnemy(DEFAULT_KNOCK_BACK_DURATION));
+        
     }
 
     public int GetCurrentDamage() { return currentDamage; }
@@ -94,6 +96,22 @@ public abstract class Enemy : Character
         yield return new WaitForSeconds(delay);
 
         renderer.material = basicMaterial;
+    }
+
+    protected void knockBack() {
+        this.transform.position += -attackDirection * moveSpeed * 2f * Time.deltaTime;
+    }
+
+    protected void invisible() {
+        Color materialColor = renderer.material.color;
+        materialColor.a -= 1f / DEFAULT_KNOCK_BACK_DURATION * Time.deltaTime;
+        renderer.material.color = materialColor;
+    }
+
+    protected IEnumerator inactivateEnemy(float delay) {
+        yield return new WaitForSeconds(delay);
+
+        this.gameObject.SetActive(false);
     }
 
     public int GetKey() { return key; }

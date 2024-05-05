@@ -62,6 +62,8 @@ public class BossEnemy : Enemy
 
                 break;
             case Character.CharacterState.DEAD:
+                knockBack();
+                invisible();
                 break;
         }
     }
@@ -199,12 +201,15 @@ public class BossEnemy : Enemy
     public override void TakeDamage(int damage)
     {
         if (damage <= armor) return;
+        if (this.hp <= 0f) return;
 
-        renderer.material = hitMaterial;
-        StartCoroutine(changeMaterialBack(DEFAULT_HIT_DURATION));
         this.hp -= damage - armor;
         currentDamage = damage - armor;
-        updateState();
+        if (currentDamage > 0) updateState();
+        if(this.hp > 0f) {
+            renderer.material = hitMaterial;
+            StartCoroutine(changeMaterialBack(DEFAULT_HIT_DURATION));
+        }
     }
 
     protected override void updateState()
