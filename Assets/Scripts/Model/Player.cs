@@ -361,7 +361,7 @@ public class Player : Character
                 ItemManager.GetInstance().Magnet();
                 break;
             case Supply.SupplyType.bomb:
-                EnemyManager.GetInstance().Bomb();
+                StartCoroutine(EnemyManager.GetInstance().Bomb());
                 break;
             default:
                 break;

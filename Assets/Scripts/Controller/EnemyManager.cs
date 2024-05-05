@@ -42,6 +42,7 @@ public class EnemyManager : MonoBehaviour
 
     private const int MAX_DAMAGE = 9999;
     private const float DEFAULT_BOMB_RANGE = 30f;
+    private const float DEFAULT_BOMB_DELAY = 0.2f;
     
     // attributes
     private int killedEnemiesCount;
@@ -60,6 +61,10 @@ public class EnemyManager : MonoBehaviour
     private int bossPhase;
     private int spawnPhase;
     private bool isBossActive;
+
+    private AudioSource audioSource;
+    private AudioClip bombClip;
+    private GameObject bombEffect;
     
     private Dictionary<string, Enemy> enemyObjects;
 
@@ -112,6 +117,11 @@ public class EnemyManager : MonoBehaviour
         bossPhase = 0;
         spawnPhase = 0;
         isBossActive = false;
+
+        audioSource = this.GetComponent<AudioSource>();
+        bombClip = Resources.Load<AudioClip>($"Sfxs/items/bomb_sound");
+        bombEffect = Resources.Load<GameObject>($"Prefabs/items/bomb");
+        audioSource.clip = bombClip;
 
         normalEnemyList = new List<string>();
         rangedEnemyList = new List<string>();
@@ -523,8 +533,15 @@ public class EnemyManager : MonoBehaviour
         }
     }
 
-    public void Bomb()
+    public IEnumerator Bomb()
     {
+        audioSource.clip = bombClip;
+        audioSource.Play();
+        GameObject tempBombEffect = Instantiate(bombEffect, player.position + new Vector3(0f, 0.1f, 0f), Quaternion.identity, this.transform);
+        Destroy(tempBombEffect, 1f);
+
+        yield return new WaitForSeconds(DEFAULT_BOMB_DELAY);
+
         List<Enemy> tempEnemies = new List<Enemy>();
         foreach (Enemy enemy in activeEnemies.Values)
         {
@@ -536,6 +553,7 @@ public class EnemyManager : MonoBehaviour
         {
             tempEnemies[i].TakeDamage(MAX_DAMAGE);
         }
+
     }
 
     private IEnumerator makeLightDarker(float value, int repeatTime)
