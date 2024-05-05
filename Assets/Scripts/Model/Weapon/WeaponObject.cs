@@ -47,7 +47,7 @@ public class WeaponObject : MonoBehaviour
                 move();
                 spin();
                 if(weaponOccupation == Weapon.WeaponOccupation.SYNTHESIS) grab();
-                this.speed -= 10 * Time.deltaTime;
+                this.speed -= 15 * Time.deltaTime;
                 break;
             
             case Weapon.WeaponType.GRENADE:
