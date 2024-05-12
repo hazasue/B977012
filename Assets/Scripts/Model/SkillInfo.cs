@@ -6,6 +6,7 @@ using UnityEngine;
 public class SkillInfo
 {
     public string code;
+    public string name;
     public string skillType;
     public float delay;
     public float duration;
@@ -14,10 +15,11 @@ public class SkillInfo
     public int damage;
     public int projectile;
 
-    public SkillInfo(string code, string skillType, float delay, float duration, string stat, float value, int damage,
+    public SkillInfo(string code, string name, string skillType, float delay, float duration, string stat, float value, int damage,
         int projectile)
     {
         this.code = code;
+        this.name = name;
         this.skillType = skillType;
         this.delay = delay;
         this.duration = duration;
