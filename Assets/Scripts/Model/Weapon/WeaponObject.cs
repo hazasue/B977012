@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class WeaponObject : MonoBehaviour
 {
+    private const float DEFAULT_ROTATE_SPEED = 10f;
+
     private int damage;
     private float speed;
     private Vector3 attackDirection;
@@ -13,8 +15,7 @@ public class WeaponObject : MonoBehaviour
     public RangeCollider rangeCollider;
 
     private AudioSource audioSource;
-    private AudioClip hitClip;
-    
+
     // Update is called once per frame
     void Update()
     {
@@ -77,14 +78,10 @@ public class WeaponObject : MonoBehaviour
         this.audioSource = this.GetComponent<AudioSource>();
         audioSource.volume = SoundManager.GetInstance().audioSourceSfx.volume;
         SoundManager.GetInstance().AddToSfxList(audioSource);
-        hitClip = Resources.Load<AudioClip>($"Sfxs/weapons/hit_sound");
 
-        if (audioClip == null) audioSource.clip = hitClip;
-        else {
-            this.audioSource.clip = audioClip;
-        }
+        if (audioClip != null) this.audioSource.clip = audioClip;
 
-        if (weaponType == Weapon.WeaponType.BOOMERANG && weaponOccupation == Weapon.WeaponOccupation.SYNTHESIS) rangeCollider.Init(1.2f);
+        if (weaponType == Weapon.WeaponType.BOOMERANG && weaponOccupation == Weapon.WeaponOccupation.SYNTHESIS) rangeCollider.Init(1.2f, true);
 
         if(audioClip != null) audioSource.Play();
     }
@@ -101,8 +98,14 @@ public class WeaponObject : MonoBehaviour
     }
 
     private void grab() {
+        Vector3 direction;
+        Vector3 moveDirection;
         foreach(Enemy enemy in rangeCollider.GetEnemies()) {
-            enemy.transform.position -= (enemy.transform.position - this.transform.position).normalized * 0.05f;
+            direction = enemy.transform.position - this.transform.position;
+            moveDirection = (direction.normalized + (Quaternion.Euler(new Vector3(0f, 90f, 0f)) * direction * speed).normalized).normalized;
+            enemy.transform.position -= moveDirection * 0.075f;
+            enemy.transform.Rotate(new Vector3(0f, -90f, 0f) * (speed * Time.deltaTime), Space.World);
+            //enemy.transform.rotation = Quaternion.Lerp(enemy.transform.rotation, Quaternion.LookRotation(moveDirection), DEFAULT_ROTATE_SPEED * Time.deltaTime);
         }
     }
 
@@ -118,7 +121,6 @@ public class WeaponObject : MonoBehaviour
             case "enemy":
                 Enemy enemy = obj.gameObject.GetComponent<Enemy>();
                 enemy.TakeDamage(damage);
-                if (audioSource.clip == hitClip) audioSource.Play();
                 if(weaponType == Weapon.WeaponType.DELAYMELEE){
                     enemy.transform.position += (enemy.transform.position - this.transform.position).normalized;
                 }
