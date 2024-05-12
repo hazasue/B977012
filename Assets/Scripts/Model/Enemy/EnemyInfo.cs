@@ -16,9 +16,10 @@ public class EnemyInfo
     public int exp;
     public bool canRangeAttack;
     public bool canUseSkill;
+    public float spawnDelay;
 
     public EnemyInfo(string enemyCode, string enemyType, string enemyGrade, int maxHp, int damage, float speed,
-        int armor, float tickTime, int exp, bool canRangeAttack, bool canUseSkill)
+        int armor, float tickTime, int exp, bool canRangeAttack, bool canUseSkill, float spawnDelay)
     {
         this.enemyCode = enemyCode;
         this.maxHp = maxHp;
@@ -31,6 +32,7 @@ public class EnemyInfo
         this.enemyGrade = enemyGrade;
         this.canRangeAttack = canRangeAttack;
         this.canUseSkill = canUseSkill;
+        this.spawnDelay = spawnDelay;
     }
 
     public string GetCode() { return enemyCode; }
