@@ -11,14 +11,16 @@ public class RangeCollider : MonoBehaviour
     private Enemy targetEnemy;
     private float distance;
     private float tempDistance;
+    private bool isGrabWeapon;
     
-    public void Init(float range)
+    public void Init(float range, bool isGrabWeapon = false)
     {
         enemyList = new List<Enemy>();
         this.range = range;
         this.transform.localScale = new Vector3(range, DEFAULT_SCALE_Y, range);
         targetEnemy = null;
         distance = range;
+        this.isGrabWeapon = isGrabWeapon;
     }
     
     public Enemy GetClosestEnemy()
@@ -32,8 +34,10 @@ public class RangeCollider : MonoBehaviour
         for (int i = enemyList.Count - 1; i >= 0; i--)
         {
             if (enemyList[i] == null
-                || !enemyList[i].gameObject.activeSelf) 
+                || !enemyList[i].gameObject.activeSelf) {
+                if (isGrabWeapon) enemyList[i].SetGrabState(false);
                 enemyList.RemoveAt(i);
+            }
         }
 
         for (int i = 0; i < enemyList.Count; i++)
@@ -60,8 +64,10 @@ public class RangeCollider : MonoBehaviour
         for (int i = enemyList.Count - 1; i >= 0; i--)
         {
             if (enemyList[i] == null
-                || !enemyList[i].gameObject.activeSelf) 
+                || !enemyList[i].gameObject.activeSelf) {
+                if (isGrabWeapon) enemyList[i].SetGrabState(false);
                 enemyList.RemoveAt(i);
+            }
         }
         
         for (int i = 0; i < enemyList.Count; i++)
@@ -82,13 +88,17 @@ public class RangeCollider : MonoBehaviour
     {
         if (!enemy.CompareTag("enemy")) return;
 
-        enemyList.Add(enemy.GetComponent<Enemy>());
+        Enemy tempEnemy = enemy.GetComponent<Enemy>();
+        enemyList.Add(tempEnemy);
+        if (isGrabWeapon) tempEnemy.SetGrabState(true);
     }
 
     public void OnTriggerExit(Collider enemy)
     {
         if (!enemy.CompareTag("enemy")) return;
 
-        enemyList.Remove(enemy.GetComponent<Enemy>());
+        Enemy tempEnemy = enemy.GetComponent<Enemy>();
+        enemyList.Remove(tempEnemy);
+        if (isGrabWeapon) tempEnemy.SetGrabState(false);
     }
 }
