@@ -6,6 +6,7 @@ public class BossEnemy : Enemy
 {
     public enum BossEnemyState
     {
+        SPAWN,
         MOVE,
         RUSH,
         ATTACK,
@@ -29,6 +30,7 @@ public class BossEnemy : Enemy
     private bool usingSkill;
     private bool skillUsable;
     private bool isRanged;
+    private float spawnDelay;
 
     private AudioClip meleeAttackClip;
     private AudioClip rangedAttackClip;
@@ -45,8 +47,12 @@ public class BossEnemy : Enemy
                 setDirections(target.position - this.transform.position);
                 switch (bossEnemyState)
                 {
-                    case BossEnemyState.MOVE:
+                    case BossEnemyState.SPAWN:
                         move();
+                        break;
+                    
+                    case BossEnemyState.MOVE:
+                        if (!isGrabbed) move();
                         break;
 
                     case BossEnemyState.RUSH:
@@ -87,9 +93,11 @@ public class BossEnemy : Enemy
         this.tickTime = enemyInfo.GetTickTime();
         this.canRangeAttack = enemyInfo.canRangeAttack;
         this.canUseSkill = enemyInfo.canUseSkill;
+        this.spawnDelay = enemyInfo.spawnDelay;
         if (enemyInfo.GetExp() > 0) itemInfos.Add(new ItemInfo(DEFAULT_ITEM_TYPE_EXP, enemyInfo.GetExp()));
         currentDamage = 0;
-        
+        isGrabbed = false;
+
         audioSource = this.GetComponent<AudioSource>();
         SoundManager.GetInstance().AddToSfxList(audioSource);
         audioSource.volume = SoundManager.GetInstance().audioSourceSfx.volume;
@@ -149,13 +157,14 @@ public class BossEnemy : Enemy
 
     public void InitBoss()
     {
-        bossEnemyState = BossEnemyState.MOVE;
+        bossEnemyState = BossEnemyState.SPAWN;
         isAttacking = false;
         usingSkill = false;
         skillUsable = false;
         isRanged = false;
         DEFAULT_MELEE_ATTACK_RANGE = GetComponent<CapsuleCollider>().radius - 0.1f;
         StartCoroutine(skillDelay());
+        StartCoroutine(giveSpawnDelay(spawnDelay));
     }
 
     protected override void move()
@@ -354,5 +363,12 @@ public class BossEnemy : Enemy
             this.transform.position, Quaternion.identity, EnemyManager.GetInstance().transform);
         projectile.transform.localRotation = Quaternion.identity;
         projectile.Init(damage, DEFAULT_PROJECTILE_SPEED, attackDirection, DEFAULT_PROJECTILE_DURATION, EnemyProjectile.AttackType.ONE_OFF);
+    }
+
+    private IEnumerator giveSpawnDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        bossEnemyState = BossEnemyState.MOVE;
     }
 }
