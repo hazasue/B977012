@@ -44,11 +44,10 @@ public class BossEnemy : Enemy
         {
             case Character.CharacterState.ALIVE:
                 updateBossState();
-                setDirections(target.position - this.transform.position);
+                if (bossEnemyState != BossEnemyState.SPAWN) setDirections(target.position - this.transform.position);
                 switch (bossEnemyState)
                 {
                     case BossEnemyState.SPAWN:
-                        move();
                         break;
                     
                     case BossEnemyState.MOVE:
@@ -368,6 +367,10 @@ public class BossEnemy : Enemy
     private IEnumerator giveSpawnDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
+
+        audioSource.Play();
+
+        yield return new WaitForSeconds(delay / 2f);
 
         bossEnemyState = BossEnemyState.MOVE;
     }
