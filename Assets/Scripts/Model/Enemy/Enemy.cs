@@ -45,6 +45,8 @@ public abstract class Enemy : Character
     public Material basicMaterial;
     public Material hitMaterial;
 
+    protected bool isGrabbed;
+
     // associations
     protected List<Item> items;
     protected Transform target;
@@ -76,6 +78,7 @@ public abstract class Enemy : Character
     public void OnTriggerEnter(Collider obj)
     {
         if (!canAttack) return;
+        if (characterState == Character.CharacterState.DEAD) return;
         if (!obj.CompareTag("player")) return;
 
         canAttack = false;
@@ -113,6 +116,8 @@ public abstract class Enemy : Character
 
         this.gameObject.SetActive(false);
     }
+
+    public void SetGrabState(bool state) { isGrabbed = state; }
 
     public int GetKey() { return key; }
 }
