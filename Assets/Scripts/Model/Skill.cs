@@ -8,6 +8,8 @@ public class Skill : MonoBehaviour
     private static Vector3 DEFAULT_OBJECT_POSITION_Y = new Vector3(0f, 0.5f, 0f);
     private static float DEFAULT_360_DEGREE = 360f;
     private static float DEFAULT_MOVESPEED = 15f;
+    private static float DEFAULT_SKILL_RANGE = 8f;
+    private const int DEFAULT_SKILL_COUNT = 3;
     
     public enum SkillType
     {
@@ -23,6 +25,7 @@ public class Skill : MonoBehaviour
     private float value;
     private int damage;
     private int projectile;
+    private AudioSource audioSource;
 
     private bool canUseSkill;
 
@@ -38,6 +41,11 @@ public class Skill : MonoBehaviour
         this.damage = skillInfo.damage;
         this.projectile = skillInfo.projectile;
         canUseSkill = false;
+
+        audioSource = this.GetComponent<AudioSource>();
+        SoundManager.GetInstance().AddToSfxList(audioSource);
+        audioSource.volume = SoundManager.GetInstance().audioSourceSfx.volume;
+        audioSource.clip = Resources.Load<AudioClip>($"Sfxs/skills/{code}_sound");
 
         switch (skillInfo.skillType)
         {
@@ -59,9 +67,13 @@ public class Skill : MonoBehaviour
         StartCoroutine(ableToUseSkill());
     }
 
-    public void UseSkill(Weapon basicWeapon)
+    public IEnumerator UseSkill(Weapon basicWeapon)
     {
-        if (!canUseSkill) return;
+        if (!canUseSkill) yield break;
+        
+        canUseSkill = false;
+        UIManager.GetInstance().ResetSkillBar();
+        StartCoroutine(ableToUseSkill());
 
         switch (skillType)
         {
@@ -74,11 +86,19 @@ public class Skill : MonoBehaviour
                 Vector3 attackDirection;
                 for (int i = 0; i < projectile; i++)
                 {
-                    attackDirection = Quaternion.Euler(0f, DEFAULT_360_DEGREE / projectile * i, 0f) * DEFAULT_OBJECT_POSITION;
-                    tempObject = Instantiate(Resources.Load<SkillObject>("Prefabs/skills/" + code + "_object"), instanceTransform, true);
-                    tempObject.transform.position = this.transform.position + DEFAULT_OBJECT_POSITION_Y + attackDirection;
-                    tempObject.Init(damage, DEFAULT_MOVESPEED, attackDirection);
-                    StartCoroutine(removeSkillObject(tempObject));
+                    for (int j = 0; j < DEFAULT_SKILL_COUNT; j++)
+                    {
+                        attackDirection = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f) * DEFAULT_OBJECT_POSITION;
+                        tempObject = Instantiate(Resources.Load<SkillObject>("Prefabs/skills/" + code + "_object"),
+                            instanceTransform, true);
+                        tempObject.transform.position = this.transform.position + DEFAULT_OBJECT_POSITION_Y +
+                                                        attackDirection * Random.Range(0f, DEFAULT_SKILL_RANGE);
+                        tempObject.Init(damage, 0f, attackDirection);
+                        audioSource.Play();
+                        StartCoroutine(removeSkillObject(tempObject));
+                    }
+
+                    yield return new WaitForSeconds(duration / 2);
                 }
                 break;
             
@@ -86,10 +106,6 @@ public class Skill : MonoBehaviour
                 Debug.Log("Invalid skill type: " + skillType);
                 break;
         }
-        
-        canUseSkill = false;
-        UIManager.GetInstance().ResetSkillBar();
-        StartCoroutine(ableToUseSkill());
     }
 
     private IEnumerator ableToUseSkill()
@@ -111,8 +127,20 @@ public class Skill : MonoBehaviour
         return delay;
     }
 
-    public void ApplyEnhanceOption(float value)
+    public void ApplyEnhanceOption(string stat, float value)
     {
-        this.delay -= value * this.delay;
+        switch (stat)
+        {
+            case "SkillDelay":
+                this.delay -= value * this.delay;
+                break;
+            
+            case "Damage":
+                this.damage += (int)(value * this.damage);
+                break;
+            
+            default:
+                break;
+        }
     }
 }
