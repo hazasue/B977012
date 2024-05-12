@@ -19,7 +19,6 @@ public class JsonManager
     public static string DEFAULT_ENHANCEMENT_DATA_NAME = "DataTable_Enhancement";
     public static string DEFAULT_ENHANCEMENT_BACKUP_DATA_NAME = "DataTable_Enhancement_BackUp";
     public static string DEFAULT_SETTING_DATA_NAME = "Settings";
-    public static string DEFAULT_GUARD_DATA_NAME = "DataTable_GuardInfo";
 
     public static void CreateJsonFile(string fileName, object obj)
     {
