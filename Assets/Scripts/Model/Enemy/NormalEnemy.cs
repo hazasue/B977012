@@ -11,7 +11,7 @@ public class NormalEnemy : Enemy
         {
             case Character.CharacterState.ALIVE:
                 setDirections(target.position - this.transform.position);
-                move();
+                if (!isGrabbed) move();
                 break;
             
             case Character.CharacterState.DEAD:
@@ -40,6 +40,12 @@ public class NormalEnemy : Enemy
         this.canUseSkill = enemyInfo.canUseSkill;
         if (enemyInfo.GetExp() > 0) itemInfos.Add(new ItemInfo(DEFAULT_ITEM_TYPE_EXP, enemyInfo.GetExp()));
         currentDamage = 0;
+        isGrabbed = false;
+        
+        audioSource = this.GetComponent<AudioSource>();
+        SoundManager.GetInstance().AddToSfxList(audioSource);
+        audioSource.volume = SoundManager.GetInstance().audioSourceSfx.volume;
+        audioSource.clip = Resources.Load<AudioClip>($"Sfxs/enemies/hit_sound");
         // if (enemyInfo.GetCoin() > 0) itemInfos.Add(new ItemInfo(DEFAULT_ITEM_TYPE_COIN, enemyInfo.GetCoin()));
 
         switch (enemyInfo.GetType())
@@ -117,7 +123,11 @@ public class NormalEnemy : Enemy
 
         this.hp -= damage - armor;
         currentDamage = damage - armor;
-        if (currentDamage > 0) updateState();
+        if (currentDamage > 0)
+        {
+            updateState();
+            audioSource.Play();
+        }
         if(this.hp > 0f) {
             renderer.material = hitMaterial;
             StartCoroutine(changeMaterialBack(DEFAULT_HIT_DURATION));

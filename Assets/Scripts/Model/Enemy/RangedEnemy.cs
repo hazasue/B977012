@@ -10,7 +10,7 @@ public class RangedEnemy : Enemy
         ATTACK
     }
 
-    private const float DEFAULT_PROJECTILE_SPEED = 6f;
+    private const float DEFAULT_PROJECTILE_SPEED = 10f;
     private const float DEFAULT_PROJECTILE_DURATION = 7f;
     private const float DEFAULT_ATTACK_RANGE = 10f;
 
@@ -27,7 +27,7 @@ public class RangedEnemy : Enemy
                 switch (enemyState)
                 {
                     case RangedEnemyState.CHASE:
-                        move();
+                        if (!isGrabbed) move();
                         break;
                     
                     case RangedEnemyState.ATTACK:
@@ -67,6 +67,12 @@ public class RangedEnemy : Enemy
         this.canUseSkill = enemyInfo.canUseSkill;
         if (enemyInfo.GetExp() > 0) itemInfos.Add(new ItemInfo(DEFAULT_ITEM_TYPE_EXP, enemyInfo.GetExp()));
         currentDamage = 0;
+        isGrabbed = false;
+        audioSource = this.GetComponent<AudioSource>();
+        SoundManager.GetInstance().AddToSfxList(audioSource);
+        audioSource.volume = SoundManager.GetInstance().audioSourceSfx.volume;
+        audioSource.clip = Resources.Load<AudioClip>($"Sfxs/enemies/hit_sound");
+        
         // if (enemyInfo.GetCoin() > 0) itemInfos.Add(new ItemInfo(DEFAULT_ITEM_TYPE_COIN, enemyInfo.GetCoin()));
 
         switch (enemyInfo.GetType())
@@ -132,7 +138,7 @@ public class RangedEnemy : Enemy
     protected override void attack()
     {
         EnemyProjectile projectile = Instantiate(Resources.Load<EnemyProjectile>("prefabs/enemies/enemyProjectile"),
-            this.transform.position, Quaternion.identity, EnemyManager.GetInstance().transform);
+            this.transform.position + new Vector3(0f, 0.5f, 0f), Quaternion.identity, EnemyManager.GetInstance().transform);
         projectile.Init(damage, DEFAULT_PROJECTILE_SPEED, attackDirection, DEFAULT_PROJECTILE_DURATION, EnemyProjectile.AttackType.ONE_OFF);
         animator.Play("Base Layer." + animator.GetCurrentAnimatorClipInfo(0)[0].clip.name, 0, 0f);
     }
@@ -151,7 +157,11 @@ public class RangedEnemy : Enemy
 
         this.hp -= damage - armor;
         currentDamage = damage - armor;
-        if (currentDamage > 0) updateState();
+        if (currentDamage > 0)
+        {
+            updateState();
+            audioSource.Play();
+        }
         if(this.hp > 0f) {
             renderer.material = hitMaterial;
             StartCoroutine(changeMaterialBack(DEFAULT_HIT_DURATION));
@@ -188,7 +198,7 @@ public class RangedEnemy : Enemy
                     enemyState = RangedEnemyState.ATTACK;
                     animator.SetBool("attack", true);
                 }
-                    break;
+                break;
             
             case RangedEnemyState.ATTACK:
                 if (Vector3.Distance(target.position, this.transform.position) >= 1.5f * DEFAULT_ATTACK_RANGE) {
