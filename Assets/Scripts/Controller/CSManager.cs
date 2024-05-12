@@ -214,7 +214,7 @@ public class CSManager : MonoBehaviour
         codeText.text = codes[selectedSlot];
         playerTypeText.text = tempData.playerType;
         basicWeaponText.text = WeaponManager.GetInstance().GetWeaponInfo(tempData.basicWeapon).GetName();
-        basicSkillText.text = tempData.basicSkill;
+        basicSkillText.text = tempData.basicSkillName;
         equipmentsText.text = "";
         foreach (string code in tempData.equipmentCodes)
         {
