@@ -21,6 +21,9 @@ public class Player : Character
     private static float DEFAULT_ATTACK_ANIM_DURATION = 0.5f;
     private const int MAX_SUPPLY_COUNT = 2;
     private const int DEFAULT_HEAL_VALUE = 50;
+    private const float DEFAULT_MAGNET_DURATION = 3f;
+    private const float DEFAULT_BOMB_DURATION = 2f;
+    private const float DEFAULT_HEAL_DURATION = 1.5f;
     
     // attributes
     private float pickupRange;
@@ -41,6 +44,10 @@ public class Player : Character
     private List<Supply.SupplyType> supplies;
     private Supply.SupplyType tempSupply;
     private int supplyCount;
+
+    public GameObject bomb;
+    public GameObject magnet;
+    public GameObject heal;
 
     // associations
     [SerializeField]
@@ -163,7 +170,7 @@ public class Player : Character
 
         if (Input.GetKeyDown(KeyCode.X))
         {
-            inventory.GetSkill().UseSkill(inventory.GetWeapons()[WeaponManager.GetInstance().GetBasicWeaponCode()]);
+            StartCoroutine(inventory.GetSkill().UseSkill(inventory.GetWeapons()[WeaponManager.GetInstance().GetBasicWeaponCode()]));
         }
 
         if (Input.GetKeyDown(KeyCode.A) && supplies[0] != Supply.SupplyType.NONE) {
@@ -215,29 +222,30 @@ public class Player : Character
         {
             switch (data.Key)
             {
-                case "hp":
+                case "HP":
                     this.maxHp += (int)(this.maxHp * data.Value.enhanceCount * data.Value.value / 100f);
                     this.hp = this.maxHp;
                     break;
                 
-                case"damage":
+                case"Damage":
                     this.damageMultiple += data.Value.enhanceCount * data.Value.value / 100f;
+                    inventory.GetSkill().ApplyEnhanceOption("Damage", data.Value.enhanceCount * data.Value.value / 100f);
                     break;
                 
-                case "moveSpeed":
+                case "MoveSpeed":
                     this.moveSpeed += this.moveSpeed * data.Value.enhanceCount * data.Value.value / 100f;
                     break;
 
-                case "coin":
+                case "Coin":
                     this.coinMultiple += data.Value.enhanceCount * data.Value.value / 100f;
                     break;
                 
-                case "exp":
+                case "Exp":
                     this.expMultiple += data.Value.enhanceCount * data.Value.value / 100f;
                     break;
 
-                case "skillDelay":
-                    inventory.GetSkill().ApplyEnhanceOption(data.Value.enhanceCount * data.Value.value / 100f);
+                case "SkillDelay":
+                    inventory.GetSkill().ApplyEnhanceOption("SkillDelay", data.Value.enhanceCount * data.Value.value / 100f);
                     break;
             }
         }
@@ -356,12 +364,19 @@ public class Player : Character
         switch(type) {
             case Supply.SupplyType.healKit:
                 Heal(DEFAULT_HEAL_VALUE);
+                heal.SetActive(true);
+                StartCoroutine(inactivateGameObject(heal, DEFAULT_HEAL_DURATION));
                 break;
             case Supply.SupplyType.magnet:
                 ItemManager.GetInstance().Magnet();
+                StartCoroutine(ItemManager.GetInstance().StopMagnetSound(DEFAULT_MAGNET_DURATION- 0.1f));
+                magnet.SetActive(true);
+                StartCoroutine(inactivateGameObject(magnet, DEFAULT_MAGNET_DURATION));
                 break;
             case Supply.SupplyType.bomb:
                 StartCoroutine(EnemyManager.GetInstance().Bomb());
+                bomb.SetActive(true);
+                StartCoroutine(inactivateGameObject(bomb, DEFAULT_BOMB_DURATION));
                 break;
             default:
                 break;
@@ -372,6 +387,13 @@ public class Player : Character
     }
 
     public List<Supply.SupplyType> GetSupplyInfos() { return supplies; }
+
+    private IEnumerator inactivateGameObject(GameObject obj, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        obj.SetActive(false);
+    }
 
     public void OnTriggerEnter(Collider obj)
     {
