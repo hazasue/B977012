@@ -19,6 +19,7 @@ public class SkillObject : MonoBehaviour
         this.damage = damage;
         this.speed = speed;
         this.attackDirection = attackDirection;
+        this.transform.rotation = Quaternion.LookRotation(attackDirection);
     }
 
     private void move()
