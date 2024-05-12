@@ -183,6 +183,7 @@ public class ChainingWeapon : Weapon
         if (enemy == null) yield break;
 
         audioSource.Play();
+        StartCoroutine(StopAudioClip(0.45f));
 
         Vector3 centralPosition = Vector3.zero;
         float distance = Vector3.Distance(this.transform.position, enemy.transform.position);
@@ -195,7 +196,6 @@ public class ChainingWeapon : Weapon
         if (leftProjectile <= 0 || distance > DEFAULT_CHAINING_RANGE)
         {
             StartCoroutine(removeLine(duration));
-            audioSource.Stop();
             yield break;
         }
         enemyList.Add(enemy);
@@ -223,7 +223,6 @@ public class ChainingWeapon : Weapon
         if (nextEnemy == null)
         {
             StartCoroutine(removeLine(duration));
-            audioSource.Stop();
             yield break;
         }
         distance = Vector3.Distance(centralPosition, nextEnemy.transform.position);
