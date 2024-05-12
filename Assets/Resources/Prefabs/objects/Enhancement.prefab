@@ -567,10 +567,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: HP
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 0c01bc74f25864f4bb2181b3aec5b7dc, type: 2}
-  m_sharedMaterial: {fileID: -6035171382208720363, guid: 0c01bc74f25864f4bb2181b3aec5b7dc,
+  m_fontAsset: {fileID: 11400000, guid: 0a86457ce8d782b4aad73add8678faa2, type: 2}
+  m_sharedMaterial: {fileID: -1415146769628366650, guid: 0a86457ce8d782b4aad73add8678faa2,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
