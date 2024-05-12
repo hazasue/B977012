@@ -16,6 +16,8 @@ public class ItemManager : MonoBehaviour
     public Transform itemTransform;
     private Transform player;
 
+    public AudioSource audioSource;
+
     private void Start()
     {
         init();
@@ -43,6 +45,9 @@ public class ItemManager : MonoBehaviour
             coins.Enqueue(tempItem);
             //itemBoxs.Enqueue(Instantiate(Resources.Load<Item>("Prefabs/items/itemBox"), itemTransform, true));
         }
+        
+        SoundManager.GetInstance().AddToSfxList(audioSource);
+        audioSource.volume = SoundManager.GetInstance().audioSourceSfx.volume;
     }
 
     public static ItemManager GetInstance()
@@ -87,6 +92,7 @@ public class ItemManager : MonoBehaviour
 
     public void Magnet()
     {
+        audioSource.Play();
         for (int i = activatedItems.Count - 1; i >= 0; i--)
         {
             if (activatedItems[i].gameObject.activeSelf == false) activatedItems.RemoveAt(i);
@@ -95,5 +101,12 @@ public class ItemManager : MonoBehaviour
                 activatedItems[i].UseMagnet(player);
             }
         }
+    }
+
+    public IEnumerator StopMagnetSound(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        
+        audioSource.Stop();
     }
 }
