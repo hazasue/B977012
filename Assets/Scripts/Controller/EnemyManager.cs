@@ -369,6 +369,7 @@ public class EnemyManager : MonoBehaviour
         Enemy tempEnemy = Instantiate(enemyObjects[bossEnemyList[bossPhase]], this.transform, true);
         tempEnemy.Init(enemyInfos[bossEnemyList[bossPhase]], player, key);
         tempEnemy.transform.localPosition = player.gameObject.transform.localPosition + SPAWN_BOSS_POSITION;
+        tempEnemy.transform.rotation = Quaternion.Euler(new Vector3(0f, 180f, 0f));
         tempEnemy.GetComponent<BossEnemy>().InitBoss();
         bossEnemy.Add(key++, tempEnemy);
 
