@@ -1,3 +1,3 @@
-CharacterCode,BasicWeapon,BasicSkill,CharacterType,MaxHp,Damage,Speed,Armor
-warrior,warriorMelee11,warrior,WARRIOR,200,10,10,2
-wizard,wizardTracking11,wizard,WIZARD,100,20,5,0
+CharacterCode,BasicWeapon,BasicSkill,BasicSkillName,CharacterType,MaxHp,Damage,Speed,Armor
+warrior,warriorMelee11,warrior,Blade Waltz,WARRIOR,200,10,10,2
+wizard,wizardTracking11,wizard,skillname,WIZARD,100,20,5,0

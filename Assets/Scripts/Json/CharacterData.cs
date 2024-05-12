@@ -7,6 +7,7 @@ public class CharacterData
 {
     public string basicWeapon;
     public string basicSkill;
+    public string basicSkillName;
     public string playerType;
     public int maxHp;
     public int damage;
@@ -20,10 +21,11 @@ public class CharacterData
 
     public CharacterData() { }
     
-    public CharacterData(string basicWeapon, string basicSkill, string playerType, int maxHp, int damage, float speed, int armor, int order, List<string> equipmentCodes, List<bool> clearStages, int currentStage = 0, int coin = 0)
+    public CharacterData(string basicWeapon, string basicSkill, string basicSkillName, string playerType, int maxHp, int damage, float speed, int armor, int order, List<string> equipmentCodes, List<bool> clearStages, int currentStage = 0, int coin = 0)
     {
         this.basicWeapon = basicWeapon;
         this.basicSkill = basicSkill;
+        this.basicSkillName = basicSkillName;
         this.playerType = playerType;
         this.maxHp = maxHp;
         this.damage = damage;
