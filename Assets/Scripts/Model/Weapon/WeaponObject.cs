@@ -82,6 +82,7 @@ public class WeaponObject : MonoBehaviour
         if (audioClip != null) this.audioSource.clip = audioClip;
 
         if (weaponType == Weapon.WeaponType.BOOMERANG && weaponOccupation == Weapon.WeaponOccupation.SYNTHESIS) rangeCollider.Init(1.2f, true);
+		else if (weaponType == Weapon.WeaponType.BOOMERANG) rangeCollider.Init(0f);
 
         if(audioClip != null) audioSource.Play();
     }
