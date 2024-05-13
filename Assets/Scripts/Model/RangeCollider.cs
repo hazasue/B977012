@@ -51,7 +51,14 @@ public class RangeCollider : MonoBehaviour
         return targetEnemy;
     }
 
-    public List<Enemy> GetEnemies() { return enemyList; }
+    public List<Enemy> GetEnemies()
+    {
+        for (int i = enemyList.Count - 1; i >= 0; i--)
+        {
+            if (enemyList[i] == null) enemyList.RemoveAt(i);
+        }
+        return enemyList;
+    }
 
     public Enemy GetClosestEnemy(Vector3 centralPosition, List<Enemy> enemies, float range)
     {
