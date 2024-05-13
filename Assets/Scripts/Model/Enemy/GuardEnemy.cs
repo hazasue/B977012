@@ -157,7 +157,7 @@ public class GuardEnemy : Enemy
         }
         else if (time <= DEFAULT_RUSH_DELAY + DEFAULT_RUSH_DURATION) {
             animator.SetBool("wait", false);
-            this.transform.position += Time.deltaTime * moveSpeed * moveDirection * 4f;
+            this.transform.position += Time.deltaTime * moveSpeed * moveDirection * 6f;
         }
     }
 
