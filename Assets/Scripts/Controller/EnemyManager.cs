@@ -513,7 +513,7 @@ public class EnemyManager : MonoBehaviour
         spawnPos = waveEnemySpawnPos;
         DEFAULT_SPAWN_COUNT *= 6;
         
-        StartCoroutine(dropEnemies(Random.Range(duration / 2f, duration), DEFAULT_DROP_COUNT, explosiveEnemyList, spawnPhase));
+        StartCoroutine(dropEnemies(duration / 2f, DEFAULT_DROP_COUNT, explosiveEnemyList, spawnPhase));
 
         yield return new WaitForSeconds(duration);
         spawnPos = basicEnemySpawnPos;
