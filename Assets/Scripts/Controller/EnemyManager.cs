@@ -27,7 +27,7 @@ public class EnemyManager : MonoBehaviour
     private static float DEFAULT_ENEMY_SPAWN_RANGE = 30f;
     private static float DEFAULT_BOSS_ENEMY_SPAWN_DELAY = 120f;
     private static float DEFAULT_BOSS_WARNING_DURATION = 5f;
-    private static float DEFAULT_ELITE_ENEMY_SPAWN_DELAY = 40f;
+    private static float DEFAULT_ELITE_ENEMY_SPAWN_DELAY = 45f;
     private const float DEFAULT_SPAWN_PHASE_CHANGE_DELAY = 60f;
 
     private const float DEFAULT_GROUP_ENEMY_SPAWN_DELAY = 60f;
@@ -42,7 +42,7 @@ public class EnemyManager : MonoBehaviour
     private const float DEFAULT_DROP_CYCLE = 0.5f;
 
     private const float DEFAULT_WAVE_DELAY = 30f;
-    private const float DEFAULT_WAVE_DURATION = 10f;
+    private const float DEFAULT_WAVE_DURATION = 15f;
 
     private const float DEFAULT_TWO_RADIANS = 360f;
     private const float DEFAULT_ONE_THIRD_RADIAN = 60f;
@@ -511,12 +511,13 @@ public class EnemyManager : MonoBehaviour
         
         yield return new WaitForSeconds(delay);
         spawnPos = waveEnemySpawnPos;
-        DEFAULT_SPAWN_COUNT *= 4;
+        DEFAULT_SPAWN_COUNT *= 6;
+        
+        StartCoroutine(dropEnemies(Random.Range(duration / 2f, duration), DEFAULT_DROP_COUNT, explosiveEnemyList, spawnPhase));
 
         yield return new WaitForSeconds(duration);
         spawnPos = basicEnemySpawnPos;
-        DEFAULT_SPAWN_COUNT /= 4;
-        StartCoroutine(dropEnemies(0f, DEFAULT_DROP_COUNT, explosiveEnemyList, spawnPhase));
+        DEFAULT_SPAWN_COUNT /= 6;
 
         StartCoroutine(toggleSpawnCount(delay, duration));
     }
