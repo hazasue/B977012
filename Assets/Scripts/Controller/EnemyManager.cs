@@ -57,6 +57,7 @@ public class EnemyManager : MonoBehaviour
     
     // associations
     public Light light;
+    public InGameCamera camera;
     
     private Dictionary<string, EnemyInfo> enemyInfos;
     
@@ -368,6 +369,7 @@ public class EnemyManager : MonoBehaviour
         
         Enemy tempEnemy = Instantiate(enemyObjects[bossEnemyList[bossPhase]], this.transform, true);
         tempEnemy.Init(enemyInfos[bossEnemyList[bossPhase]], player, key);
+        StartCoroutine(camera.ChaseBossEnemy(tempEnemy.transform, enemyInfos[bossEnemyList[bossPhase]].spawnDelay * 3f / 2f));
         tempEnemy.transform.localPosition = player.gameObject.transform.localPosition + SPAWN_BOSS_POSITION;
         tempEnemy.transform.rotation = Quaternion.Euler(new Vector3(0f, 180f, 0f));
         tempEnemy.GetComponent<BossEnemy>().InitBoss();
