@@ -21,8 +21,8 @@ public class BossEnemy : Enemy
     private static float MAX_RANGED_ATTACK_RANGE = 12f;
     private static float DEFAULT_RANGED_ATTACK_DURATION = 1.0f;
     private static float DEFAULT_RANGED_ATTACK_DELAY = 0.4f;
-    private const float DEFAULT_SKILL_DELAY = 15f;
-    private const float DEFAULT_SKILL_DURATION = 7.0f;
+    private const float DEFAULT_SKILL_DELAY = 17f;
+    private const float DEFAULT_SKILL_DURATION = 8.0f;
     private const float BOSS_ROTATE_SPEED = 5f;
 
     private BossEnemyState bossEnemyState;
@@ -37,6 +37,8 @@ public class BossEnemy : Enemy
     private AudioClip skillClip;
 
     public Transform skillTransform;
+    public EnemyProjectile skillEffect;
+    public GameObject spawnEffect;
 
     void Update()
     {
@@ -188,12 +190,10 @@ public class BossEnemy : Enemy
     {
         if (!skillUsable) return;
         skillUsable = false;
-        EnemyProjectile projectile = Instantiate(Resources.Load<EnemyProjectile>("prefabs/enemies/enemyBreath"),
-            this.transform.position, Quaternion.identity, skillTransform);//EnemyManager.GetInstance().transform);
-        projectile.transform.localPosition = new Vector3(0f, 0f, 0f);
-        projectile.transform.localRotation = Quaternion.identity;
-        projectile.transform.localScale = projectile.transform.localScale * 100f;
-        projectile.Init(damage, 0f, attackDirection, DEFAULT_PROJECTILE_DURATION, EnemyProjectile.AttackType.CONTINUING);
+        skillEffect.gameObject.SetActive(true);
+        skillEffect.transform.localPosition = new Vector3(0f, 0f, 0f);
+        skillEffect.transform.localRotation = Quaternion.identity;
+        skillEffect.Init(damage, 0f, attackDirection, DEFAULT_PROJECTILE_DURATION + 0.7f, EnemyProjectile.AttackType.CONTINUING);
         audioSource.clip = skillClip;
         audioSource.Play();
     }
@@ -369,6 +369,7 @@ public class BossEnemy : Enemy
         yield return new WaitForSeconds(delay);
 
         audioSource.Play();
+        if (spawnEffect != null) spawnEffect.SetActive(true);
 
         yield return new WaitForSeconds(delay / 2f);
 
