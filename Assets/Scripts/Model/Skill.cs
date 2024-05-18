@@ -84,22 +84,21 @@ public class Skill : MonoBehaviour
             case SkillType.DEALING:
                 SkillObject tempObject;
                 Vector3 attackDirection;
-                for (int i = 0; i < projectile; i++)
+                for (int i = 0; i < projectile * DEFAULT_SKILL_COUNT; i++)
                 {
-                    for (int j = 0; j < DEFAULT_SKILL_COUNT; j++)
-                    {
-                        attackDirection = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f) * DEFAULT_OBJECT_POSITION;
-                        tempObject = Instantiate(Resources.Load<SkillObject>("Prefabs/skills/" + code + "_object"),
-                            instanceTransform, true);
-                        tempObject.transform.position = this.transform.position + DEFAULT_OBJECT_POSITION_Y +
-                                                        attackDirection * Random.Range(0f, DEFAULT_SKILL_RANGE);
-                        tempObject.Init(damage, 0f, attackDirection);
-                        audioSource.Play();
-                        StartCoroutine(removeSkillObject(tempObject));
-                    }
 
-                    yield return new WaitForSeconds(duration / 2);
+                    attackDirection = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f) * DEFAULT_OBJECT_POSITION;
+                    tempObject = Instantiate(Resources.Load<SkillObject>("Prefabs/skills/" + code + "_object"),
+                        instanceTransform, true);
+                    tempObject.transform.position = this.transform.position + DEFAULT_OBJECT_POSITION_Y +
+                                                    attackDirection * Random.Range(0f, DEFAULT_SKILL_RANGE);
+                    tempObject.Init(damage, 0f, attackDirection);
+                    audioSource.Play();
+                    StartCoroutine(removeSkillObject(tempObject));
+                    
+                    yield return new WaitForSeconds(duration / 6);
                 }
+
                 break;
             
             default:
