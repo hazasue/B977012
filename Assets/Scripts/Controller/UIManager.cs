@@ -14,6 +14,8 @@ public class UIManager : MonoBehaviour
     private static Vector3 DEFAULT_OPTION_POSITION = new Vector3(500f, 270f, 0f);
     private const float DEFAULT_OPTION_POSITION_GAP = 180f;
 
+    private const float DEFAULT_PORTRAIT_SHAKE_DURATION = 0.5f;
+
     private const string DEFAULT_PAUSE_SCREEN = "PAUSE";
     private const string DEFAULT_SETTING_SCREEN = "SETTINGS";
     private const string DEFAULT_EXIT_SCREEN = "EXIT";
@@ -35,10 +37,13 @@ public class UIManager : MonoBehaviour
     public Slider playerSkill;
     private bool skillGageFull;
 
+    public Transform playerPortrait;
     public TMP_Text playerHpText;
     public GameObject skillText;
     public TMP_Text levelText;
     public TMP_Text timeText;
+    private float shakeTime;
+    private Vector3 portraitOriginPos;
 
     public GameObject clearScreen;
     public GameObject failScreen;
@@ -88,6 +93,7 @@ public class UIManager : MonoBehaviour
         updateDamageTexts();
         applyKeyInput();
 
+        if (shakeTime >= 0f) shakePlayerPortrait();
     }
 
     public static UIManager GetInstance()
@@ -109,6 +115,8 @@ public class UIManager : MonoBehaviour
         playerHpText.text = $"{player.GetCurrentHp()} / {player.GetMaxHp()}";
         playerHp.maxValue = player.GetMaxHp();
         playerHp.value = player.GetCurrentHp();
+        shakeTime = 0f;
+        portraitOriginPos = playerPortrait.localPosition;
 
         levelText.text = $"LV. {player.GetLevelInfo().GetLevel()}";
         playerExp.maxValue = player.GetLevelInfo().CheckRequiredExp();
@@ -173,12 +181,23 @@ public class UIManager : MonoBehaviour
         playerHpText.text = $"{player.GetCurrentHp()} / {player.GetMaxHp()}";
         playerHp.value = player.GetCurrentHp();
         playerExp.value = player.GetLevelInfo().CheckCurrentExp();
+        shakeTime = DEFAULT_PORTRAIT_SHAKE_DURATION;
     }
 
     public void UpdatePlayerMaxStatus()
     {
         playerHp.maxValue = player.GetMaxHp();
         playerExp.maxValue = player.GetLevelInfo().CheckRequiredExp();
+    }
+
+    private void shakePlayerPortrait()
+    {
+        shakeTime -= Time.deltaTime;
+        if (shakeTime < 0f) playerPortrait.localPosition = portraitOriginPos;
+        else
+        {
+            playerPortrait.localPosition = portraitOriginPos + new Vector3(10f * Mathf.Cos(360f * shakeTime), 10f * Mathf.Cos(360f * shakeTime), 0f);
+        }
     }
 
     public void UpdateCoinCount(int value)
