@@ -30,7 +30,7 @@ public class EnemyProjectile : MonoBehaviour
             damageCharacters();
     }
     
-    public void Init(int damage, float speed, Vector3 attackDirection, float duration, AttackType attackType)
+    public void Init(int damage, float speed, Vector3 attackDirection, float duration, AttackType attackType, bool destroy = true)
     {
         player = null;
         enemies = new List<Enemy>();
@@ -39,7 +39,11 @@ public class EnemyProjectile : MonoBehaviour
         this.speed = speed;
         this.attackDirection = attackDirection;
         this.attackType = attackType;
-        Destroy(this.gameObject, duration);
+        if (destroy) Destroy(this.gameObject, duration);
+        else
+        {
+            StartCoroutine(inactivateProjectile(duration));
+        }
     }
     
     private void move()
@@ -109,5 +113,12 @@ public class EnemyProjectile : MonoBehaviour
             }
             
         }
+    }
+
+    private IEnumerator inactivateProjectile(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+
+        this.gameObject.SetActive(false);
     }
 }
