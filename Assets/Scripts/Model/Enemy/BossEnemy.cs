@@ -193,7 +193,7 @@ public class BossEnemy : Enemy
         skillEffect.gameObject.SetActive(true);
         skillEffect.transform.localPosition = new Vector3(0f, 0f, 0f);
         skillEffect.transform.localRotation = Quaternion.identity;
-        skillEffect.Init(damage, 0f, attackDirection, DEFAULT_PROJECTILE_DURATION + 0.7f, EnemyProjectile.AttackType.CONTINUING);
+        skillEffect.Init(damage, 0f, attackDirection, DEFAULT_SKILL_DURATION + 0.7f, EnemyProjectile.AttackType.CONTINUING, false);
         audioSource.clip = skillClip;
         audioSource.Play();
     }
