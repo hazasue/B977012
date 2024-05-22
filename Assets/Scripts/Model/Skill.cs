@@ -92,8 +92,8 @@ public class Skill : MonoBehaviour
                         instanceTransform, true);
                     tempObject.transform.position = this.transform.position + DEFAULT_OBJECT_POSITION_Y +
                                                     attackDirection * Random.Range(0f, DEFAULT_SKILL_RANGE);
-                    tempObject.Init(damage, 0f, attackDirection);
-                    audioSource.Play();
+                    tempObject.Init(damage, 0f, attackDirection, code);
+                    //audioSource.Play();
                     StartCoroutine(removeSkillObject(tempObject));
                     
                     yield return new WaitForSeconds(duration / 6);

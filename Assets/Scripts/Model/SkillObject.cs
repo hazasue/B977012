@@ -7,6 +7,7 @@ public class SkillObject : MonoBehaviour
     private int damage;
     private float speed;
     private Vector3 attackDirection;
+    public AudioSource audioSource;
 
     // Update is called once per frame
     void Update()
@@ -14,12 +15,15 @@ public class SkillObject : MonoBehaviour
         move();
     }
     
-    public void Init(int damage, float speed, Vector3 attackDirection)
+    public void Init(int damage, float speed, Vector3 attackDirection, string skillCode)
     {
         this.damage = damage;
         this.speed = speed;
         this.attackDirection = attackDirection;
         this.transform.rotation = Quaternion.LookRotation(attackDirection);
+        audioSource.clip = Resources.Load<AudioClip>($"Sfxs/skills/{skillCode}_sound");
+        audioSource.Play();
+
     }
 
     private void move()
