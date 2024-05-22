@@ -17,6 +17,11 @@ public class CSVConverter : MonoBehaviour
     private static string CSV_FILENAME_GUARDINFO = "DataTable_GuardInfo";
 
     private static int DEFAULT_ORDER_NUMBER = 1;
+
+    void Awake()
+    {
+        ConvertCsvToJson();
+    }
     
     public void ConvertCsvToJson()
     {
