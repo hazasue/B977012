@@ -1,3 +1,3 @@
 SkillCode,SkillName,SkillType,Delay,Duration,Stat,Value,Damage,Projectile
 warrior,Blade Waltz,DEALING,30,0.5,none,0,30,20
-wizard,skillname,DEALING,10,10,none,0,30,12
+wizard,God's Punishment,DEALING,20,1,none,0,40,10
