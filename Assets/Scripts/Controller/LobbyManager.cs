@@ -73,6 +73,7 @@ public class LobbyManager : MonoBehaviour
     public Transform viewport;
 
     public TMP_Text coinCount;
+    public TMP_Text coinCount2;
 
     public Transform border;
 
@@ -162,6 +163,7 @@ public class LobbyManager : MonoBehaviour
         // Clear contents
         currentEquipment = null;
         coinCount.text = characterDatas[characterCode].coin.ToString();
+        coinCount2.text = characterDatas[characterCode].coin.ToString();
         for (int i = viewport.childCount - 1; i >= 0; i--)
         {
             Destroy(viewport.GetChild(i).gameObject);
