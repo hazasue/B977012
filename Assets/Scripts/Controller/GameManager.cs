@@ -65,6 +65,8 @@ public class GameManager : MonoBehaviour
         SoundManager.GetInstance().ChangeBGM(stageName, false);
     }
 
+    public string GetPlayerType() { return characterDatas[characterIndex].playerType; }
+
     public static GameManager GetInstance()
     {
         if (instance != null) return instance;
