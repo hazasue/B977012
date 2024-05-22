@@ -206,14 +206,14 @@ public class Player : Character
         this.hp -= damage - armor;
         audioSource.clip = damageClip;
         audioSource.Play();
-        UIManager.GetInstance().UpdatePlayerCurrentStatus();
+        UIManager.GetInstance().UpdatePlayerHpStatus(true);
     }
 
     public void Heal(int value)
     {
         hp += value;
         if (hp > maxHp) hp = maxHp;
-        UIManager.GetInstance().UpdatePlayerCurrentStatus();
+        UIManager.GetInstance().UpdatePlayerHpStatus();
     }
 
     public void ApplyEnhancedOptions(Dictionary<string, EnhanceInfo> enhanceInfos)
@@ -401,7 +401,7 @@ public class Player : Character
         {
             case "exp":
                 playerLevel.GainExp(obj.GetComponent<Item>().GetValue());
-                UIManager.GetInstance().UpdatePlayerCurrentStatus();
+                UIManager.GetInstance().UpdatePlayerLevelStatus();
                 obj.gameObject.SetActive(false);
                 audioSource.clip = expClip;
                 audioSource.Play();

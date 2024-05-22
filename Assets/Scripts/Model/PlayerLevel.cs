@@ -60,7 +60,7 @@ public class PlayerLevel : MonoBehaviour
             level++;
             requiredExp = level * DEFAULT_EXP_INCREASEMENT;
             UIManager.GetInstance().UpdatePlayerMaxStatus();
-            UIManager.GetInstance().UpdatePlayerCurrentStatus();
+            UIManager.GetInstance().UpdatePlayerLevelStatus();
             UIManager.GetInstance().UpdateAugmentOptions(WeaponManager.GetInstance().SetAugmentOptions());
         }
     }
