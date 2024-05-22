@@ -38,6 +38,7 @@ public class UIManager : MonoBehaviour
     private bool skillGageFull;
 
     public Transform playerPortrait;
+    public RawImage portrait;
     public TMP_Text playerHpText;
     public GameObject skillText;
     public TMP_Text levelText;
@@ -111,7 +112,8 @@ public class UIManager : MonoBehaviour
         mGameManager = GameManager.GetInstance();
         mWeaponManager = WeaponManager.GetInstance();
         player = mGameManager.GetPlayer();
-        
+
+        portrait.texture = Resources.Load<Texture>($"Sprites/portraits/{mGameManager.GetPlayerType()}_portrait");
         playerHpText.text = $"{player.GetCurrentHp()} / {player.GetMaxHp()}";
         playerHp.maxValue = player.GetMaxHp();
         playerHp.value = player.GetCurrentHp();
@@ -175,15 +177,20 @@ public class UIManager : MonoBehaviour
         skillGageFull = false;
     }
 
-    public void UpdatePlayerCurrentStatus()
+    public void UpdatePlayerHpStatus(bool damaged = false)
     {
-        levelText.text = $"LV. {player.GetLevelInfo().GetLevel()}";
         playerHpText.text = $"{player.GetCurrentHp()} / {player.GetMaxHp()}";
         playerHp.value = player.GetCurrentHp();
-        playerExp.value = player.GetLevelInfo().CheckCurrentExp();
-        shakeTime = DEFAULT_PORTRAIT_SHAKE_DURATION;
+
+        if (damaged) shakeTime = DEFAULT_PORTRAIT_SHAKE_DURATION;
     }
 
+    public void UpdatePlayerLevelStatus()
+    {
+        levelText.text = $"LV. {player.GetLevelInfo().GetLevel()}";
+        playerExp.value = player.GetLevelInfo().CheckCurrentExp();
+    }
+    
     public void UpdatePlayerMaxStatus()
     {
         playerHp.maxValue = player.GetMaxHp();
