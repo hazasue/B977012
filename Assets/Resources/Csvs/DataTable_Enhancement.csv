@@ -1,9 +1,7 @@
-EnhanceStat,EnhanceValue
-hp,10
-damage,10
-duration,10
-delay,10
-coin,10
-exp,10
-heal,10
-skillDelay,10
+Stat,EnhanceCount,Value,Price,Description
+HP,0,10,10,Increase max health by 10% per level. (Max +50%)
+Damage,0,10,10,Increase damage by 10% per level. (Max +50%)
+Move Speed,0,10,10,Increase move speed by 10% per level. (Max +50%)
+Coin,0,10,10,Gain 10% more coins per level. (Max +50%)
+Exp,0,10,10,Gain 10% more exps per level. (Max +50%)
+Skill Delay,0,10,10,Reduce skill delay by 10% per level. (Max -50%)

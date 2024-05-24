@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
@@ -203,21 +204,29 @@ public class CSVConverter : MonoBehaviour
         
         JsonManager.CreateJsonFile(JsonManager.DEFAULT_SKILL_DATA_NAME, skillInfos);
         
-        /*
+        
         // Enhancement
-        
-        List<Dictionary<string, object>> EnhanceDB = CSVReader.Read(CSV_FILENAME_ENHANCEMENT);
-        Dictionary<string, EnhanceInfo> enhanceInfos = new Dictionary<string, EnhanceInfo>();
-        foreach (Dictionary<string, object> enhanceInfo in EnhanceDB)
+
+        if (!File.Exists(Application.dataPath + "/Data/" + JsonManager.DEFAULT_ENHANCEMENT_DATA_NAME + ".json"))
         {
-            enhanceInfos.Add(enhanceInfo["EnhanceStat"].ToString(),
-                new EnhanceInfo(enhanceInfo["EnhanceStat"].ToString(),
-                    float.Parse(enhanceInfo["EnhanceValue"].ToString())
-                ));
+
+            List<Dictionary<string, object>> EnhanceDB = CSVReader.Read(CSV_FILENAME_ENHANCEMENT);
+            Dictionary<string, EnhanceInfo> enhanceInfos = new Dictionary<string, EnhanceInfo>();
+            foreach (Dictionary<string, object> enhanceInfo in EnhanceDB)
+            {
+                enhanceInfos.Add(enhanceInfo["Stat"].ToString(),
+                    new EnhanceInfo(enhanceInfo["Stat"].ToString(),
+                        (int)enhanceInfo["EnhanceCount"],
+                        float.Parse(enhanceInfo["Value"].ToString()),
+                        (int)enhanceInfo["Price"],
+                        enhanceInfo["Description"].ToString()
+
+                    ));
+            }
+
+            JsonManager.CreateJsonFile(JsonManager.DEFAULT_ENHANCEMENT_DATA_NAME, enhanceInfos);
         }
-        
-        JsonManager.CreateJsonFile(JsonManager.DEFAULT_ENHANCEMENT_DATA_NAME, enhanceInfos);
-        */
-        
+
+
     }
 }
