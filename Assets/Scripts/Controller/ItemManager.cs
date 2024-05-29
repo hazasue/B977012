@@ -5,7 +5,7 @@ using UnityEngine;
 public class ItemManager : MonoBehaviour
 {
     private static ItemManager instance;
-    private static int DEFAULT_ITEM_COUNT = 800;
+    private static int DEFAULT_ITEM_COUNT = 3000;
 
     private Queue<Item> exps;
     private Queue<Item> coins;
